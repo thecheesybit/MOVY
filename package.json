@@ -1,0 +1,22 @@
+{
+  "name": "movy",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "install:android": "node scripts/install-android.mjs",
+    "schema": "node scripts/gen-schema.mjs",
+    "test": "npm test --workspace @movy/config && npm test --workspace @movy/desktop"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "^1.1.0"
+  }
+}

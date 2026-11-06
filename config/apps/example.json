@@ -1,0 +1,32 @@
+{
+  "$schema": "../schema.json",
+  "name": "example",
+  "appName": "Movy",
+  "tagline": "Your tagline here",
+  "credit": "Your Name",
+  "appId": "com.example.movy",
+  "version": "1.0.0",
+  "sources": [
+    { "id": "one", "name": "Example One", "url": "https://example.com/", "allowedHosts": ["example.com", "*.example.com"], "accent": "#E50914" },
+    { "id": "two", "name": "Example Two", "url": "https://example.org/", "allowedHosts": ["example.org", "*.example.org"], "accent": "#3B82F6" }
+  ],
+  "recommendedSource": "one",
+  "island": { "visibility": "home" },
+  "externalLinks": "block",
+  "userAgent": null,
+  "backgroundColor": "#000000",
+  "orientation": "any",
+  "adblock": {
+    "enabled": true,
+    "lists": "default",
+    "extraLists": [],
+    "customRules": [],
+    "cosmetic": true,
+    "blockPopups": true
+  },
+  "targets": {
+    "phone": {},
+    "tv": { "orientation": "landscape" },
+    "desktop": {}
+  }
+}

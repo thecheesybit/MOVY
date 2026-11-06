@@ -1,0 +1,16 @@
+{
+  "name": "@movy/desktop",
+  "version": "1.0.0",
+  "private": true,
+  "author": "Movy",
+  "description": "Movy Electron shell (generated app config is read from gen/ or resources/movy)",
+  "main": "src/main/main.js",
+  "scripts": {
+    "test": "node --test \"test/*.test.mjs\"",
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "45.2.3",
+    "electron-builder": "^26.18.0"
+  }
+}

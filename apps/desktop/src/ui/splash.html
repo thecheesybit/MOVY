@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'">
+<style>
+  html, body { height: 100%; margin: 0; background: {{BG}}; color: {{FG}}; overflow: hidden;
+    font: 600 22px "Segoe UI", system-ui, sans-serif; -webkit-user-select: none; }
+  main { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; }
+  .spin { width: 40px; height: 40px; border-radius: 50%; border: 3px solid transparent; border-top-color: #E50914;
+    border-right-color: #E50914; animation: r .9s linear infinite; }
+  @keyframes r { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<main><div>{{APP_NAME}}</div><div class="spin"></div></main>
+</body>
+</html>
