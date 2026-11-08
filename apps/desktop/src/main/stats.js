@@ -9,6 +9,7 @@ class BlockStats {
     this.cosmeticPages = 0;
     this.hideSelectors = 0;
     this.scriptlets = 0;
+    this.kills = 0;
     this.byType = new Map();
     this.byHost = new Map();
   }
@@ -24,6 +25,19 @@ class BlockStats {
       /* keep '?' */
     }
     this.byHost.set(host, (this.byHost.get(host) ?? 0) + 1);
+  }
+
+  /** A navigation / popup / overlay was stopped by the shell (not an engine block). */
+  recordKill() {
+    this.kills++;
+  }
+
+  adsBlocked() {
+    return this.blocked + this.redirected;
+  }
+
+  redirectsStopped() {
+    return this.kills;
   }
 
   recordCosmetic(res) {

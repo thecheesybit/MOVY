@@ -9,5 +9,6 @@ function genDir() {
 
 const uiDir = () => path.join(__dirname, '..', 'ui');
 const preloadPath = () => path.join(__dirname, '..', 'preload', 'site.js');
+const uiPreloadPath = () => path.join(__dirname, '..', 'preload', 'ui.js');
 
-module.exports = { genDir, uiDir, preloadPath };
+module.exports = { genDir, uiDir, preloadPath, uiPreloadPath };

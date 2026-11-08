@@ -16,21 +16,23 @@ import android.text.TextUtils;
 import android.view.HapticFeedbackConstants;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
-import android.view.View;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.OvershootInterpolator;
+import android.view.animation.LinearInterpolator;
 
 import androidx.core.view.ViewCompat;
+import androidx.dynamicanimation.animation.FloatPropertyCompat;
+import androidx.dynamicanimation.animation.SpringAnimation;
+import androidx.dynamicanimation.animation.SpringForce;
 
 import java.util.Collections;
 import java.util.List;
 
 /**
- * The Island: a black shape fused to the right screen edge. Collapsed it is a slim tab, expanded a pill with one item
- * per source and a gear below. Full-size transparent overlay; touches outside the shape fall through to the page.
- * Drawing lives in {@link IslandPainter}, layout in {@link IslandGeometry}, touch in {@link IslandGestures}.
+ * The Island (Dynamic Island style): a floating black capsule near the right edge that morphs into a rounded panel
+ * with one squircle tile per source and a detached settings bubble. All motion is spring physics. Full-size
+ * transparent overlay; touches outside the shape fall through to the page. Drawing lives in {@link IslandPainter},
+ * layout in {@link IslandGeometry}, touch in {@link IslandGestures}.
  */
-public final class IslandView extends View {
+public final class IslandView extends android.view.View {
     interface Listener {
         void onSourcePicked(Source source);
 
@@ -45,9 +47,28 @@ public final class IslandView extends View {
 
     private static final long IDLE_COLLAPSE_MS = 4000;
     private static final long IDLE_COLLAPSE_TV_MS = 7000;
-    private static final long EXPAND_MS = 280;
-    private static final long COLLAPSE_MS = 200;
-    private static final long SLIDE_MS = 180;
+    private static final long CONTENT_OUT_MS = 110;
+
+    private static final FloatPropertyCompat<IslandView> P_PROGRESS = new FloatPropertyCompat<IslandView>("progress") {
+        @Override public float getValue(IslandView v) { return v.progress; }
+        @Override public void setValue(IslandView v, float x) { v.onProgress(x); }
+    };
+    private static final FloatPropertyCompat<IslandView> P_SHOW = new FloatPropertyCompat<IslandView>("show") {
+        @Override public float getValue(IslandView v) { return v.show; }
+        @Override public void setValue(IslandView v, float x) { v.show = x; v.invalidateBlock(); }
+    };
+    private static final FloatPropertyCompat<IslandView> P_BUBBLE = new FloatPropertyCompat<IslandView>("bubble") {
+        @Override public float getValue(IslandView v) { return v.bubble; }
+        @Override public void setValue(IslandView v, float x) { v.bubble = x; v.invalidateBlock(); }
+    };
+    private static final FloatPropertyCompat<IslandView> P_RING = new FloatPropertyCompat<IslandView>("ring") {
+        @Override public float getValue(IslandView v) { return v.ringPos; }
+        @Override public void setValue(IslandView v, float x) { v.ringPos = x; v.invalidateBlock(); }
+    };
+    private static final FloatPropertyCompat<IslandView> P_PRESS = new FloatPropertyCompat<IslandView>("press") {
+        @Override public float getValue(IslandView v) { return v.pressScale; }
+        @Override public void setValue(IslandView v, float x) { v.pressScale = x; v.invalidateBlock(); }
+    };
 
     final IslandGeometry g;
     private final IslandPainter painter;
@@ -55,10 +76,17 @@ public final class IslandView extends View {
     private final boolean tv;
     private final Handler main = new Handler(Looper.getMainLooper());
     private final Runnable idleCollapse = this::collapse;
-    private final ValueAnimator expandAnim = ValueAnimator.ofFloat(0f, 1f);
+    private final Runnable bubbleOut;
+    private final SpringAnimation progressSpring;
+    private final SpringAnimation showSpring;
+    private final SpringAnimation bubbleSpring;
+    private final SpringAnimation ringSpring;
+    private final SpringAnimation pressSpring;
+    private final ValueAnimator contentAnim = ValueAnimator.ofFloat(0f, 1f);
     private final ValueAnimator pulseAnim = ValueAnimator.ofFloat(0f, 1f);
-    private final ValueAnimator sweepAnim = ValueAnimator.ofFloat(0f, 1f);
-    private final ValueAnimator pressAnim = ValueAnimator.ofFloat(0f, 1f);
+    /** Touch devices: a short sideways wiggle of the collapsed capsule every {@link UiTokens#NUDGE_EVERY_MS}. */
+    private final ValueAnimator nudgeAnim = ValueAnimator.ofFloat(0f, 1f);
+    private final Runnable nudgeTick = this::nudgeTick;
     private final Rect dirty = new Rect();
     private final RectF tmpBounds = new RectF();
     private final Rect exclusion = new Rect();
@@ -70,9 +98,15 @@ public final class IslandView extends View {
     String activeId;
     HealthChecker health = HealthChecker.NONE;
     float progress;
-    float pressAlpha;
-    float sweep = 1f;
+    float show;
+    float bubble;
+    float contentMs;
+    float ringPos;
+    int pressIndex = -1;
+    float pressScale = 1f;
     float pulsePhase;
+    /** 0..1 progress of the current wiggle; 0 when idle. Read by the painter. */
+    float nudge;
     String pulseId;
     int focusIndex;
     StaticLayout cardLayout;
@@ -82,25 +116,52 @@ public final class IslandView extends View {
     private Announcement announcement;
     private boolean expanded;
     private boolean shown;
+    private boolean contentStarted;
     private final IslandAccessibility access;
 
     public IslandView(Context ctx, boolean tv) {
         super(ctx);
         this.tv = tv;
-        g = new IslandGeometry(ctx.getResources().getDisplayMetrics().density, tv);
+        g = new IslandGeometry(ctx.getResources().getDisplayMetrics().density,
+                tv ? TvLayout.islandScale(ctx.getResources().getConfiguration().screenHeightDp) : 1f);
         painter = new IslandPainter(ctx, g, tv);
         gestures = new IslandGestures(this, g);
         access = new IslandAccessibility(this, g);
         ViewCompat.setAccessibilityDelegate(this, access);
         setFocusable(false);
         setVisibility(INVISIBLE);
-        expandAnim.addUpdateListener(a -> {
-            progress = (float) a.getAnimatedValue();
+        progressSpring = spring(P_PROGRESS, UiTokens.EXPAND_STIFFNESS, UiTokens.EXPAND_DAMPING, 0.002f);
+        showSpring = spring(P_SHOW, 500f, 1f, 0.004f);
+        bubbleSpring = spring(P_BUBBLE, UiTokens.EXPAND_STIFFNESS, UiTokens.EXPAND_DAMPING, 0.002f);
+        ringSpring = spring(P_RING, UiTokens.SOFT_STIFFNESS, UiTokens.SOFT_DAMPING, 0.002f);
+        bubbleOut = () -> springTo(bubbleSpring, 1f, UiTokens.EXPAND_STIFFNESS, UiTokens.EXPAND_DAMPING);
+        pressSpring = spring(P_PRESS, UiTokens.PRESS_STIFFNESS, UiTokens.PRESS_DAMPING, 0.002f);
+        pressSpring.addEndListener((a, canceled, value, vel) -> {
+            if (value >= 0.999f) pressIndex = -1;
+        });
+        showSpring.addEndListener((a, canceled, value, vel) -> {
+            if (!shown && value <= 0.01f) setVisibility(INVISIBLE);
+        });
+        contentAnim.setInterpolator(new LinearInterpolator());
+        contentAnim.addUpdateListener(a -> {
+            contentMs = (float) a.getAnimatedValue();
             invalidateBlock();
         });
-        expandAnim.addListener(new AnimatorListenerAdapter() {
+        contentAnim.addListener(new AnimatorListenerAdapter() {
             @Override public void onAnimationEnd(Animator a) {
                 updateExclusion();
+            }
+        });
+        nudgeAnim.setDuration(UiTokens.NUDGE_DURATION_MS);
+        nudgeAnim.setInterpolator(new LinearInterpolator());
+        nudgeAnim.addUpdateListener(a -> {
+            nudge = (float) a.getAnimatedValue();
+            invalidateBlock();
+        });
+        nudgeAnim.addListener(new AnimatorListenerAdapter() {
+            @Override public void onAnimationEnd(Animator a) {
+                nudge = 0f;
+                invalidateBlock();
             }
         });
         pulseAnim.setDuration(750);
@@ -115,16 +176,43 @@ public final class IslandView extends View {
                 invalidateBlock();
             }
         });
-        sweepAnim.setDuration(420);
-        sweepAnim.addUpdateListener(a -> {
-            sweep = (float) a.getAnimatedValue();
-            invalidateBlock();
-        });
-        pressAnim.setDuration(160);
-        pressAnim.addUpdateListener(a -> {
-            pressAlpha = (float) a.getAnimatedValue();
-            invalidateBlock();
-        });
+    }
+
+    private SpringAnimation spring(FloatPropertyCompat<IslandView> prop, float stiffness, float damping, float minChange) {
+        SpringAnimation a = new SpringAnimation(this, prop);
+        a.setSpring(new SpringForce().setStiffness(stiffness).setDampingRatio(damping));
+        a.setMinimumVisibleChange(minChange);
+        return a;
+    }
+
+    private static void springTo(SpringAnimation a, float target, float stiffness, float damping) {
+        a.getSpring().setStiffness(stiffness).setDampingRatio(damping);
+        a.animateToFinalPosition(target);
+    }
+
+    /** Content fades in once the shape has passed ~60% of its expansion. */
+    private void onProgress(float x) {
+        progress = x;
+        if (expanded && !contentStarted && x >= UiTokens.CONTENT_START) startContentIn();
+        invalidateBlock();
+    }
+
+    private void startContentIn() {
+        contentStarted = true;
+        float total = IslandPainter.CONTENT_MS + Math.max(0, sources.size() - 1) * UiTokens.TILE_STAGGER_MS;
+        contentAnim.cancel();
+        contentAnim.setFloatValues(contentMs, total);
+        contentAnim.setDuration(Math.max(1L, (long) (total - contentMs)));
+        contentAnim.start();
+    }
+
+    private void startContentOut() {
+        contentStarted = false;
+        contentAnim.cancel();
+        if (contentMs <= 0f) return;
+        contentAnim.setFloatValues(contentMs, 0f);
+        contentAnim.setDuration(CONTENT_OUT_MS);
+        contentAnim.start();
     }
 
     // ---- configuration ----
@@ -144,6 +232,7 @@ public final class IslandView extends View {
 
     /** Re-renders the item list (sources added, removed or reordered). */
     void setSources(List<Source> next, String active) {
+        boolean first = sources.isEmpty();
         sources = next;
         activeId = active;
         labels = new String[next.size()];
@@ -153,17 +242,24 @@ public final class IslandView extends View {
             labels[i] = TextUtils.ellipsize(next.get(i).name, new android.text.TextPaint(painter.labelPaint()), maxW, TextUtils.TruncateAt.END).toString();
             monograms[i] = next.get(i).monogram();
         }
+        painter.prepare(next);
         g.setSize(getWidth(), getHeight(), next.size());
         if (focusIndex > next.size()) focusIndex = next.size();
+        int idx = Math.max(0, indexOf(active));
+        if (first) {
+            ringSpring.cancel();
+            ringPos = idx;
+        } else {
+            springTo(ringSpring, idx, UiTokens.SOFT_STIFFNESS, UiTokens.SOFT_DAMPING);
+        }
         refreshLayout();
     }
 
+    /** The white ring travels from the old tile to the new one. */
     void setActive(String id) {
         if (id == null ? activeId == null : id.equals(activeId)) return;
         activeId = id;
-        sweepAnim.cancel();
-        sweep = 0f;
-        sweepAnim.start();
+        springTo(ringSpring, Math.max(0, indexOf(id)), UiTokens.SOFT_STIFFNESS, UiTokens.SOFT_DAMPING);
         invalidateBlock();
     }
 
@@ -199,7 +295,9 @@ public final class IslandView extends View {
         setFocusableInTouchMode(tv);
         if (tv) requestFocus();
         performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK);
-        animateProgress(1f, EXPAND_MS, new OvershootInterpolator(1.12f));
+        springTo(progressSpring, 1f, UiTokens.EXPAND_STIFFNESS, UiTokens.EXPAND_DAMPING);
+        main.removeCallbacks(bubbleOut);
+        main.postDelayed(bubbleOut, UiTokens.BUBBLE_DELAY_MS);
         touched();
         if (listener != null) listener.onExpandedChanged(true);
     }
@@ -214,14 +312,22 @@ public final class IslandView extends View {
 
     private void collapseInternal(boolean animate) {
         main.removeCallbacks(idleCollapse);
+        main.removeCallbacks(bubbleOut);
         if (!expanded) return;
         expanded = false;
         setFocusable(false);
         if (animate) {
-            animateProgress(0f, COLLAPSE_MS, new DecelerateInterpolator());
+            startContentOut();
+            springTo(bubbleSpring, 0f, UiTokens.COLLAPSE_STIFFNESS, 1f);
+            springTo(progressSpring, 0f, UiTokens.COLLAPSE_STIFFNESS, UiTokens.COLLAPSE_DAMPING);
         } else {
-            expandAnim.cancel();
+            progressSpring.cancel();
+            bubbleSpring.cancel();
+            contentAnim.cancel();
+            contentStarted = false;
             progress = 0f;
+            bubble = 0f;
+            contentMs = 0f;
             invalidateBlock();
         }
         updateExclusion();
@@ -237,39 +343,53 @@ public final class IslandView extends View {
         if (expanded) collapse(); else expand();
     }
 
-    private void animateProgress(float to, long ms, android.view.animation.Interpolator ip) {
-        expandAnim.cancel();
-        expandAnim.setFloatValues(progress, to);
-        expandAnim.setDuration(ms);
-        expandAnim.setInterpolator(ip);
-        expandAnim.start();
-    }
-
-    /** Slides in from / out into the edge. Always collapsed while hidden. */
-    void setShown(boolean show, boolean animate) {
-        if (show == shown && !(show && getVisibility() != VISIBLE)) return;
-        shown = show;
-        float away = g.pillW + g.fxExpanded + 14 * g.u;
-        animate().cancel();
-        if (show) {
+    /** Shows as a capsule / hides by shrinking to a sliver while fading out; it never slides off-screen. */
+    void setShown(boolean wantShown, boolean animate) {
+        if (wantShown == shown && !(wantShown && getVisibility() != VISIBLE)) return;
+        shown = wantShown;
+        if (wantShown) {
             setVisibility(VISIBLE);
             if (!animate) {
-                setTranslationX(0);
+                showSpring.cancel();
+                show = 1f;
+                invalidateBlock();
                 return;
             }
-            if (getTranslationX() == 0f) setTranslationX(away);
-            animate().translationX(0f).setDuration(SLIDE_MS).setInterpolator(new DecelerateInterpolator()).withLayer().start();
+            springTo(showSpring, 1f, 500f, 1f);
         } else {
             collapseNow();
             if (!animate) {
-                setTranslationX(away);
+                showSpring.cancel();
+                show = 0f;
                 setVisibility(INVISIBLE);
                 return;
             }
-            animate().translationX(away).setDuration(SLIDE_MS).withLayer().withEndAction(() -> {
-                if (!shown) setVisibility(INVISIBLE);
-            }).start();
+            springTo(showSpring, 0f, 500f, 1f);
         }
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        if (!tv) {
+            main.removeCallbacks(nudgeTick);
+            main.postDelayed(nudgeTick, UiTokens.NUDGE_EVERY_MS);
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        main.removeCallbacks(nudgeTick);
+        nudgeAnim.cancel();
+        super.onDetachedFromWindow();
+    }
+
+    /** Wiggles the collapsed capsule so people notice it; skipped while expanded, hidden or being dragged. */
+    private void nudgeTick() {
+        main.postDelayed(nudgeTick, UiTokens.NUDGE_EVERY_MS);
+        if (tv || !shown || expanded || show < 0.99f || progress > 0.01f || pressIndex >= 0) return;
+        if (getWindowVisibility() != VISIBLE || nudgeAnim.isRunning()) return;
+        nudgeAnim.start();
     }
 
     /** Gently pulses one item; the caller expands the Island first when it should be visible. */
@@ -283,7 +403,7 @@ public final class IslandView extends View {
 
     void selectItem(int index) {
         if (index < 0 || index >= sources.size()) return;
-        performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK);
+        performHapticFeedback(Build.VERSION.SDK_INT >= 30 ? HapticFeedbackConstants.CONFIRM : HapticFeedbackConstants.CLOCK_TICK);
         Source s = sources.get(index);
         if (listener != null) listener.onSourcePicked(s);
         main.postDelayed(this::collapse, 250);
@@ -303,10 +423,15 @@ public final class IslandView extends View {
         if (a != null && listener != null) listener.onAnnouncementDismissed(a.id);
     }
 
-    void setPressedLook(boolean down) {
-        pressAnim.cancel();
-        pressAnim.setFloatValues(pressAlpha, down ? 1f : 0f);
-        pressAnim.start();
+    /** Pressed tiles spring to 0.92 with a light haptic; {@code index == sources.size()} is the bubble, -1 releases. */
+    void setPressedItem(int index) {
+        if (index >= 0) {
+            pressIndex = index;
+            performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK);
+            springTo(pressSpring, UiTokens.PRESS_SCALE, UiTokens.PRESS_STIFFNESS, UiTokens.PRESS_DAMPING);
+        } else {
+            springTo(pressSpring, 1f, UiTokens.PRESS_STIFFNESS, UiTokens.PRESS_DAMPING);
+        }
     }
 
     void setCenterFraction(float f) {
@@ -330,6 +455,11 @@ public final class IslandView extends View {
         return -1;
     }
 
+    /** Recomputes the geometry for the state the user currently sees (hit tests, accessibility). */
+    void layoutNow() {
+        g.update(progress, show, bubble);
+    }
+
     // ---- layout, drawing ----
 
     @Override
@@ -343,12 +473,12 @@ public final class IslandView extends View {
     private void refreshLayout() {
         if (getWidth() == 0) return;
         g.setSize(getWidth(), getHeight(), sources.size());
-        float cardW = g.cardWidth();
-        g.update(1);
+        g.update(1.2f, 1f, 1.2f);
         g.blockBounds(tmpBounds);
-        float l = Math.max(0, g.viewW - g.pillW - cardW - 40 * g.u);
+        float cardW = g.cardWidth();
+        float l = Math.max(0, g.viewW - g.inset - g.pillW - cardW - 52 * g.u);
         dirty.set((int) l, (int) Math.max(0, tmpBounds.top - 12 * g.u), getWidth(), (int) Math.min(getHeight(), tmpBounds.bottom + 12 * g.u));
-        g.update(0);
+        g.update(0, 1f, 0);
         g.blockBounds(tmpBounds);
         dirty.union((int) tmpBounds.left, (int) tmpBounds.top, getWidth(), (int) tmpBounds.bottom);
         updateExclusion();
@@ -382,12 +512,12 @@ public final class IslandView extends View {
     private void updateExclusion() {
         if (Build.VERSION.SDK_INT < 29 || getWidth() == 0) return;
         if (expanded) {
-            g.update(1);
+            g.update(1, 1f, 1);
             g.blockBounds(tmpBounds);
             exclusion.set((int) tmpBounds.left, (int) tmpBounds.top, getWidth(), (int) tmpBounds.bottom);
         } else {
-            g.update(0);
-            exclusion.set((int) (g.viewW - g.hitW), (int) (g.top - g.fy), getWidth(), (int) (g.bottom + g.fy));
+            g.update(0, 1f, 0);
+            exclusion.set((int) (g.viewW - g.hitW), (int) (g.top - 8 * g.u), getWidth(), (int) (g.bottom + 8 * g.u));
         }
         setSystemGestureExclusionRects(Collections.singletonList(new Rect(exclusion)));
     }
@@ -419,7 +549,7 @@ public final class IslandView extends View {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (!expanded) return super.onKeyDown(keyCode, event);
         touched();
-        int last = sources.size(); // gear index
+        int last = sources.size(); // settings bubble index
         switch (keyCode) {
             case KeyEvent.KEYCODE_DPAD_UP:
                 focusIndex = Math.max(0, focusIndex - 1);
@@ -431,8 +561,15 @@ public final class IslandView extends View {
                 ensureVisible(focusIndex);
                 invalidateBlock();
                 return true;
-            case KeyEvent.KEYCODE_DPAD_LEFT:
+            case KeyEvent.KEYCODE_DPAD_LEFT: // the tiles never move: LEFT/RIGHT only move the focus ring (BACK closes)
+                focusIndex = Math.max(0, focusIndex - 1);
+                ensureVisible(focusIndex);
+                invalidateBlock();
+                return true;
             case KeyEvent.KEYCODE_DPAD_RIGHT:
+                focusIndex = Math.min(last, focusIndex + 1);
+                ensureVisible(focusIndex);
+                invalidateBlock();
                 return true;
             case KeyEvent.KEYCODE_DPAD_CENTER:
             case KeyEvent.KEYCODE_ENTER:

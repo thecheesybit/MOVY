@@ -1,66 +1,64 @@
 package app.movy.shell;
 
 import android.content.Context;
-import android.graphics.Typeface;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 /**
- * "{Name} isn't responding" with Retry. Shows no URL or host. Hosts a slot for the W5b source-switch suggestion.
+ * "{Name} isn't responding" with Retry, in the iOS look (same tokens as Settings and the chooser). Shows no URL or
+ * host. Hosts a slot for the source-switch suggestion.
  */
 public final class ErrorPanel extends FrameLayout {
+    private static final int WIDTH_DP = 320;
+    private static final int TV_WIDTH_DP = 480;
+
     private final TextView title;
     private final TextView retry;
     private final LinearLayout extras;
 
     public ErrorPanel(Context ctx) {
         super(ctx);
-        setBackgroundColor(Ui.BLACK);
+        setBackgroundColor(UiTokens.BLACK);
         setClickable(true);
         LinearLayout col = new LinearLayout(ctx);
         col.setOrientation(LinearLayout.VERTICAL);
-        col.setGravity(Gravity.CENTER);
-        addView(col, new LayoutParams(-1, -1));
+        col.setGravity(Gravity.CENTER_HORIZONTAL);
+        ScrollView sv = new ScrollView(ctx); // short windows (landscape, large font): scroll instead of clipping
+        sv.setFillViewport(true);
+        sv.setVerticalScrollBarEnabled(false);
+        addView(sv, new FrameLayout.LayoutParams(-1, -1));
+        FrameLayout.LayoutParams cp = new FrameLayout.LayoutParams(Ui.dp(ctx, Ui.isTv(ctx) ? TV_WIDTH_DP : WIDTH_DP), -2, Gravity.CENTER);
+        FrameLayout holder = new FrameLayout(ctx);
+        holder.addView(col, cp);
+        sv.addView(holder, new ScrollView.LayoutParams(-1, -2));
 
-        title = text(ctx, 22, Ui.WHITE, true);
-        col.addView(title, new LinearLayout.LayoutParams(-2, -2));
-        TextView body = text(ctx, 15, Ui.MUTED, false);
-        body.setText(R.string.movy_error_body);
-        LinearLayout.LayoutParams bp = new LinearLayout.LayoutParams(-2, -2);
+        title = IosViews.text(ctx, "", 24, UiTokens.WHITE, true);
+        title.setGravity(Gravity.CENTER);
+        title.setAccessibilityHeading(true);
+        col.addView(title, new LinearLayout.LayoutParams(-1, -2));
+        TextView body = IosViews.text(ctx, ctx.getString(R.string.movy_error_body), 15, UiTokens.LABEL_SECONDARY, false);
+        body.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams bp = new LinearLayout.LayoutParams(-1, -2);
         bp.topMargin = Ui.dp(ctx, 8);
         col.addView(body, bp);
 
-        retry = text(ctx, 16, Ui.WHITE, true);
-        retry.setText(R.string.movy_retry);
-        retry.setFocusable(true);
-        retry.setClickable(true);
-        retry.setPadding(Ui.dp(ctx, 36), Ui.dp(ctx, 13), Ui.dp(ctx, 36), Ui.dp(ctx, 13));
-        retry.setBackground(Ui.rounded(ctx, SpinnerView.RED, 14, Ui.WHITE, 0));
-        retry.setOnFocusChangeListener((v, f) -> retry.setBackground(Ui.rounded(ctx, SpinnerView.RED, 14, Ui.WHITE, f ? 3 : 0)));
-        LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(-2, -2);
-        rp.topMargin = Ui.dp(ctx, 24);
+        retry = IosViews.primaryButton(ctx, ctx.getString(R.string.movy_retry), UiTokens.BLUE);
+        LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(-1, -2);
+        rp.topMargin = Ui.dp(ctx, 28);
         col.addView(retry, rp);
+        if (Ui.isTv(ctx)) TvFocus.scaleOnFocus(retry);
 
         extras = new LinearLayout(ctx);
         extras.setOrientation(LinearLayout.VERTICAL);
-        extras.setGravity(Gravity.CENTER);
-        col.addView(extras, new LinearLayout.LayoutParams(-2, -2));
+        col.addView(extras, new LinearLayout.LayoutParams(-1, -2));
         setVisibility(GONE);
     }
 
-    private static TextView text(Context c, float sp, int color, boolean bold) {
-        TextView t = new TextView(c);
-        t.setTextSize(sp);
-        t.setTextColor(color);
-        t.setGravity(Gravity.CENTER);
-        t.setTypeface(Typeface.create(bold ? "sans-serif-medium" : "sans-serif", bold ? Typeface.BOLD : Typeface.NORMAL));
-        return t;
-    }
-
-    /** Container for extra controls (W5b adds the "Switch to X" suggestion here). */
+    /** Container for extra controls (the "Switch to X" suggestion lives here). */
     public ViewGroup extrasContainer() {
         return extras;
     }

@@ -39,6 +39,7 @@ public class AdblockWebViewClient extends BridgeWebViewClient {
     /** Set when document-start scripts are unsupported. */
     private volatile String fallbackScript;
     private volatile PageEvents events;
+    private volatile app.movy.shell.AssetCacheInterceptor assetCache;
 
     public AdblockWebViewClient(Bridge bridge, ShellConfig cfg, NavRules rules, BlockStats stats) {
         super(bridge);
@@ -49,6 +50,10 @@ public class AdblockWebViewClient extends BridgeWebViewClient {
 
     @Override
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+        if (!request.isForMainFrame()) {
+            WebResourceResponse rescued = app.movy.shell.DohRescue.intercept(request, cfg.debug);
+            if (rescued != null) return rescued;
+        }
         if (AdblockSwitch.isOn()) {
             Uri u = request.getUrl();
             if (request.isForMainFrame()) {
@@ -61,7 +66,16 @@ public class AdblockWebViewClient extends BridgeWebViewClient {
                 }
             }
         }
+        app.movy.shell.AssetCacheInterceptor ac = assetCache;
+        if (ac != null && !request.isForMainFrame()) {
+            WebResourceResponse cached = ac.intercept(request);
+            if (cached != null) return cached;
+        }
         return super.shouldInterceptRequest(view, request);
+    }
+
+    public void setAssetCache(app.movy.shell.AssetCacheInterceptor cache) {
+        this.assetCache = cache;
     }
 
     @Nullable

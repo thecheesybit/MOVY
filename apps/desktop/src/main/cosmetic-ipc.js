@@ -8,13 +8,15 @@ const strings = (a) => (Array.isArray(a) ? a.filter((s) => typeof s === 'string'
 /**
  * Sync IPC used by the site preload (the only channel the remote frames have into the main process).
  * Only webContents accepted by `isSite` are served; URLs come from the sender frame, not the renderer.
+ * `assets` = { cosmeticJs, loadingJs, scamguardJs, navguardJs }; `navConfig()` = { allow, auth } for navguard.
  */
-function installCosmeticIpc({ engine, cosmetic, assets, isSite, stats }) {
+function installCosmeticIpc({ engine, cosmetic, isEnabled, assets, navConfig, isSite, stats }) {
   const trusted = (e) => isSite(e.sender);
+  const active = () => !!(engine && cosmetic && isEnabled());
 
   ipcMain.on('movy:boot', (e) => {
     e.returnValue = trusted(e)
-      ? { cosmetic: !!(cosmetic && engine), cosmeticJs: assets.cosmeticJs, loadingJs: assets.loadingJs }
+      ? { cosmetic: active(), nav: navConfig(), ...assets }
       : null;
   });
 
@@ -22,7 +24,7 @@ function installCosmeticIpc({ engine, cosmetic, assets, isSite, stats }) {
     let out = '{}';
     try {
       const url = e.senderFrame?.url ?? '';
-      if (trusted(e) && engine && cosmetic && isHttp(url)) {
+      if (trusted(e) && active() && isHttp(url)) {
         out = engine.urlCosmeticResources(url);
         stats.recordCosmetic(JSON.parse(out));
       }
@@ -35,7 +37,7 @@ function installCosmeticIpc({ engine, cosmetic, assets, isSite, stats }) {
   ipcMain.on('movy:hidden', (e, classes, ids, exceptions) => {
     let out = '[]';
     try {
-      if (trusted(e) && engine && cosmetic) {
+      if (trusted(e) && active()) {
         out = engine.hiddenClassIdSelectors(strings(classes), strings(ids), strings(exceptions));
       }
     } catch {

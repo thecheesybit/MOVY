@@ -1,7 +1,6 @@
 package app.movy.shell;
 
 import android.app.Activity;
-import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.Log;
@@ -38,6 +37,7 @@ import app.movy.adblock.BlockStats;
 public class ShellWebChromeClient extends BridgeWebChromeClient {
     private static final long POPUP_TIMEOUT_MS = 3_000;
 
+    private final Bridge bridgeRef;
     private final Activity activity;
     private final ShellConfig cfg;
     private final NavRules rules;
@@ -49,12 +49,12 @@ public class ShellWebChromeClient extends BridgeWebChromeClient {
     private View customView;
     private CustomViewCallback customCallback;
     private FrameLayout customContainer;
-    private int previousOrientation;
     private java.util.function.Consumer<Boolean> fullscreenListener;
 
     public ShellWebChromeClient(Bridge bridge, Activity activity, ShellConfig cfg, NavRules rules,
                                  BlockStats stats, LoadingUi loadingUi) {
         super(bridge);
+        this.bridgeRef = bridge;
         this.loadingUi = loadingUi;
         this.activity = activity;
         this.cfg = cfg;
@@ -93,12 +93,10 @@ public class ShellWebChromeClient extends BridgeWebChromeClient {
             return;
         }
         Log.i("MovyShell", "fullscreen enter");
-        previousOrientation = activity.getRequestedOrientation();
-        if (previousOrientation == ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
-            activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-        }
         customView = view;
         customCallback = callback;
+        applyOrientation(true);
+        if (cfg.debug) for (long d : new long[] {300, 1500, 4000}) main.postDelayed(() -> logState("t+" + d), d);
         Window w = activity.getWindow();
         customContainer = new FrameLayout(activity);
         customContainer.setBackgroundColor(0xFF000000);
@@ -106,6 +104,7 @@ public class ShellWebChromeClient extends BridgeWebChromeClient {
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         ((ViewGroup) w.getDecorView()).addView(customContainer, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        loadingUi.setSuppressed(true);
         w.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         WindowManager.LayoutParams lp = w.getAttributes();
         lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
@@ -121,21 +120,72 @@ public class ShellWebChromeClient extends BridgeWebChromeClient {
         if (customView == null) return;
         Log.i("MovyShell", "fullscreen exit");
         Window w = activity.getWindow();
+        main.removeCallbacks(relayout);
         ((ViewGroup) w.getDecorView()).removeView(customContainer);
         customContainer.removeAllViews();
         customContainer = null;
         customView = null;
+        loadingUi.setSuppressed(false);
+        applyOrientation(false);
         w.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        activity.setRequestedOrientation(previousOrientation);
         WindowManager.LayoutParams lp = w.getAttributes();
         lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT;
         w.setAttributes(lp);
-        WindowCompat.getInsetsController(w, w.getDecorView()).show(WindowInsetsCompat.Type.systemBars());
+        if (cfg.tv) TvImmersive.apply(w);
+        else WindowCompat.getInsetsController(w, w.getDecorView()).show(WindowInsetsCompat.Type.systemBars());
         ViewCompat.requestApplyInsets(activity.findViewById(android.R.id.content));
         CustomViewCallback cb = customCallback;
         customCallback = null;
         if (cb != null) cb.onCustomViewHidden();
         if (fullscreenListener != null) fullscreenListener.accept(false);
+    }
+
+    /** Phones: landscape while fullscreen, portrait after. Tablets: user setting. TV: manifest orientation. */
+    private void applyOrientation(boolean fullscreen) {
+        if (cfg.tv) return;
+        boolean phone = OrientationPolicy.isPhone(activity.getResources().getConfiguration().smallestScreenWidthDp);
+        activity.setRequestedOrientation(OrientationPolicy.forState(phone, fullscreen));
+    }
+
+    private void logState(String tag) {
+        View v = customView;
+        FrameLayout b = customContainer;
+        View p = pageView();
+        Log.i("MovyShell", "fs " + tag + " video=" + (v == null ? "null" : v.getClass().getSimpleName() + " " + v.getWidth() + "x" + v.getHeight()
+                + " vis=" + v.getVisibility() + " att=" + v.isAttachedToWindow() + " children=" + (v instanceof ViewGroup ? ((ViewGroup) v).getChildCount() : -1))
+                + " box=" + (b == null ? "null" : b.getWidth() + "x" + b.getHeight() + " parent=" + (b.getParent() == null ? "null" : b.getParent().getClass().getSimpleName()))
+                + " page=" + (p == null ? "null" : p.getWidth() + "x" + p.getHeight() + " vis=" + p.getVisibility())
+                + " cfg=" + activity.getResources().getConfiguration().screenWidthDp + "x" + activity.getResources().getConfiguration().screenHeightDp);
+    }
+
+    private View pageView() {
+        return bridgeRef.getWebView();
+    }
+
+    /** Activity handled a configuration change (rotation): make the video view follow the new size. */
+    public void onConfigurationChanged() {
+        if (customView == null) return;
+        main.removeCallbacks(relayout);
+        relayout.run();
+        main.postDelayed(relayout, 150);
+        main.postDelayed(relayout, 500);
+    }
+
+    private final Runnable relayout = this::doRelayout;
+
+    private void doRelayout() {
+        FrameLayout box = customContainer;
+        View video = customView;
+        if (box == null || video == null) return;
+        box.requestLayout();
+        video.requestLayout();
+        if (cfg.debug) logState("relayout");
+        box.invalidate();
+        if (FullscreenPolicy.needsReattach(video.getWidth(), video.getHeight(), box.getWidth(), box.getHeight())) {
+            Log.i("MovyShell", "fullscreen: video view stale after rotation, re-attaching");
+            box.removeView(video);
+            box.addView(video, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        }
     }
 
     // ---- popups ----

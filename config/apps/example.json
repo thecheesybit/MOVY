@@ -24,6 +24,24 @@
     "cosmetic": true,
     "blockPopups": true
   },
+  "tvProfiles": {
+    "one": {
+      "notes": "Placeholder profile: selectors only. Real profiles live in the git-ignored app config.",
+      "header": ["header.top"],
+      "bottomBar": ["nav.bottom"],
+      "rows": ["section.rail .row"],
+      "cards": ["section.rail .row a.card"],
+      "skip": ["button.rail-arrow"],
+      "firstFocus": [".hero a.play"],
+      "playButtons": [".hero a.play", "a.episode"],
+      "servers": { "toggle": "button.servers", "list": ".servers-menu", "item": ".servers-menu button", "active": ".servers-menu button.on", "failed": ".servers-menu button.dead" },
+      "episodes": { "list": ".episodes", "item": ".episodes a", "next": "button.next" },
+      "player": { "frame": ".player", "video": ".player video", "root": ".player", "fullscreenTarget": ".player", "fullscreenButton": ["button.fs"], "controls": [".player .bar"], "overlayKill": [".intro"], "depth": 0 },
+      "killOnTv": [".trailer iframe"],
+      "viewportWidth": 1280
+    }
+  },
+  "cache": { "maxMb": 300, "maxAgeDays": 30 },
   "targets": {
     "phone": {},
     "tv": { "orientation": "landscape" },

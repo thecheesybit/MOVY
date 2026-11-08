@@ -46,6 +46,10 @@ public final class LiveConfig {
     public final String updateMessage;
     public final List<String> extraAllowedHosts;
     public final List<String> authHosts;
+    /** Hosts answered over DNS-over-HTTPS (see DohRescue). */
+    public final List<String> dohHosts;
+    /** TV navigation profiles: source id -> compact profile JSON (selectors only). */
+    public final java.util.Map<String, String> tvProfiles;
 
     private LiveConfig(Draft d) {
         contentVersion = d.contentVersion;
@@ -65,6 +69,8 @@ public final class LiveConfig {
         updateMessage = d.updateMessage;
         extraAllowedHosts = Collections.unmodifiableList(new ArrayList<>(d.extraAllowedHosts));
         authHosts = Collections.unmodifiableList(new ArrayList<>(d.authHosts));
+        dohHosts = Collections.unmodifiableList(new ArrayList<>(d.dohHosts));
+        tvProfiles = Collections.unmodifiableMap(new java.util.LinkedHashMap<>(d.tvProfiles));
     }
 
     /** Sources the user may use, in display order. */
@@ -92,6 +98,22 @@ public final class LiveConfig {
         for (Source s : enabledSources()) out.addAll(s.allowedHosts);
         out.addAll(extraAllowedHosts);
         return new ArrayList<>(out);
+    }
+
+    /** Profile JSON of a source (empty object when it has none). */
+    public String tvProfileFor(String sourceId) {
+        String p = sourceId == null ? null : tvProfiles.get(sourceId);
+        return p != null ? p : "{}";
+    }
+
+    /** The source whose hosts match {@code url}, else null. */
+    public Source sourceForUrl(String url) {
+        if (url == null || url.isEmpty()) return null;
+        String host = UrlParts.parse(url).host;
+        for (Source s : enabledSources()) {
+            for (String pat : s.allowedHosts) if (NavRules.hostMatches(pat, host)) return s;
+        }
+        return null;
     }
 
     public Set<String> startHosts() {
@@ -159,6 +181,8 @@ public final class LiveConfig {
         if (o.has("updateMessage")) d.updateMessage = text(o, "updateMessage", 400);
         if (o.has("extraAllowedHosts")) d.extraAllowedHosts = hostList(o.getJSONArray("extraAllowedHosts"), false);
         if (o.has("authHosts")) d.authHosts = hostList(o.getJSONArray("authHosts"), true);
+        if (o.has("dohHosts")) d.dohHosts = hostList(o.getJSONArray("dohHosts"), false);
+        if (o.has("tvProfiles")) d.tvProfiles = TvProfiles.merge(d.tvProfiles, o.getJSONObject("tvProfiles"));
         d.validate();
         return new LiveConfig(d);
     }
@@ -254,6 +278,8 @@ public final class LiveConfig {
         String updateMessage = "";
         List<String> extraAllowedHosts = new ArrayList<>();
         List<String> authHosts = new ArrayList<>();
+        List<String> dohHosts = new ArrayList<>();
+        java.util.Map<String, String> tvProfiles = new java.util.LinkedHashMap<>();
 
         Draft() {}
 
@@ -275,6 +301,8 @@ public final class LiveConfig {
             updateMessage = b.updateMessage;
             extraAllowedHosts = new ArrayList<>(b.extraAllowedHosts);
             authHosts = new ArrayList<>(b.authHosts);
+            dohHosts = new ArrayList<>(b.dohHosts);
+            tvProfiles = new java.util.LinkedHashMap<>(b.tvProfiles);
         }
 
         void validate() {

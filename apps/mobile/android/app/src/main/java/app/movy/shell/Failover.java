@@ -80,22 +80,18 @@ final class Failover implements HealthChecker.Listener {
         extras.removeAllViews();
         Source suggestion = health.suggestion(active.id);
         if (suggestion == null) return null;
-        TextView b = new TextView(activity);
-        b.setText(activity.getString(R.string.movy_error_switch, suggestion.name));
-        b.setTextSize(16);
-        b.setTextColor(Ui.WHITE);
+        TextView b = IosViews.text(activity, activity.getString(R.string.movy_error_switch, suggestion.name), 17, UiTokens.BLUE, true);
         b.setGravity(Gravity.CENTER);
-        b.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
         b.setFocusable(true);
         b.setClickable(true);
-        b.setPadding(Ui.dp(activity, 28), Ui.dp(activity, 13), Ui.dp(activity, 28), Ui.dp(activity, 13));
-        b.setBackground(Ui.rounded(activity, Ui.CARD, 14, suggestion.accent, 2));
-        b.setOnFocusChangeListener((v, f) -> b.setBackground(Ui.rounded(activity, Ui.CARD, 14, f ? Ui.WHITE : suggestion.accent, f ? 3 : 2)));
+        b.setPadding(0, Ui.dp(activity, 15), 0, Ui.dp(activity, 15));
+        IosViews.style(b, UiTokens.SURFACE, false);
+        b.setOnFocusChangeListener((v, f) -> IosViews.style(b, UiTokens.SURFACE, f));
         b.setOnClickListener(v -> {
             launch.errorPanel().hide();
             repo.switchTo(suggestion.id);
         });
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-2, -2);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2);
         lp.topMargin = Ui.dp(activity, 12);
         extras.addView(b, lp);
         return suggestion;

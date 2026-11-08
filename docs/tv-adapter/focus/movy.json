@@ -1,0 +1,256 @@
+{
+  "$schema": "./schema.json",
+  "siteId": "movy",
+  "screens": {
+    "home": {
+      "name": "Home Page",
+      "pathPattern": "^/$",
+      "defaultZone": "hero",
+      "zones": [
+        {
+          "id": "topbar",
+          "selector": "header",
+          "items": "a[href], button",
+          "orientation": "horizontal",
+          "entry": "first",
+          "exits": {
+            "up": "none",
+            "down": "hero",
+            "left": "edge",
+            "right": "edge"
+          }
+        },
+        {
+          "id": "hero",
+          "selector": "main section:first-of-type, .hero-section",
+          "items": "a[href], button",
+          "orientation": "horizontal",
+          "entry": "first",
+          "exits": {
+            "up": "topbar",
+            "down": "row:1",
+            "left": "edge",
+            "right": "edge"
+          }
+        },
+        {
+          "id": "row:1",
+          "selector": "main section:nth-of-type(2)",
+          "items": "a[href]",
+          "orientation": "horizontal",
+          "entry": "same-column",
+          "exits": {
+            "up": "hero",
+            "down": "row:2",
+            "left": "edge",
+            "right": "edge"
+          }
+        },
+        {
+          "id": "row:2",
+          "selector": "main section:nth-of-type(3)",
+          "items": "a[href]",
+          "orientation": "horizontal",
+          "entry": "same-column",
+          "exits": {
+            "up": "row:1",
+            "down": "none",
+            "left": "edge",
+            "right": "edge"
+          }
+        }
+      ]
+    },
+    "catalog": {
+      "name": "Catalog & Browse",
+      "pathPattern": "^/browse/.*",
+      "defaultZone": "grid",
+      "zones": [
+        {
+          "id": "topbar",
+          "selector": "header",
+          "items": "a[href], button",
+          "orientation": "horizontal",
+          "entry": "first",
+          "exits": {
+            "up": "none",
+            "down": "grid",
+            "left": "edge",
+            "right": "edge"
+          }
+        },
+        {
+          "id": "grid",
+          "selector": "main, .grid",
+          "items": "a[href]",
+          "orientation": "grid",
+          "entry": "same-column",
+          "exits": {
+            "up": "topbar",
+            "down": "none",
+            "left": "edge",
+            "right": "edge"
+          }
+        }
+      ]
+    },
+    "search": {
+      "name": "Search Results",
+      "pathPattern": ".*search.*",
+      "defaultZone": "input",
+      "zones": [
+        {
+          "id": "input",
+          "selector": "header, [role=search]",
+          "items": "input, button",
+          "orientation": "horizontal",
+          "entry": "first",
+          "exits": {
+            "up": "none",
+            "down": "results",
+            "left": "edge",
+            "right": "edge"
+          }
+        },
+        {
+          "id": "results",
+          "selector": "main, .search-results",
+          "items": "a[href]",
+          "orientation": "grid",
+          "entry": "same-column",
+          "exits": {
+            "up": "input",
+            "down": "none",
+            "left": "edge",
+            "right": "edge"
+          }
+        }
+      ]
+    },
+    "detail_movie": {
+      "name": "Movie Detail",
+      "pathPattern": "^/movie/[0-9]+$",
+      "defaultZone": "hero",
+      "zones": [
+        {
+          "id": "topbar",
+          "selector": "header",
+          "items": "a[href], button",
+          "orientation": "horizontal",
+          "entry": "first",
+          "exits": {
+            "up": "none",
+            "down": "hero",
+            "left": "edge",
+            "right": "edge"
+          }
+        },
+        {
+          "id": "hero",
+          "selector": "main",
+          "items": "button, a[href]",
+          "orientation": "horizontal",
+          "entry": "first",
+          "exits": {
+            "up": "topbar",
+            "down": "none",
+            "left": "edge",
+            "right": "edge"
+          }
+        }
+      ]
+    },
+    "detail_show": {
+      "name": "Show Detail & Episodes",
+      "pathPattern": "^/tv/[0-9]+$",
+      "defaultZone": "episodes",
+      "zones": [
+        {
+          "id": "topbar",
+          "selector": "header",
+          "items": "a[href], button",
+          "orientation": "horizontal",
+          "entry": "first",
+          "exits": {
+            "up": "none",
+            "down": "episodes",
+            "left": "edge",
+            "right": "edge"
+          }
+        },
+        {
+          "id": "episodes",
+          "selector": "main, .episodes-container",
+          "items": "a[href], button",
+          "orientation": "vertical",
+          "entry": "first",
+          "exits": {
+            "up": "topbar",
+            "down": "none",
+            "left": "edge",
+            "right": "edge"
+          }
+        }
+      ]
+    },
+    "player": {
+      "name": "Video Player Controls & Popovers",
+      "pathPattern": ".*[?&]play=true.*",
+      "defaultZone": "controls-top",
+      "zones": [
+        {
+          "id": "controls-top",
+          "selector": "#vp-shell",
+          "items": "svg.cursor-pointer, button.tabbable",
+          "orientation": "horizontal",
+          "entry": "first",
+          "exits": {
+            "up": "none",
+            "down": "controls-bottom",
+            "left": "edge",
+            "right": "edge"
+          }
+        },
+        {
+          "id": "controls-bottom",
+          "selector": "#vp-shell",
+          "items": "[role=slider], button.tabbable",
+          "orientation": "horizontal",
+          "entry": "same-column",
+          "exits": {
+            "up": "controls-top",
+            "down": "none",
+            "left": "edge",
+            "right": "edge"
+          }
+        },
+        {
+          "id": "popover:quality",
+          "selector": "[role=menu], #vp-shell .quality-menu",
+          "items": "button",
+          "orientation": "vertical",
+          "entry": "first",
+          "exits": {
+            "up": "none",
+            "down": "none",
+            "left": "controls-top",
+            "right": "none"
+          }
+        },
+        {
+          "id": "popover:subtitles",
+          "selector": "[role=menu], #vp-shell .subtitles-menu",
+          "items": "button",
+          "orientation": "vertical",
+          "entry": "first",
+          "exits": {
+            "up": "none",
+            "down": "none",
+            "left": "controls-top",
+            "right": "none"
+          }
+        }
+      ]
+    }
+  }
+}

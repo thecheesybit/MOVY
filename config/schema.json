@@ -163,6 +163,13 @@
         "type": "string"
       }
     },
+    "dohHosts": {
+      "description": "Hosts whose requests are answered over DNS-over-HTTPS, for networks whose resolver poisons a name the site depends on.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "externalLinks": {
       "default": "block",
       "description": "Non-allowed hosts: \"block\" (default, silently ignored) or \"in-app\". \"open-external\" is deprecated and treated as \"block\"; the app never launches other apps.",
@@ -260,6 +267,274 @@
           "default": true,
           "description": "Block window.open / target=_blank to non-allowed hosts.",
           "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "tvProfiles": {
+      "description": "Per-source TV navigation profiles (selectors only); overridable from Remote Config.",
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "pattern": "^[a-z0-9-]+$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "notes": {
+            "description": "Free text for humans; ignored by the app.",
+            "type": "string",
+            "maxLength": 2000
+          },
+          "header": {
+            "description": "Hidden after 5 s idle, shown on input.",
+            "maxItems": 40,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400
+            }
+          },
+          "bottomBar": {
+            "description": "Bottom bars hidden on idle.",
+            "maxItems": 40,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400
+            }
+          },
+          "rows": {
+            "description": "Horizontal carousels (LEFT/RIGHT inside, UP/DOWN between rows).",
+            "maxItems": 40,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400
+            }
+          },
+          "cards": {
+            "description": "Cards inside rows.",
+            "maxItems": 40,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400
+            }
+          },
+          "focusables": {
+            "description": "Extra elements made focusable.",
+            "maxItems": 40,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400
+            }
+          },
+          "skip": {
+            "description": "Never focused (rail arrows, dots, floating buttons).",
+            "maxItems": 40,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400
+            }
+          },
+          "firstFocus": {
+            "description": "First focus on page load (hero Play), in priority order.",
+            "maxItems": 40,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400
+            }
+          },
+          "playButtons": {
+            "description": "Elements that start playback: trigger auto-fullscreen.",
+            "maxItems": 40,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400
+            }
+          },
+          "servers": {
+            "type": "object",
+            "properties": {
+              "toggle": {
+                "description": "Button that opens the site server picker.",
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              },
+              "list": {
+                "description": "Container of the server items.",
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              },
+              "item": {
+                "description": "One server entry (clickable).",
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              },
+              "active": {
+                "description": "The selected server entry.",
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              },
+              "failed": {
+                "description": "Entry or banner shown when a server is dead.",
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              },
+              "frame": {
+                "description": "Iframe holding the picker when it is not in the page itself.",
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              }
+            },
+            "additionalProperties": false
+          },
+          "episodes": {
+            "type": "object",
+            "properties": {
+              "list": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              },
+              "item": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              },
+              "next": {
+                "description": "Next-episode button.",
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              }
+            },
+            "additionalProperties": false
+          },
+          "player": {
+            "type": "object",
+            "properties": {
+              "frame": {
+                "description": "Player iframe or container.",
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              },
+              "video": {
+                "description": "The <video> element (same-origin).",
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              },
+              "root": {
+                "description": "Player root element.",
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              },
+              "fullscreenTarget": {
+                "description": "Element that receives requestFullscreen().",
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              },
+              "fullscreenButton": {
+                "description": "The site's own fullscreen toggles, hidden with CSS on TV.",
+                "maxItems": 40,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 400
+                }
+              },
+              "controls": {
+                "description": "Player control bars hidden on idle.",
+                "maxItems": 40,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 400
+                }
+              },
+              "overlayKill": {
+                "description": "Intro layers and ad overlays in front of the player, hidden.",
+                "maxItems": 40,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 400
+                }
+              },
+              "depth": {
+                "description": "Iframe nesting depth of the real <video> (0 = same document).",
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 4
+              }
+            },
+            "additionalProperties": false
+          },
+          "killOnTv": {
+            "description": "Heavy decorative media removed on TV (autoplaying trailer iframes).",
+            "maxItems": 40,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400
+            }
+          },
+          "viewportWidth": {
+            "description": "CSS px layout width on TV; default 1280, a site may opt out with 960.",
+            "type": "integer",
+            "minimum": 320,
+            "maximum": 3840
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "cache": {
+      "description": "Disk asset cache (images, fonts, versioned static files); on by default for tv only.",
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "description": "Default: on for the tv target, off elsewhere.",
+          "type": "boolean"
+        },
+        "maxMb": {
+          "default": 300,
+          "type": "integer",
+          "minimum": 10,
+          "maximum": 2000
+        },
+        "maxAgeDays": {
+          "default": 30,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 365
         }
       },
       "additionalProperties": false
@@ -418,6 +693,13 @@
                 "type": "string"
               }
             },
+            "dohHosts": {
+              "description": "Hosts whose requests are answered over DNS-over-HTTPS, for networks whose resolver poisons a name the site depends on.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
             "externalLinks": {
               "type": "string",
               "enum": [
@@ -448,6 +730,274 @@
                 "portrait",
                 "landscape"
               ]
+            },
+            "tvProfiles": {
+              "description": "Per-source TV navigation profiles (selectors only); overridable from Remote Config.",
+              "type": "object",
+              "propertyNames": {
+                "type": "string",
+                "pattern": "^[a-z0-9-]+$"
+              },
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "notes": {
+                    "description": "Free text for humans; ignored by the app.",
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "header": {
+                    "description": "Hidden after 5 s idle, shown on input.",
+                    "maxItems": 40,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    }
+                  },
+                  "bottomBar": {
+                    "description": "Bottom bars hidden on idle.",
+                    "maxItems": 40,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    }
+                  },
+                  "rows": {
+                    "description": "Horizontal carousels (LEFT/RIGHT inside, UP/DOWN between rows).",
+                    "maxItems": 40,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    }
+                  },
+                  "cards": {
+                    "description": "Cards inside rows.",
+                    "maxItems": 40,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    }
+                  },
+                  "focusables": {
+                    "description": "Extra elements made focusable.",
+                    "maxItems": 40,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    }
+                  },
+                  "skip": {
+                    "description": "Never focused (rail arrows, dots, floating buttons).",
+                    "maxItems": 40,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    }
+                  },
+                  "firstFocus": {
+                    "description": "First focus on page load (hero Play), in priority order.",
+                    "maxItems": 40,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    }
+                  },
+                  "playButtons": {
+                    "description": "Elements that start playback: trigger auto-fullscreen.",
+                    "maxItems": 40,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    }
+                  },
+                  "servers": {
+                    "type": "object",
+                    "properties": {
+                      "toggle": {
+                        "description": "Button that opens the site server picker.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "list": {
+                        "description": "Container of the server items.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "item": {
+                        "description": "One server entry (clickable).",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "active": {
+                        "description": "The selected server entry.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "failed": {
+                        "description": "Entry or banner shown when a server is dead.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "frame": {
+                        "description": "Iframe holding the picker when it is not in the page itself.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "episodes": {
+                    "type": "object",
+                    "properties": {
+                      "list": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "item": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "next": {
+                        "description": "Next-episode button.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "player": {
+                    "type": "object",
+                    "properties": {
+                      "frame": {
+                        "description": "Player iframe or container.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "video": {
+                        "description": "The <video> element (same-origin).",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "root": {
+                        "description": "Player root element.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "fullscreenTarget": {
+                        "description": "Element that receives requestFullscreen().",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "fullscreenButton": {
+                        "description": "The site's own fullscreen toggles, hidden with CSS on TV.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "controls": {
+                        "description": "Player control bars hidden on idle.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "overlayKill": {
+                        "description": "Intro layers and ad overlays in front of the player, hidden.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "depth": {
+                        "description": "Iframe nesting depth of the real <video> (0 = same document).",
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 4
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "killOnTv": {
+                    "description": "Heavy decorative media removed on TV (autoplaying trailer iframes).",
+                    "maxItems": 40,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    }
+                  },
+                  "viewportWidth": {
+                    "description": "CSS px layout width on TV; default 1280, a site may opt out with 960.",
+                    "type": "integer",
+                    "minimum": 320,
+                    "maximum": 3840
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "cache": {
+              "description": "Disk asset cache (images, fonts, versioned static files); on by default for tv only.",
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "description": "Default: on for the tv target, off elsewhere.",
+                  "type": "boolean"
+                },
+                "maxMb": {
+                  "default": 300,
+                  "type": "integer",
+                  "minimum": 10,
+                  "maximum": 2000
+                },
+                "maxAgeDays": {
+                  "default": 30,
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 365
+                }
+              },
+              "additionalProperties": false
             },
             "adblock": {
               "type": "object",
@@ -646,6 +1196,13 @@
                 "type": "string"
               }
             },
+            "dohHosts": {
+              "description": "Hosts whose requests are answered over DNS-over-HTTPS, for networks whose resolver poisons a name the site depends on.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
             "externalLinks": {
               "type": "string",
               "enum": [
@@ -676,6 +1233,274 @@
                 "portrait",
                 "landscape"
               ]
+            },
+            "tvProfiles": {
+              "description": "Per-source TV navigation profiles (selectors only); overridable from Remote Config.",
+              "type": "object",
+              "propertyNames": {
+                "type": "string",
+                "pattern": "^[a-z0-9-]+$"
+              },
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "notes": {
+                    "description": "Free text for humans; ignored by the app.",
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "header": {
+                    "description": "Hidden after 5 s idle, shown on input.",
+                    "maxItems": 40,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    }
+                  },
+                  "bottomBar": {
+                    "description": "Bottom bars hidden on idle.",
+                    "maxItems": 40,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    }
+                  },
+                  "rows": {
+                    "description": "Horizontal carousels (LEFT/RIGHT inside, UP/DOWN between rows).",
+                    "maxItems": 40,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    }
+                  },
+                  "cards": {
+                    "description": "Cards inside rows.",
+                    "maxItems": 40,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    }
+                  },
+                  "focusables": {
+                    "description": "Extra elements made focusable.",
+                    "maxItems": 40,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    }
+                  },
+                  "skip": {
+                    "description": "Never focused (rail arrows, dots, floating buttons).",
+                    "maxItems": 40,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    }
+                  },
+                  "firstFocus": {
+                    "description": "First focus on page load (hero Play), in priority order.",
+                    "maxItems": 40,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    }
+                  },
+                  "playButtons": {
+                    "description": "Elements that start playback: trigger auto-fullscreen.",
+                    "maxItems": 40,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    }
+                  },
+                  "servers": {
+                    "type": "object",
+                    "properties": {
+                      "toggle": {
+                        "description": "Button that opens the site server picker.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "list": {
+                        "description": "Container of the server items.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "item": {
+                        "description": "One server entry (clickable).",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "active": {
+                        "description": "The selected server entry.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "failed": {
+                        "description": "Entry or banner shown when a server is dead.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "frame": {
+                        "description": "Iframe holding the picker when it is not in the page itself.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "episodes": {
+                    "type": "object",
+                    "properties": {
+                      "list": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "item": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "next": {
+                        "description": "Next-episode button.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "player": {
+                    "type": "object",
+                    "properties": {
+                      "frame": {
+                        "description": "Player iframe or container.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "video": {
+                        "description": "The <video> element (same-origin).",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "root": {
+                        "description": "Player root element.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "fullscreenTarget": {
+                        "description": "Element that receives requestFullscreen().",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "fullscreenButton": {
+                        "description": "The site's own fullscreen toggles, hidden with CSS on TV.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "controls": {
+                        "description": "Player control bars hidden on idle.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "overlayKill": {
+                        "description": "Intro layers and ad overlays in front of the player, hidden.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "depth": {
+                        "description": "Iframe nesting depth of the real <video> (0 = same document).",
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 4
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "killOnTv": {
+                    "description": "Heavy decorative media removed on TV (autoplaying trailer iframes).",
+                    "maxItems": 40,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    }
+                  },
+                  "viewportWidth": {
+                    "description": "CSS px layout width on TV; default 1280, a site may opt out with 960.",
+                    "type": "integer",
+                    "minimum": 320,
+                    "maximum": 3840
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "cache": {
+              "description": "Disk asset cache (images, fonts, versioned static files); on by default for tv only.",
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "description": "Default: on for the tv target, off elsewhere.",
+                  "type": "boolean"
+                },
+                "maxMb": {
+                  "default": 300,
+                  "type": "integer",
+                  "minimum": 10,
+                  "maximum": 2000
+                },
+                "maxAgeDays": {
+                  "default": 30,
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 365
+                }
+              },
+              "additionalProperties": false
             },
             "adblock": {
               "type": "object",
@@ -874,6 +1699,13 @@
                 "type": "string"
               }
             },
+            "dohHosts": {
+              "description": "Hosts whose requests are answered over DNS-over-HTTPS, for networks whose resolver poisons a name the site depends on.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
             "externalLinks": {
               "type": "string",
               "enum": [
@@ -904,6 +1736,274 @@
                 "portrait",
                 "landscape"
               ]
+            },
+            "tvProfiles": {
+              "description": "Per-source TV navigation profiles (selectors only); overridable from Remote Config.",
+              "type": "object",
+              "propertyNames": {
+                "type": "string",
+                "pattern": "^[a-z0-9-]+$"
+              },
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "notes": {
+                    "description": "Free text for humans; ignored by the app.",
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "header": {
+                    "description": "Hidden after 5 s idle, shown on input.",
+                    "maxItems": 40,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    }
+                  },
+                  "bottomBar": {
+                    "description": "Bottom bars hidden on idle.",
+                    "maxItems": 40,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    }
+                  },
+                  "rows": {
+                    "description": "Horizontal carousels (LEFT/RIGHT inside, UP/DOWN between rows).",
+                    "maxItems": 40,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    }
+                  },
+                  "cards": {
+                    "description": "Cards inside rows.",
+                    "maxItems": 40,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    }
+                  },
+                  "focusables": {
+                    "description": "Extra elements made focusable.",
+                    "maxItems": 40,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    }
+                  },
+                  "skip": {
+                    "description": "Never focused (rail arrows, dots, floating buttons).",
+                    "maxItems": 40,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    }
+                  },
+                  "firstFocus": {
+                    "description": "First focus on page load (hero Play), in priority order.",
+                    "maxItems": 40,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    }
+                  },
+                  "playButtons": {
+                    "description": "Elements that start playback: trigger auto-fullscreen.",
+                    "maxItems": 40,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    }
+                  },
+                  "servers": {
+                    "type": "object",
+                    "properties": {
+                      "toggle": {
+                        "description": "Button that opens the site server picker.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "list": {
+                        "description": "Container of the server items.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "item": {
+                        "description": "One server entry (clickable).",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "active": {
+                        "description": "The selected server entry.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "failed": {
+                        "description": "Entry or banner shown when a server is dead.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "frame": {
+                        "description": "Iframe holding the picker when it is not in the page itself.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "episodes": {
+                    "type": "object",
+                    "properties": {
+                      "list": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "item": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "next": {
+                        "description": "Next-episode button.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "player": {
+                    "type": "object",
+                    "properties": {
+                      "frame": {
+                        "description": "Player iframe or container.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "video": {
+                        "description": "The <video> element (same-origin).",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "root": {
+                        "description": "Player root element.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "fullscreenTarget": {
+                        "description": "Element that receives requestFullscreen().",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "fullscreenButton": {
+                        "description": "The site's own fullscreen toggles, hidden with CSS on TV.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "controls": {
+                        "description": "Player control bars hidden on idle.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "overlayKill": {
+                        "description": "Intro layers and ad overlays in front of the player, hidden.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "depth": {
+                        "description": "Iframe nesting depth of the real <video> (0 = same document).",
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 4
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "killOnTv": {
+                    "description": "Heavy decorative media removed on TV (autoplaying trailer iframes).",
+                    "maxItems": 40,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    }
+                  },
+                  "viewportWidth": {
+                    "description": "CSS px layout width on TV; default 1280, a site may opt out with 960.",
+                    "type": "integer",
+                    "minimum": 320,
+                    "maximum": 3840
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "cache": {
+              "description": "Disk asset cache (images, fonts, versioned static files); on by default for tv only.",
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "description": "Default: on for the tv target, off elsewhere.",
+                  "type": "boolean"
+                },
+                "maxMb": {
+                  "default": 300,
+                  "type": "integer",
+                  "minimum": 10,
+                  "maximum": 2000
+                },
+                "maxAgeDays": {
+                  "default": 30,
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 365
+                }
+              },
+              "additionalProperties": false
             },
             "adblock": {
               "type": "object",

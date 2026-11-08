@@ -71,8 +71,11 @@ export function resolveTarget(config, target) {
     url: recommended.url,
     allowedHosts: [...new Set(active.flatMap((s) => s.allowedHosts))],
     authHosts: merged.authHosts ?? [],
+    dohHosts: merged.dohHosts ?? [],
     externalLinks: merged.externalLinks === 'in-app' ? 'in-app' : 'block',
     adblock: { ...merged.adblock, listUrls },
+    tvProfiles: merged.tvProfiles ?? {},
+    cache: { enabled: merged.cache?.enabled ?? target === 'tv', maxMb: merged.cache?.maxMb ?? 300, maxAgeDays: merged.cache?.maxAgeDays ?? 30 },
     cleartext: sources.some((s) => new URL(s.url).protocol === 'http:'),
   };
 }

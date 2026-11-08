@@ -97,3 +97,21 @@ Firebase CLI. Console editing works too; `remote:pull` syncs it back.
 - Remotely updatable splash/intro *design*: make them a small local HTML bundle
   that's live-updated (Capacitor live updates hosted on Firebase Hosting).
 - Desktop: the same JSON via the Firebase JS SDK.
+
+## `dohHosts` (per-site DNS workaround)
+
+Some ISP resolvers poison a name a site depends on (for example its metadata API), so the page hangs on skeleton
+placeholders in the WebView, which always uses the system resolver, while Chrome works because it uses its own secure
+DNS. List such hosts (exact or `*.suffix`) in `dohHosts` (app config `config/apps/<app>.json`, overridable via the
+remote config). Requests to them (GET/HEAD/OPTIONS, https only) are answered in `AdblockWebViewClient` by `DohRescue`,
+which resolves the name over DNS-over-HTTPS (IPv4 only) and connects to that address with normal TLS host-name
+verification. Everything else is untouched. Regression check: open a title and press Play on every source after any
+change to request interception, DNS or the User-Agent.
+
+## Per-site ad rules (`adblock.customRules`)
+
+These rules are baked into `engine.dat` at build time.
+- Block an injected ad chain by **specific hosts** (`||ad-host.example^`) plus a scoped cosmetic backup
+  (`site.example##iframe[srcdoc][sandbox*="allow-modals"]` for fake-captcha overlays).
+- Never use broad rules like `*$script,third-party,domain=site.example`. The WebView can't tell fetch from script
+  requests, so the type is guessed, and such a rule breaks the site's API calls.

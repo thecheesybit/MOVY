@@ -10,7 +10,7 @@ import java.util.List;
 
 import app.movy.adblock.BlockStats;
 
-/** Builds the Settings list: Source, Ad blocking, Sources status, Storage, About. Add a section = add a method. */
+/** Builds the Settings sections: Source, Protection, Sources, Storage, About. Add a section = add a method. */
 final class SettingsModel {
     /** Things the rows can ask the sheet to do. */
     interface Actions {
@@ -23,6 +23,8 @@ final class SettingsModel {
         void confirmSignOut();
 
         void setAdblock(boolean on);
+
+        void openDefaultSource();
     }
 
     /** Live inputs; read each time the list is rebuilt. */
@@ -37,10 +39,12 @@ final class SettingsModel {
         final boolean checking;
         /** Null until measured. */
         final Long storageBytes;
+        /** Size of the TV asset cache; null when the cache is off (phone). */
+        final Long assetCacheBytes;
         final Drawable icon;
 
         Inputs(SourceRepository repo, Prefs prefs, BlockStats stats, HealthChecker health, boolean adblockConfigured,
-               boolean adblockOn, String appName, boolean checking, Long storageBytes, Drawable icon) {
+               boolean adblockOn, String appName, boolean checking, Long storageBytes, Long assetCacheBytes, Drawable icon) {
             this.repo = repo;
             this.prefs = prefs;
             this.stats = stats;
@@ -50,55 +54,75 @@ final class SettingsModel {
             this.appName = appName;
             this.checking = checking;
             this.storageBytes = storageBytes;
+            this.assetCacheBytes = assetCacheBytes;
             this.icon = icon;
         }
     }
 
     private SettingsModel() {}
 
-    static List<SettingsRow> build(Context ctx, Inputs in, Actions act) {
-        List<SettingsRow> rows = new ArrayList<>();
+    static List<SettingsSection> build(Context ctx, Inputs in, Actions act) {
+        List<SettingsSection> out = new ArrayList<>();
         LiveConfig cfg = in.repo.config();
-        sourceSection(ctx, in, act, rows, cfg);
-        if (in.adblockConfigured) adblockSection(ctx, in, act, rows);
-        statusSection(ctx, in, act, rows, cfg);
-        storageSection(ctx, in, act, rows);
-        aboutSection(ctx, in, rows, cfg);
-        return Collections.unmodifiableList(rows);
+        out.add(sourceSection(ctx, in, act, cfg));
+        if (in.adblockConfigured) out.add(protectionSection(ctx, in, act));
+        out.add(sourcesSection(ctx, in, act, cfg));
+        out.add(storageSection(ctx, in, act));
+        out.add(aboutSection(ctx, in, cfg));
+        return Collections.unmodifiableList(out);
     }
 
-    private static void sourceSection(Context ctx, Inputs in, Actions act, List<SettingsRow> rows, LiveConfig cfg) {
-        rows.add(SettingsRow.header(ctx.getString(R.string.movy_sec_source)));
-        rows.add(SettingsRow.value(ctx.getString(R.string.movy_default_source), ""));
+    /** Id of the source that opens on launch: the saved default, else the recommended one. */
+    static Source defaultSource(Inputs in) {
+        LiveConfig cfg = in.repo.config();
         String def = in.prefs.defaultSourceId();
-        List<Source> enabled = cfg.enabledSources();
-        if (def == null || cfg.find(def) == null) def = in.repo.preselected().id;
-        for (Source s : enabled) {
+        Source s = def == null ? null : cfg.find(def);
+        return s != null && s.enabled ? s : in.repo.preselected();
+    }
+
+    private static SettingsSection sourceSection(Context ctx, Inputs in, Actions act, LiveConfig cfg) {
+        List<SettingsRow> rows = new ArrayList<>();
+        rows.add(SettingsRow.nav(ctx.getString(R.string.movy_default_source), defaultSource(in).name,
+                UiTokens.BADGE_BLUE, R.drawable.ic_play, act::openDefaultSource));
+        rows.add(SettingsRow.toggle(ctx.getString(R.string.movy_ask_every_launch), in.prefs.askEveryLaunch(),
+                UiTokens.BADGE_ORANGE, R.drawable.ic_replay, on -> in.prefs.setAskEveryLaunch(on)));
+        return SettingsSection.of(ctx.getString(R.string.movy_sec_source), ctx.getString(R.string.movy_source_footer), rows);
+    }
+
+    /** Sub-page of "Default source": a checkmark list of the enabled sources. */
+    static List<SettingsSection> defaultSourcePage(Context ctx, Inputs in, Actions act) {
+        List<SettingsRow> rows = new ArrayList<>();
+        String current = defaultSource(in).id;
+        for (Source s : in.repo.config().enabledSources()) {
             final String id = s.id;
-            rows.add(SettingsRow.radio(s.name, s.accent, id.equals(def), () -> {
+            rows.add(SettingsRow.check(s.name, id.equals(current), s.accent, () -> {
                 in.prefs.setDefaultSourceId(id);
                 act.rebuild();
             }));
         }
-        rows.add(SettingsRow.toggle(ctx.getString(R.string.movy_ask_every_launch), in.prefs.askEveryLaunch(),
-                on -> in.prefs.setAskEveryLaunch(on)));
+        return Collections.singletonList(SettingsSection.of(null, ctx.getString(R.string.movy_default_source_footer), rows));
     }
 
-    private static void adblockSection(Context ctx, Inputs in, Actions act, List<SettingsRow> rows) {
-        rows.add(SettingsRow.header(ctx.getString(R.string.movy_sec_adblock)));
-        rows.add(SettingsRow.toggle(ctx.getString(R.string.movy_adblock_toggle), in.adblockOn, act::setAdblock));
-        rows.add(SettingsRow.value(ctx.getString(R.string.movy_ads_blocked), String.valueOf(in.stats.adsBlocked())));
-        rows.add(SettingsRow.value(ctx.getString(R.string.movy_redirects_killed), String.valueOf(in.stats.redirectsKilled())));
+    private static SettingsSection protectionSection(Context ctx, Inputs in, Actions act) {
+        List<SettingsRow> rows = new ArrayList<>();
+        rows.add(SettingsRow.toggle(ctx.getString(R.string.movy_adblock_toggle), in.adblockOn, UiTokens.BADGE_GREEN,
+                R.drawable.ic_shield, act::setAdblock));
+        rows.add(SettingsRow.value(ctx.getString(R.string.movy_ads_blocked), String.valueOf(in.stats.adsBlocked()),
+                UiTokens.BADGE_RED, R.drawable.ic_block));
+        rows.add(SettingsRow.value(ctx.getString(R.string.movy_redirects_killed), String.valueOf(in.stats.redirectsKilled()),
+                UiTokens.BADGE_PURPLE, R.drawable.ic_replay));
+        return SettingsSection.of(ctx.getString(R.string.movy_sec_adblock), null, rows);
     }
 
-    private static void statusSection(Context ctx, Inputs in, Actions act, List<SettingsRow> rows, LiveConfig cfg) {
-        rows.add(SettingsRow.header(ctx.getString(R.string.movy_sec_status)));
-        rows.add(SettingsRow.action(ctx.getString(R.string.movy_check_now), false, act::checkSources));
+    private static SettingsSection sourcesSection(Context ctx, Inputs in, Actions act, LiveConfig cfg) {
+        List<SettingsRow> rows = new ArrayList<>();
         for (Source s : cfg.enabledSources()) {
             HealthChecker.Status st = in.health.status(s.id);
             String text = in.checking ? ctx.getString(R.string.movy_status_checking) : statusText(ctx, st);
             rows.add(SettingsRow.status(s.name, text, IslandPainter.healthColor(st)));
         }
+        return new SettingsSection(ctx.getString(R.string.movy_sec_status), null, ctx.getString(R.string.movy_check_now),
+                act::checkSources, rows);
     }
 
     static String statusText(Context ctx, HealthChecker.Status st) {
@@ -110,18 +134,23 @@ final class SettingsModel {
         }
     }
 
-    private static void storageSection(Context ctx, Inputs in, Actions act, List<SettingsRow> rows) {
-        rows.add(SettingsRow.header(ctx.getString(R.string.movy_sec_storage)));
+    private static SettingsSection storageSection(Context ctx, Inputs in, Actions act) {
+        List<SettingsRow> rows = new ArrayList<>();
         String used = in.storageBytes == null ? "…" : Formatter.formatShortFileSize(ctx, in.storageBytes);
-        rows.add(SettingsRow.value(ctx.getString(R.string.movy_storage_used), used));
-        rows.add(SettingsRow.action(ctx.getString(R.string.movy_clear_cache), false, act::confirmClearCache));
-        rows.add(SettingsRow.action(ctx.getString(R.string.movy_sign_out), true, act::confirmSignOut));
+        rows.add(SettingsRow.value(ctx.getString(R.string.movy_storage_used), used, UiTokens.BADGE_GREY, R.drawable.ic_storage));
+        if (in.assetCacheBytes != null) {
+            rows.add(SettingsRow.value(ctx.getString(R.string.movy_asset_cache), Formatter.formatShortFileSize(ctx, in.assetCacheBytes), UiTokens.BADGE_GREY, R.drawable.ic_storage));
+        }
+        rows.add(SettingsRow.action(ctx.getString(R.string.movy_clear_cache), UiTokens.BLUE, act::confirmClearCache));
+        rows.add(SettingsRow.action(ctx.getString(R.string.movy_sign_out), UiTokens.RED, act::confirmSignOut));
+        return SettingsSection.of(ctx.getString(R.string.movy_sec_storage), null, rows);
     }
 
-    private static void aboutSection(Context ctx, Inputs in, List<SettingsRow> rows, LiveConfig cfg) {
-        rows.add(SettingsRow.header(ctx.getString(R.string.movy_sec_about)));
+    private static SettingsSection aboutSection(Context ctx, Inputs in, LiveConfig cfg) {
         String ver = ctx.getString(R.string.movy_version, BuildConfig.VERSION_NAME, BuildConfig.MOVY_BUILD);
         if (BuildConfig.MOVY_REMOTE && cfg.contentVersion > 0) ver += ctx.getString(R.string.movy_cfg_suffix, cfg.contentVersion);
+        List<SettingsRow> rows = new ArrayList<>();
         rows.add(SettingsRow.about(in.icon, in.appName, cfg.tagline, ctx.getString(R.string.movy_by_credit, cfg.credit), ver));
+        return SettingsSection.of(ctx.getString(R.string.movy_sec_about), null, rows);
     }
 }

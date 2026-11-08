@@ -1,36 +1,11 @@
 'use strict';
-const fs = require('node:fs');
-const path = require('node:path');
 const { WebContentsView } = require('electron');
-const { uiDir } = require('./paths');
 
 const RED = '#E50914';
 const PREFS = { sandbox: true, contextIsolation: true, nodeIntegration: false };
-
-const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
-
-function isLight(hex) {
-  const n = parseInt(hex.replace('#', '').padEnd(6, '0').slice(0, 6), 16);
-  const lum = 0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255);
-  return lum > 150;
-}
-
 const dataUrl = (html) => 'data:text/html;charset=utf-8,' + encodeURIComponent(html);
 
-/** Branded splash (background + app name + red spinner), shown above the site until it has loaded. */
-function createSplash(cfg) {
-  const tpl = fs.readFileSync(path.join(uiDir(), 'splash.html'), 'utf8');
-  const html = tpl
-    .replaceAll('{{APP_NAME}}', esc(cfg.appName))
-    .replaceAll('{{BG}}', cfg.backgroundColor)
-    .replaceAll('{{FG}}', isLight(cfg.backgroundColor) ? '#111111' : '#f2f2f2');
-  const view = new WebContentsView({ webPreferences: PREFS });
-  view.setBackgroundColor(cfg.backgroundColor);
-  view.webContents.loadURL(dataUrl(html));
-  return view;
-}
-
-/** Thin red progress bar at the top edge; only visible (and clickable) while a navigation runs. */
+/** Thin red progress bar at the top edge; only visible while a navigation runs. */
 function createProgressBar() {
   const view = new WebContentsView({ webPreferences: PREFS });
   view.setBackgroundColor('#00000000');
@@ -68,4 +43,4 @@ function createProgressBar() {
   };
 }
 
-module.exports = { createSplash, createProgressBar };
+module.exports = { createProgressBar };

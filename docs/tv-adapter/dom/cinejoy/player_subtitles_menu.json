@@ -1,0 +1,1154 @@
+{
+  "url": "<cinejoy>/watch/tv/456/1/6",
+  "pathname": "/watch/tv/456/1/6",
+  "title": "The Simpsons S1:E6 - Cinejoy",
+  "viewport": {
+    "width": 1280,
+    "height": 720,
+    "meta": "width=1280"
+  },
+  "fullscreen": null,
+  "summary": {
+    "interactiveCount": 57,
+    "scrollContainerCount": 1,
+    "overlayCount": 0,
+    "hasPlayer": true
+  },
+  "player": {
+    "selector": ".player-root",
+    "tag": "div",
+    "className": "player-root relative w-full h-full bg-black overflow-hidden font-['Inter'] group select-none  svelte-l6y7q",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 1280,
+      "height": 720
+    },
+    "video": {
+      "paused": false,
+      "currentTime": 49,
+      "duration": 1390,
+      "readyState": 4
+    }
+  },
+  "overlays": [],
+  "scrollContainers": [
+    {
+      "tag": "div",
+      "className": "menu-card-scroll-body",
+      "scrollX": false,
+      "scrollY": true,
+      "scrollWidth": 341,
+      "clientWidth": 341,
+      "scrollHeight": 1671,
+      "clientHeight": 437,
+      "rect": {
+        "x": 890,
+        "y": 186,
+        "width": 341,
+        "height": 437
+      }
+    }
+  ],
+  "interactive": [
+    {
+      "tag": "button",
+      "className": "flex items-center justify-center w-12 h-12 shrink-0 hover:scale-110 active:scale-95 transition-all text-white svelte-l6y7q movy-tvf movy-tvr",
+      "ariaLabel": "Back",
+      "rect": {
+        "x": 24,
+        "y": 24,
+        "width": 48,
+        "height": 48
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false,
+      "isFocused": true
+    },
+    {
+      "tag": "button",
+      "className": "group/title flex flex-col items-center max-w-[60%] text-center cursor-pointer select-none focus:outline-none bg-transparent border-0 p-0 m-0 svelte-l6y7q",
+      "ariaLabel": "View details for The Simpsons",
+      "text": "The Simpsons S1 E6",
+      "rect": {
+        "x": 601,
+        "y": 24,
+        "width": 126,
+        "height": 48
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-title-action",
+      "text": "Customize",
+      "rect": {
+        "x": 1128,
+        "y": 145,
+        "width": 87,
+        "height": 32
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link selected",
+      "text": "Off",
+      "rect": {
+        "x": 902,
+        "y": 202,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "input",
+      "className": "hidden",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "none",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "Sync subtitle to audio",
+      "rect": {
+        "x": 902,
+        "y": 298,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "input",
+      "className": "w-full py-2 px-3 pl-[calc(0.75rem+24px)] bg-white/5 rounded text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-white/20",
+      "rect": {
+        "x": 914,
+        "y": 354,
+        "width": 293,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "inline-block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "English 14",
+      "rect": {
+        "x": 902,
+        "y": 402,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "Arabic 2",
+      "rect": {
+        "x": 902,
+        "y": 450,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "Bulgarian EXTERNAL",
+      "rect": {
+        "x": 902,
+        "y": 498,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "translate-trigger",
+      "role": "button",
+      "ariaLabel": "Translate subtitle",
+      "rect": {
+        "x": 1174,
+        "y": 508,
+        "width": 29,
+        "height": 24
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "Bs EXTERNAL",
+      "rect": {
+        "x": 902,
+        "y": 547,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "translate-trigger",
+      "role": "button",
+      "ariaLabel": "Translate subtitle",
+      "rect": {
+        "x": 1174,
+        "y": 557,
+        "width": 29,
+        "height": 24
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "Czech 4",
+      "rect": {
+        "x": 902,
+        "y": 595,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "Danish 5",
+      "rect": {
+        "x": 902,
+        "y": 643,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "German 6",
+      "rect": {
+        "x": 902,
+        "y": 691,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "Greek 9",
+      "rect": {
+        "x": 902,
+        "y": 739,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "Spanish 9",
+      "rect": {
+        "x": 902,
+        "y": 787,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "Estonian EXTERNAL",
+      "rect": {
+        "x": 902,
+        "y": 835,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "translate-trigger",
+      "role": "button",
+      "ariaLabel": "Translate subtitle",
+      "rect": {
+        "x": 1174,
+        "y": 845,
+        "width": 29,
+        "height": 24
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "Finnish 3",
+      "rect": {
+        "x": 902,
+        "y": 883,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "French 6",
+      "rect": {
+        "x": 902,
+        "y": 931,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "Hebrew 5",
+      "rect": {
+        "x": 902,
+        "y": 979,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "Croatian 4",
+      "rect": {
+        "x": 902,
+        "y": 1027,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "Hungarian 3",
+      "rect": {
+        "x": 902,
+        "y": 1075,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "Italian 4",
+      "rect": {
+        "x": 902,
+        "y": 1123,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "Japanese 2",
+      "rect": {
+        "x": 902,
+        "y": 1171,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "Korean",
+      "rect": {
+        "x": 902,
+        "y": 1219,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "translate-trigger",
+      "role": "button",
+      "ariaLabel": "Translate subtitle",
+      "rect": {
+        "x": 1174,
+        "y": 1229,
+        "width": 29,
+        "height": 24
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "Dutch 7",
+      "rect": {
+        "x": 902,
+        "y": 1268,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "Norwegian 3",
+      "rect": {
+        "x": 902,
+        "y": 1316,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "Polish",
+      "rect": {
+        "x": 902,
+        "y": 1364,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "translate-trigger",
+      "role": "button",
+      "ariaLabel": "Translate subtitle",
+      "rect": {
+        "x": 1174,
+        "y": 1374,
+        "width": 29,
+        "height": 24
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "Portuguese 11",
+      "rect": {
+        "x": 902,
+        "y": 1412,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "Romanian 7",
+      "rect": {
+        "x": 902,
+        "y": 1460,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "Russian 3",
+      "rect": {
+        "x": 902,
+        "y": 1508,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "Slovenian EXTERNAL",
+      "rect": {
+        "x": 902,
+        "y": 1556,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "translate-trigger",
+      "role": "button",
+      "ariaLabel": "Translate subtitle",
+      "rect": {
+        "x": 1174,
+        "y": 1566,
+        "width": 29,
+        "height": 24
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "Serbian 7",
+      "rect": {
+        "x": 902,
+        "y": 1605,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "Swedish 7",
+      "rect": {
+        "x": 902,
+        "y": 1653,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "Turkish 4",
+      "rect": {
+        "x": 902,
+        "y": 1701,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "Root",
+      "rect": {
+        "x": 902,
+        "y": 1749,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "translate-trigger",
+      "role": "button",
+      "ariaLabel": "Translate subtitle",
+      "rect": {
+        "x": 1174,
+        "y": 1759,
+        "width": 29,
+        "height": 24
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "menu-link selectable-link",
+      "text": "Chinese 3",
+      "rect": {
+        "x": 902,
+        "y": 1797,
+        "width": 317,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "input",
+      "className": "slider-thumb absolute inset-0 w-full h-full opacity-0 cursor-pointer z-30 m-0 p-0 appearance-none touch-action-none svelte-l6y7q",
+      "ariaLabel": "Seek Video",
+      "rect": {
+        "x": 32,
+        "y": 636,
+        "width": 1216,
+        "height": 32
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 0,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "p-2 rounded-full hover:bg-white/10 transition-transform duration-100 flex items-center gap-3 active:scale-110 active:bg-white/30 svelte-l6y7q",
+      "ariaLabel": "Pause",
+      "rect": {
+        "x": 32,
+        "y": 668,
+        "width": 40,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "p-2 rounded-full hover:bg-white/10 transition-transform duration-100 flex items-center gap-3 active:scale-110 active:bg-white/30 svelte-l6y7q",
+      "ariaLabel": "Rewind 10s",
+      "text": "10",
+      "rect": {
+        "x": 84,
+        "y": 668,
+        "width": 40,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "p-2 rounded-full hover:bg-white/10 transition-transform duration-100 flex items-center gap-3 active:scale-110 active:bg-white/30 svelte-l6y7q",
+      "ariaLabel": "Forward 10s",
+      "text": "10",
+      "rect": {
+        "x": 136,
+        "y": 668,
+        "width": 40,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "p-2 rounded-full transition-transform duration-100 flex items-center gap-3 active:scale-110 svelte-l6y7q",
+      "ariaLabel": "Mute",
+      "rect": {
+        "x": 188,
+        "y": 668,
+        "width": 40,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "input",
+      "className": "absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 m-0 p-0 svelte-l6y7q",
+      "ariaLabel": "Volume",
+      "rect": {
+        "x": 220,
+        "y": 668,
+        "width": 16,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 0,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "p-2 rounded-full hover:bg-white/10 transition-transform duration-100 text-sm font-medium text-white flex items-center gap-3 cursor-pointer active:scale-110 active:bg-white/30 whitespace-nowrap shrink-0 svelte-l6y7q",
+      "text": "0:49 / 23:10",
+      "rect": {
+        "x": 232,
+        "y": 670,
+        "width": 96,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "p-2 rounded-full hover:bg-white/10 transition-transform duration-100 flex items-center gap-3 active:scale-110 active:bg-white/30  svelte-l6y7q",
+      "ariaLabel": "Episodes",
+      "rect": {
+        "x": 1000,
+        "y": 668,
+        "width": 40,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "p-2 rounded-full hover:bg-white/10 transition-transform duration-100 flex items-center gap-3 active:scale-110 active:bg-white/30 svelte-l6y7q",
+      "ariaLabel": "Picture in Picture",
+      "rect": {
+        "x": 1052,
+        "y": 668,
+        "width": 40,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "p-2 rounded-full hover:bg-white/10 transition-transform duration-100 flex items-center gap-3 active:scale-110 active:bg-white/30  svelte-l6y7q",
+      "ariaLabel": "Servers",
+      "rect": {
+        "x": 1104,
+        "y": 668,
+        "width": 40,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "p-2 rounded-full hover:bg-white/10 transition-transform duration-100 flex items-center gap-3 active:scale-110 active:bg-white/30 text-white scale-105 svelte-l6y7q",
+      "ariaLabel": "Subtitles",
+      "rect": {
+        "x": 1155,
+        "y": 667,
+        "width": 42,
+        "height": 42
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "p-2 rounded-full hover:bg-white/10 transition-transform duration-100 flex items-center gap-3 active:scale-110 active:bg-white/30  svelte-l6y7q",
+      "ariaLabel": "Settings",
+      "rect": {
+        "x": 1208,
+        "y": 668,
+        "width": 40,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "p-2 rounded-full hover:bg-white/10 transition-transform duration-100 flex items-center gap-3 active:scale-110 active:bg-white/30 svelte-l6y7q",
+      "ariaLabel": "Fullscreen",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "none",
+      "isInert": false,
+      "ariaHidden": false
+    }
+  ]
+}

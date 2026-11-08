@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {
   ConfigError, DEFAULT_LISTS, configWarnings, hostMatches, isValidAppId, isValidHostPattern, listApps, loadAppConfig,
-  loadResolved, parseAppConfig, resolveTarget, configPath, formatIssues,
+  loadResolved, parseAppConfig, resolveTarget, configPath, formatIssues, mergeTvProfiles,
 } from '../src/index.mjs';
 
 const valid = { name: 'demo', appName: 'Demo', appId: 'com.example.demo', url: 'https://demo.example.com/x' };
@@ -53,6 +53,12 @@ test('open-external is accepted, warned about and resolved to block', () => {
   assert.equal(configWarnings(parse(valid)).length, 0);
   assert.equal(resolveTarget(parse({ ...valid, externalLinks: 'in-app' }), 'phone').externalLinks, 'in-app');
   assert.deepEqual(resolveTarget(parse({ ...valid, authHosts: ['sso.example.com'] }), 'phone').authHosts, ['sso.example.com']);
+});
+
+test('dohHosts is optional, validated and resolved', () => {
+  assert.deepEqual(resolveTarget(parse(valid), 'phone').dohHosts, []);
+  assert.deepEqual(resolveTarget(parse({ ...valid, dohHosts: ['api.example.org'] }), 'phone').dohHosts, ['api.example.org']);
+  assert.throws(() => parse({ ...valid, dohHosts: ['https://api.example.org/'] }));
 });
 
 test('invalid JSON is reported', () => {
@@ -195,4 +201,59 @@ test('island and remote blocks', () => {
 
 test('formatIssues handles root issues', () => {
   assert.match(formatIssues('f.json', [{ path: [], message: 'bad', code: 'custom' }]), /f\.json: \(root\): bad/);
+});
+
+const profile = {
+  notes: 'text',
+  header: ['header.top'],
+  rows: ['.row'],
+  cards: ['.row a'],
+  skip: ['.arrow'],
+  firstFocus: ['.hero .play'],
+  playButtons: ['.play'],
+  servers: { toggle: '.srv', item: '.srv li', active: '.on', failed: '.dead' },
+  episodes: { item: '.ep', next: '.next' },
+  player: { frame: '.pf', fullscreenTarget: '.pf', fullscreenButton: ['#fs'], depth: 1 },
+  killOnTv: ['.trailer'],
+  viewportWidth: 1280,
+};
+
+test('tvProfiles: valid profiles parse and resolve for every target', () => {
+  const c = parse({ ...multi, tvProfiles: { a: profile } });
+  assert.deepEqual(c.tvProfiles.a.player.fullscreenButton, ['#fs']);
+  assert.deepEqual(resolveTarget(c, 'tv').tvProfiles.a.rows, ['.row']);
+  assert.deepEqual(resolveTarget(parse(valid), 'tv').tvProfiles, {});
+});
+
+test('tvProfiles: strict keys, types and ranges', () => {
+  fails({ ...multi, tvProfiles: { a: { bogus: 1 } } }, /tvProfiles\.a/);
+  fails({ ...multi, tvProfiles: { a: { header: 'x' } } }, /tvProfiles\.a\.header/);
+  fails({ ...multi, tvProfiles: { a: { servers: { nope: 'x' } } } }, /tvProfiles\.a\.servers/);
+  fails({ ...multi, tvProfiles: { a: { player: { depth: 9 } } } }, /tvProfiles\.a\.player\.depth/);
+  fails({ ...multi, tvProfiles: { a: { viewportWidth: 100 } } }, /tvProfiles\.a\.viewportWidth/);
+  fails({ ...multi, tvProfiles: { 'Bad Id': {} } }, /tvProfiles/);
+  fails({ ...multi, tvProfiles: { a: { header: [''] } } }, /tvProfiles\.a\.header\.0/);
+});
+
+test('tvProfiles: allowed as a per-target override', () => {
+  const c = parse({ ...multi, targets: { tv: { tvProfiles: { b: { rows: ['.r'] } } } } });
+  assert.deepEqual(resolveTarget(c, 'tv').tvProfiles.b.rows, ['.r']);
+  assert.deepEqual(resolveTarget(c, 'phone').tvProfiles, {});
+});
+
+test('tvProfiles: remote override merges per source, remote wins per key', () => {
+  const merged = mergeTvProfiles({ a: { rows: ['.r'], skip: ['.s'] }, b: { rows: ['.b'] } }, { a: { rows: ['.new'] }, c: { skip: ['.c'] } });
+  assert.deepEqual(merged.a, { rows: ['.new'], skip: ['.s'] });
+  assert.deepEqual(merged.b, { rows: ['.b'] });
+  assert.deepEqual(merged.c, { skip: ['.c'] });
+});
+
+test('cache block: on by default for tv only', () => {
+  const c = parse(valid);
+  assert.equal(resolveTarget(c, 'tv').cache.enabled, true);
+  assert.equal(resolveTarget(c, 'phone').cache.enabled, false);
+  assert.equal(resolveTarget(c, 'tv').cache.maxMb, 300);
+  assert.equal(resolveTarget(c, 'tv').cache.maxAgeDays, 30);
+  assert.equal(resolveTarget(parse({ ...valid, cache: { enabled: false } }), 'tv').cache.enabled, false);
+  fails({ ...valid, cache: { maxMb: 1 } }, /cache\.maxMb/);
 });

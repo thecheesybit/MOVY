@@ -22,9 +22,12 @@ final class IslandController implements SourceRepository.Listener, HealthChecker
     private final boolean tv;
     private boolean homeNow;
     private boolean fullscreen;
+    private boolean idle;
     private boolean forced;
     /** Where the last start-page load of the active source landed (some sites redirect "/" to a path). */
     private String landing;
+    /** Landing page learned per source this process; a resumed source (last URL is not its start page) restores it. */
+    private final java.util.Map<String, String> landings = new java.util.HashMap<>();
     private boolean armLanding;
     /** Automatic redirects (also SPA route changes) within this window after the first URL still define the landing page. */
     private long landingUntil;
@@ -62,6 +65,30 @@ final class IslandController implements SourceRepository.Listener, HealthChecker
         return tv && e.getAction() == android.view.KeyEvent.ACTION_DOWN && view.handleKey(e);
     }
 
+    boolean isHomeNow() {
+        return homeNow;
+    }
+
+    /** TV colour keys: jump straight to the Nth enabled source. */
+    void pickSlot(int slot) {
+        java.util.List<Source> list = repo.config().enabledSources();
+        if (slot < 0 || slot >= list.size()) return;
+        onSourcePicked(list.get(slot));
+        if (view.isExpanded()) view.collapse();
+    }
+
+    /** TV CHANNEL +/-: switches to the next/previous enabled source (wrapping) and returns its name, or null. */
+    String stepSource(int delta) {
+        java.util.List<Source> list = repo.config().enabledSources();
+        Source a = repo.active();
+        int cur = -1;
+        for (int i = 0; i < list.size(); i++) if (a != null && list.get(i).id.equals(a.id)) cur = i;
+        int next = TvKeys.stepSlot(cur, list.size(), delta);
+        if (next < 0) return null;
+        pickSlot(next);
+        return list.get(next).name;
+    }
+
     void collapse() {
         view.collapse();
     }
@@ -86,12 +113,19 @@ final class IslandController implements SourceRepository.Listener, HealthChecker
         long now = android.os.SystemClock.elapsedRealtime();
         if (armLanding && active != null && HomePageRule.belongsTo(active, url)) {
             if (landing == null) landingUntil = now + LANDING_WINDOW_MS;
-            if (now <= landingUntil) landing = HomePageRule.key(url); else armLanding = false;
+            if (now <= landingUntil) { landing = HomePageRule.key(url); landings.put(active.id, landing); } else armLanding = false;
         }
         boolean home = HomePageRule.isHome(repo.config(), url) || (landing != null && landing.equals(HomePageRule.key(url)));
         android.util.Log.i(KillLog.TAG, "island: page home=" + home + " armed=" + armLanding + " landingKnown=" + (landing != null));
         if (home == homeNow) return;
         homeNow = home;
+        refreshVisibility();
+    }
+
+    /** TV idle: the capsule hides (and an open Island closes) until the next key. */
+    void setIdle(boolean on) {
+        idle = on;
+        if (on && isExpanded()) collapse();
         refreshVisibility();
     }
 
@@ -103,7 +137,7 @@ final class IslandController implements SourceRepository.Listener, HealthChecker
     void refreshVisibility() {
         boolean want = forced || (!fullscreen && !launch.isChooserShowing()
                 && (launch.errorPanel().isShowing() || ALWAYS.equals(repo.config().islandVisibility) || homeNow));
-        if (fullscreen) want = false;
+        if (fullscreen || idle) want = false;
         android.util.Log.i(KillLog.TAG, "island: shown=" + want + " err=" + launch.errorPanel().isShowing() + " fs=" + fullscreen);
         view.setShown(want, true);
     }
@@ -127,9 +161,9 @@ final class IslandController implements SourceRepository.Listener, HealthChecker
     @Override
     public void onActiveSourceChanged(Source active) {
         view.setActive(active.id);
-        landing = null;
+        landing = landings.get(active.id);
         landingUntil = 0;
-        armLanding = repo.lastUrl(active).equals(active.url); // only a start-page load defines the landing page
+        armLanding = landing == null && repo.lastUrl(active).equals(active.url); // only a start-page load defines the landing page
         refreshVisibility();
     }
 

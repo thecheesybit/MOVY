@@ -7,6 +7,7 @@ const require = createRequire(import.meta.url);
 const { toAdblockType } = require('../src/main/request-types.js');
 const { chromeUserAgent } = require('../src/main/user-agent.js');
 const { createSites } = require('../src/main/sites.js');
+const { NavRules } = require('../src/core/nav-rules.js');
 
 test('maps electron resource types to adblock types', () => {
   const expected = {
@@ -24,7 +25,7 @@ test('user agent loses Electron and app tokens', () => {
 });
 
 test('sites: start url, wildcard hosts, http(s) only', () => {
-  const s = createSites({ url: 'https://movie.example/', allowedHosts: ['*.movie.example'] });
+  const s = createSites(new NavRules({ startUrl: 'https://movie.example/', allowedHosts: ['movie.example', '*.movie.example'] }));
   assert.equal(s.isAllowed('https://movie.example/a'), true);
   assert.equal(s.isAllowed('https://cdn.movie.example/a'), true);
   assert.equal(s.isAllowed('https://evilmovie.example/'), false);

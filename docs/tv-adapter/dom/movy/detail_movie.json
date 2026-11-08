@@ -1,0 +1,487 @@
+{
+  "url": "<movy>/movie/687163",
+  "pathname": "/movie/687163",
+  "title": "Project Hail Mary | Movy",
+  "viewport": {
+    "width": 1280,
+    "height": 720,
+    "meta": "width=1280"
+  },
+  "fullscreen": null,
+  "summary": {
+    "interactiveCount": 23,
+    "scrollContainerCount": 1,
+    "overlayCount": 1,
+    "hasPlayer": false
+  },
+  "player": null,
+  "overlays": [
+    {
+      "tag": "div",
+      "id": "_rht_toaster",
+      "className": "app-toaster",
+      "position": "fixed",
+      "zIndex": 9999,
+      "rect": {
+        "x": 16,
+        "y": 16,
+        "width": 1248,
+        "height": 676
+      }
+    }
+  ],
+  "scrollContainers": [
+    {
+      "tag": "div",
+      "className": "ScrollRow-module-scss-module__-kZXvG__track",
+      "scrollX": true,
+      "scrollY": false,
+      "scrollWidth": 2936,
+      "clientWidth": 1088,
+      "scrollHeight": 255,
+      "clientHeight": 255,
+      "rect": {
+        "x": 96,
+        "y": 692,
+        "width": 1088,
+        "height": 255
+      }
+    }
+  ],
+  "interactive": [
+    {
+      "tag": "button",
+      "className": "buttonTopLeftGoBack-module-scss-module__BnfKyq__slot",
+      "ariaLabel": "Go back",
+      "rect": {
+        "x": 99,
+        "y": 27,
+        "width": 38,
+        "height": 38
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "buttonTopLeftGoBack-module-scss-module__BnfKyq__slot",
+      "ariaLabel": "Home",
+      "rect": {
+        "x": 139,
+        "y": 27,
+        "width": 38,
+        "height": 38
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "group/vote inline-flex items-center gap-1 rounded-[4px] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white text-white/75 hover:text-white",
+      "ariaLabel": "Upvote",
+      "text": "76",
+      "rect": {
+        "x": 160,
+        "y": 337,
+        "width": 38,
+        "height": 18
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "group/vote inline-flex items-center gap-1 rounded-[4px] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white text-white/75 hover:text-white",
+      "ariaLabel": "Downvote",
+      "text": "3",
+      "rect": {
+        "x": 206,
+        "y": 337,
+        "width": 29,
+        "height": 18
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "mv-btn mv-btn--primary movy-tvf",
+      "text": "Play",
+      "rect": {
+        "x": 96,
+        "y": 496,
+        "width": 109,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false,
+      "isFocused": true
+    },
+    {
+      "tag": "button",
+      "className": "mv-btn mv-btn--secondary",
+      "ariaLabel": "Add to List",
+      "text": "Add to List",
+      "rect": {
+        "x": 217,
+        "y": 496,
+        "width": 151,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "inline-flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "mv-btn mv-btn--secondary",
+      "text": "Download",
+      "rect": {
+        "x": 380,
+        "y": 496,
+        "width": 145,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "mv-btn mv-btn--secondary md:hidden",
+      "text": "Share",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "none",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "div",
+      "className": "ScrollRow-module-scss-module__-kZXvG__track",
+      "role": "group",
+      "ariaLabel": "Actors",
+      "text": "Ryan Gosling Ryland Grace Sandra Hüller Eva Stratt James Ortiz Rocky (voice) Lio",
+      "rect": {
+        "x": 96,
+        "y": 692,
+        "width": 1088,
+        "height": 255
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "ScrollRow-module-scss-module__-kZXvG__arrow ScrollRow-module-scss-module__-kZXvG__arrowPrev",
+      "ariaLabel": "Scroll back",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "none",
+      "tabindex": "-1",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "ScrollRow-module-scss-module__-kZXvG__arrow ScrollRow-module-scss-module__-kZXvG__arrowNext",
+      "ariaLabel": "Scroll forward",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "none",
+      "tabindex": "-1",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Solaris 6.0 · 2002 · Movie",
+      "rect": {
+        "x": 96,
+        "y": 1046,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Stowaway 6.0 · 2021 · Movie",
+      "rect": {
+        "x": 461,
+        "y": 1046,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Interstellar 8.5 · 2014 · Movie",
+      "rect": {
+        "x": 825,
+        "y": 1046,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Guardians of the Galaxy 7.9 · 2014 · Movie",
+      "rect": {
+        "x": 96,
+        "y": 1315,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Moon 7.6 · 2009 · Movie",
+      "rect": {
+        "x": 461,
+        "y": 1315,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "War of the Worlds 6.6 · 2005 · Movie",
+      "rect": {
+        "x": 825,
+        "y": 1315,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Gravity 7.2 · 2013 · Movie",
+      "rect": {
+        "x": 96,
+        "y": 1584,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Enemy Mine 7.0 · 1985 · Movie",
+      "rect": {
+        "x": 461,
+        "y": 1584,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Planet of the Apes 7.7 · 1968 · Movie",
+      "rect": {
+        "x": 825,
+        "y": 1584,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "The Hitchhiker's Guide to the Galaxy 6.7 · 2005 · Movie",
+      "rect": {
+        "x": 96,
+        "y": 1852,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Star Trek Beyond 6.8 · 2016 · Movie",
+      "rect": {
+        "x": 461,
+        "y": 1852,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "John Carter 6.4 · 2012 · Movie",
+      "rect": {
+        "x": 825,
+        "y": 1852,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    }
+  ]
+}

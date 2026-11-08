@@ -7,7 +7,7 @@ export function electronBuilderConfig(cfg, { outDir, gen }) {
     productName: cfg.appName,
     extraMetadata: { name: `movy-${cfg.name}`, version: cfg.version, main: 'src/main/main.js' },
     directories: { output: outDir },
-    files: ['package.json', 'src/**/*'],
+    files: ['package.json', 'src/**/*', '!**/node_modules/**'], // the build-only root dependencies stay out of the app
     extraResources: [{ from: gen, to: 'movy' }], // engine, config, .node: outside the asar
     asar: true,
     npmRebuild: false,

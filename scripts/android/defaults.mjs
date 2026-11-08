@@ -38,5 +38,8 @@ export function buildDefaults(cfg, key) {
     splash: { tagline: cfg.tagline, credit: cfg.credit, minMs: 600 },
     island: { visibility: cfg.island.visibility },
     extraAllowedHosts: [],
+    dohHosts: cfg.dohHosts ?? [],
+    // TV navigation profiles (selectors only); empty for the phone flavor so nothing TV-specific ships there.
+    tvProfiles: cfg.target === 'tv' ? cfg.tvProfiles ?? {} : {},
   };
 }

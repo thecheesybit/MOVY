@@ -1,0 +1,93 @@
+{
+  "url": "<movy>/tv/65701/1/1?play=true",
+  "pathname": "/tv/65701/1/1",
+  "title": "Good Mythical Morning | Movy",
+  "viewport": {
+    "width": 1280,
+    "height": 720,
+    "meta": "width=1280"
+  },
+  "fullscreen": null,
+  "summary": {
+    "interactiveCount": 1,
+    "scrollContainerCount": 0,
+    "overlayCount": 3,
+    "hasPlayer": true
+  },
+  "player": {
+    "selector": "#vp-shell",
+    "tag": "div",
+    "id": "vp-shell",
+    "className": "fixed inset-0",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 1280,
+      "height": 720
+    },
+    "video": null
+  },
+  "overlays": [
+    {
+      "tag": "div",
+      "id": "_rht_toaster",
+      "className": "app-toaster",
+      "position": "fixed",
+      "zIndex": 9999,
+      "rect": {
+        "x": 16,
+        "y": 16,
+        "width": 1248,
+        "height": 676
+      }
+    },
+    {
+      "tag": "div",
+      "id": "vp-shell",
+      "className": "fixed inset-0",
+      "position": "fixed",
+      "zIndex": 0,
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "tag": "div",
+      "className": "fixed inset-0 vp-root",
+      "position": "fixed",
+      "zIndex": 0,
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 720
+      }
+    }
+  ],
+  "scrollContainers": [],
+  "interactive": [
+    {
+      "tag": "a",
+      "className": "vp-notfound-btn mt-5 inline-flex items-center justify-center rounded-full bg-white font-semibold text-black transition-opacity hover:opacity-80 movy-tvf",
+      "text": "Go home",
+      "rect": {
+        "x": 594,
+        "y": 424,
+        "width": 91,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false,
+      "isFocused": true
+    }
+  ]
+}

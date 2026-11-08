@@ -1,0 +1,776 @@
+{
+  "url": "<cinejoy>/search",
+  "pathname": "/search",
+  "title": "Search - Cinejoy",
+  "viewport": {
+    "width": 1280,
+    "height": 720,
+    "meta": "width=1280"
+  },
+  "fullscreen": null,
+  "summary": {
+    "interactiveCount": 37,
+    "scrollContainerCount": 0,
+    "overlayCount": 3,
+    "hasPlayer": false
+  },
+  "player": null,
+  "overlays": [
+    {
+      "tag": "div",
+      "className": "flex fixed top-0 left-0 right-0 z-50 pointer-events-none px-6 lg:px-12 py-4 justify-between items-center header-row lg:py-6 svelte-1elxaub",
+      "position": "fixed",
+      "zIndex": 50,
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 102
+      }
+    },
+    {
+      "tag": "div",
+      "className": "fixed inset-0 z-0 opacity-60 pointer-events-none",
+      "position": "fixed",
+      "zIndex": 0,
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "tag": "div",
+      "className": "liquid-bg svelte-1cy4btr",
+      "position": "fixed",
+      "zIndex": 0,
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 720
+      }
+    }
+  ],
+  "scrollContainers": [],
+  "interactive": [
+    {
+      "tag": "button",
+      "className": "flex items-center justify-center text-white drop-shadow-lg transition-transform duration-200 hover:scale-110 active:scale-90",
+      "ariaLabel": "Go back",
+      "rect": {
+        "x": 48,
+        "y": 37,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "group relative flex items-center justify-center",
+      "ariaLabel": "Home",
+      "rect": {
+        "x": 84,
+        "y": 29,
+        "width": 41,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "relative z-10 flex items-center justify-center gap-2 px-6 rounded-full text-sm font-medium nav-item whitespace-nowrap text-white/60 hover:text-white svelte-1elxaub",
+      "text": "Home",
+      "rect": {
+        "x": 746,
+        "y": 31,
+        "width": 86,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "relative z-10 flex items-center justify-center gap-2 px-6 rounded-full text-sm font-medium nav-item whitespace-nowrap text-white/60 hover:text-white svelte-1elxaub",
+      "text": "Movies",
+      "rect": {
+        "x": 835,
+        "y": 31,
+        "width": 93,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "relative z-10 flex items-center justify-center gap-2 px-6 rounded-full text-sm font-medium nav-item whitespace-nowrap text-white/60 hover:text-white svelte-1elxaub",
+      "text": "Shows",
+      "rect": {
+        "x": 933,
+        "y": 31,
+        "width": 90,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "relative z-10 flex items-center justify-center gap-2 px-6 rounded-full text-sm font-medium nav-item whitespace-nowrap text-white/60 hover:text-white svelte-1elxaub",
+      "text": "My List",
+      "rect": {
+        "x": 1026,
+        "y": 31,
+        "width": 94,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative z-10 flex items-center justify-center rounded-full nav-item is-icon text-black theme-icon-active svelte-1elxaub",
+      "ariaLabel": "Search",
+      "rect": {
+        "x": 1141,
+        "y": 31,
+        "width": 40,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative flex items-center justify-center rounded-full nav-item is-icon text-white/60 hover:text-white hover:bg-white/[0.08] svelte-1elxaub",
+      "ariaLabel": "Settings",
+      "rect": {
+        "x": 1185,
+        "y": 31,
+        "width": 40,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "relative flex items-center justify-center w-[14vw] max-w-[60px] h-10 rounded-full transition-colors duration-300 text-[#9ca3af] hover:text-white",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "relative flex items-center justify-center w-[14vw] max-w-[60px] h-10 rounded-full transition-colors duration-300 text-[#9ca3af] hover:text-white",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "relative flex items-center justify-center w-[14vw] max-w-[60px] h-10 rounded-full transition-colors duration-300 text-[#9ca3af] hover:text-white",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "relative flex items-center justify-center w-[14vw] max-w-[60px] h-10 rounded-full transition-colors duration-300 text-[#9ca3af] hover:text-white",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative flex items-center justify-center w-[14vw] max-w-[60px] h-10 rounded-full transition-colors duration-300 theme-glass-tint-active text-white",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative flex items-center justify-center w-[14vw] max-w-[60px] h-10 rounded-full transition-colors duration-300 text-[#9ca3af] hover:text-white",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "input",
+      "className": "w-full h-full bg-transparent border-none outline-none text-white text-base placeholder:text-white/30 px-4 font-medium",
+      "rect": {
+        "x": 388,
+        "y": 193,
+        "width": 545,
+        "height": 47
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false,
+      "isFocused": true
+    },
+    {
+      "tag": "a",
+      "className": "block transition-transform duration-500 ease-out hover:scale-105 hover:z-50 origin-center group/card cursor-pointer   svelte-123pyum",
+      "ariaLabel": "Spider-Man: Brand New Day",
+      "text": "Spider-Man: Brand New Day 2026 8.5",
+      "rect": {
+        "x": 48,
+        "y": 304,
+        "width": 177,
+        "height": 266
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "block transition-transform duration-500 ease-out hover:scale-105 hover:z-50 origin-center group/card cursor-pointer   svelte-123pyum",
+      "ariaLabel": "Spider-Man",
+      "text": "Spider-Man 2002 7.4",
+      "rect": {
+        "x": 249,
+        "y": 304,
+        "width": 177,
+        "height": 266
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "block transition-transform duration-500 ease-out hover:scale-105 hover:z-50 origin-center group/card cursor-pointer   svelte-123pyum",
+      "ariaLabel": "Spider-Man",
+      "text": "Spider-Man 1994 8.3",
+      "rect": {
+        "x": 451,
+        "y": 304,
+        "width": 177,
+        "height": 266
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "block transition-transform duration-500 ease-out hover:scale-105 hover:z-50 origin-center group/card cursor-pointer   svelte-123pyum",
+      "ariaLabel": "Spider-Man: Homecoming",
+      "text": "Spider-Man: Homecoming 2017 7.3",
+      "rect": {
+        "x": 652,
+        "y": 304,
+        "width": 177,
+        "height": 266
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "block transition-transform duration-500 ease-out hover:scale-105 hover:z-50 origin-center group/card cursor-pointer   svelte-123pyum",
+      "ariaLabel": "Spider-Noir",
+      "text": "Spider-Noir 2026 8.3",
+      "rect": {
+        "x": 853,
+        "y": 304,
+        "width": 177,
+        "height": 266
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "block transition-transform duration-500 ease-out hover:scale-105 hover:z-50 origin-center group/card cursor-pointer   svelte-123pyum",
+      "ariaLabel": "Spider-Man: No Way Home",
+      "text": "Spider-Man: No Way Home 2021 7.9",
+      "rect": {
+        "x": 1055,
+        "y": 304,
+        "width": 177,
+        "height": 266
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "block transition-transform duration-500 ease-out hover:scale-105 hover:z-50 origin-center group/card cursor-pointer   svelte-123pyum",
+      "ariaLabel": "Spider-Man",
+      "text": "Spider-Man 1967 7.9",
+      "rect": {
+        "x": 48,
+        "y": 594,
+        "width": 177,
+        "height": 266
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "block transition-transform duration-500 ease-out hover:scale-105 hover:z-50 origin-center group/card cursor-pointer   svelte-123pyum",
+      "ariaLabel": "The Amazing Spider-Man",
+      "text": "The Amazing Spider-Man 2012 6.8",
+      "rect": {
+        "x": 249,
+        "y": 594,
+        "width": 177,
+        "height": 266
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "block transition-transform duration-500 ease-out hover:scale-105 hover:z-50 origin-center group/card cursor-pointer   svelte-123pyum",
+      "ariaLabel": "Spider-Man: Across the Spider-Verse",
+      "text": "Spider-Man: Across the Spider-Verse 2023 8.3",
+      "rect": {
+        "x": 451,
+        "y": 594,
+        "width": 177,
+        "height": 266
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "block transition-transform duration-500 ease-out hover:scale-105 hover:z-50 origin-center group/card cursor-pointer   svelte-123pyum",
+      "ariaLabel": "Spider-Man: Into the Spider-Verse",
+      "text": "Spider-Man: Into the Spider-Verse 2018 8.4",
+      "rect": {
+        "x": 652,
+        "y": 594,
+        "width": 177,
+        "height": 266
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "block transition-transform duration-500 ease-out hover:scale-105 hover:z-50 origin-center group/card cursor-pointer   svelte-123pyum",
+      "ariaLabel": "Spider-Man: Far From Home",
+      "text": "Spider-Man: Far From Home 2019 7.4",
+      "rect": {
+        "x": 853,
+        "y": 594,
+        "width": 177,
+        "height": 266
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "block transition-transform duration-500 ease-out hover:scale-105 hover:z-50 origin-center group/card cursor-pointer   svelte-123pyum",
+      "ariaLabel": "Spider-Man 3",
+      "text": "Spider-Man 3 2007 6.5",
+      "rect": {
+        "x": 1055,
+        "y": 594,
+        "width": 177,
+        "height": 266
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "block transition-transform duration-500 ease-out hover:scale-105 hover:z-50 origin-center group/card cursor-pointer   svelte-123pyum",
+      "ariaLabel": "Spider Riders",
+      "text": "Spider Riders 2006 7.3",
+      "rect": {
+        "x": 48,
+        "y": 884,
+        "width": 177,
+        "height": 266
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "block transition-transform duration-500 ease-out hover:scale-105 hover:z-50 origin-center group/card cursor-pointer   svelte-123pyum",
+      "ariaLabel": "Lucas the Spider",
+      "text": "Lucas the Spider 2021 7.2",
+      "rect": {
+        "x": 249,
+        "y": 884,
+        "width": 177,
+        "height": 266
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "block transition-transform duration-500 ease-out hover:scale-105 hover:z-50 origin-center group/card cursor-pointer   svelte-123pyum",
+      "ariaLabel": "The Spectacular Spider-Man",
+      "text": "The Spectacular Spider-Man 2008 8.6",
+      "rect": {
+        "x": 451,
+        "y": 884,
+        "width": 177,
+        "height": 266
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "block transition-transform duration-500 ease-out hover:scale-105 hover:z-50 origin-center group/card cursor-pointer   svelte-123pyum",
+      "ariaLabel": "Marvel's Spider-Man",
+      "text": "Marvel's Spider-Man 2017 7.5",
+      "rect": {
+        "x": 652,
+        "y": 884,
+        "width": 177,
+        "height": 266
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "block transition-transform duration-500 ease-out hover:scale-105 hover:z-50 origin-center group/card cursor-pointer   svelte-123pyum",
+      "ariaLabel": "The Amazing Spider-Man 2",
+      "text": "The Amazing Spider-Man 2 2014 6.6",
+      "rect": {
+        "x": 853,
+        "y": 884,
+        "width": 177,
+        "height": 266
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "block transition-transform duration-500 ease-out hover:scale-105 hover:z-50 origin-center group/card cursor-pointer   svelte-123pyum",
+      "ariaLabel": "Spider",
+      "text": "Spider 2002 6.6",
+      "rect": {
+        "x": 1055,
+        "y": 884,
+        "width": 177,
+        "height": 266
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "block transition-transform duration-500 ease-out hover:scale-105 hover:z-50 origin-center group/card cursor-pointer   svelte-123pyum",
+      "ariaLabel": "Marvel's Ultimate Spider-Man",
+      "text": "Marvel's Ultimate Spider-Man 2012 7.7",
+      "rect": {
+        "x": 48,
+        "y": 1174,
+        "width": 177,
+        "height": 266
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "block transition-transform duration-500 ease-out hover:scale-105 hover:z-50 origin-center group/card cursor-pointer   svelte-123pyum",
+      "ariaLabel": "Your Friendly Neighborhood Spider-Man",
+      "text": "Your Friendly Neighborhood Spider-Man 2025 7.8",
+      "rect": {
+        "x": 249,
+        "y": 1174,
+        "width": 177,
+        "height": 266
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "group relative flex items-center justify-center",
+      "ariaLabel": "Home",
+      "rect": {
+        "x": 572,
+        "y": 1552,
+        "width": 135,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-white/30 text-xs hover:text-white/60 transition-colors duration-200 underline underline-offset-2",
+      "text": "contact@<cinejoy>",
+      "rect": {
+        "x": 588,
+        "y": 1675,
+        "width": 104,
+        "height": 16
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    }
+  ]
+}

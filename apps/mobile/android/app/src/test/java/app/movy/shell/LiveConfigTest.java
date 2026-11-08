@@ -161,4 +161,14 @@ public class LiveConfigTest {
         assertEquals(0, sink[0].contentVersion);
         assertEquals("X", sink[0].tagline);
     }
+
+    @Test
+    public void dohHostsMergeAndValidate() {
+        assertTrue(base().dohHosts.isEmpty());
+        LiveConfig c = LiveConfig.merge(base(), "{\"dohHosts\":[\"Api.Example.org\",\"*.cdn.example.net\"]}", UrlDecoder.IDENTITY);
+        assertEquals(java.util.Arrays.asList("api.example.org", "*.cdn.example.net"), c.dohHosts);
+        LiveConfig kept = LiveConfig.merge(c, "{\"tagline\":\"x\"}", UrlDecoder.IDENTITY);
+        assertEquals(c.dohHosts, kept.dohHosts);
+        rejects("{\"dohHosts\":[\"https://api.example.org/\"]}");
+    }
 }

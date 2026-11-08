@@ -1,19 +1,19 @@
 'use strict';
 const { Menu, clipboard } = require('electron');
 
-/** Small right-click menu: navigation, clipboard and "open link in browser". */
-function installContextMenu(wc, win, policy) {
+/** Small right-click menu: navigation, clipboard, image save. Never offers to open a browser or another app. */
+function installContextMenu(wc, win) {
   wc.on('context-menu', (_e, p) => {
     const nav = wc.navigationHistory;
     const t = [];
 
     if (p.linkURL) {
-      t.push({ label: 'Open link in browser', click: () => policy.openExternal(p.linkURL) });
       t.push({ label: 'Copy link address', click: () => clipboard.writeText(p.linkURL) });
       t.push({ type: 'separator' });
     }
     if (p.mediaType === 'image') {
       t.push({ label: 'Copy image', click: () => wc.copyImageAt(p.x, p.y) });
+      if (p.srcURL) t.push({ label: 'Save image as…', click: () => wc.downloadURL(p.srcURL) });
       t.push({ type: 'separator' });
     }
     if (p.isEditable) {

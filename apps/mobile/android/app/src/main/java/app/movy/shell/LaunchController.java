@@ -15,6 +15,7 @@ import android.widget.FrameLayout;
  */
 final class LaunchController implements SourceRepository.Listener, ChooserView.Listener {
     private static final long SPLASH_HARD_CAP_MS = 1500;
+    private static final long TV_SPLASH_HARD_CAP_MS = 6000;
     private static final int READY_PROGRESS = 70;
 
     private final Activity activity;
@@ -23,6 +24,7 @@ final class LaunchController implements SourceRepository.Listener, ChooserView.L
     private final Prefs prefs;
     private final String appName;
     private final boolean remote;
+    private final boolean isTv;
     private final Handler main = new Handler(Looper.getMainLooper());
     private final ErrorPanel errorPanel;
 
@@ -33,13 +35,14 @@ final class LaunchController implements SourceRepository.Listener, ChooserView.L
     /** Debug builds only: extra time the splash stays up (screenshots). */
     private long holdMs;
 
-    LaunchController(Activity activity, SourceRepository repo, Prefs prefs, String appName, boolean remote) {
+    LaunchController(Activity activity, SourceRepository repo, Prefs prefs, String appName, boolean remote, boolean isTv) {
         this.activity = activity;
         this.content = activity.findViewById(android.R.id.content);
         this.repo = repo;
         this.prefs = prefs;
         this.appName = appName;
         this.remote = remote;
+        this.isTv = isTv;
         this.errorPanel = new ErrorPanel(activity);
         content.addView(errorPanel, new FrameLayout.LayoutParams(-1, -1));
         repo.addListener(this);
@@ -47,6 +50,10 @@ final class LaunchController implements SourceRepository.Listener, ChooserView.L
 
     ErrorPanel errorPanel() {
         return errorPanel;
+    }
+
+    ChooserView chooserView() {
+        return chooser;
     }
 
     boolean isChooserShowing() {
@@ -68,16 +75,26 @@ final class LaunchController implements SourceRepository.Listener, ChooserView.L
         if (launch != null) {
             launching = true;
             repo.switchTo(launch.id);
-            main.postDelayed(this::dismissSplash, SPLASH_HARD_CAP_MS + holdMs);
+            long cap = isTv ? TV_SPLASH_HARD_CAP_MS : SPLASH_HARD_CAP_MS;
+            main.postDelayed(this::dismissSplash, cap + holdMs);
         } else {
             main.postDelayed(this::showChooser, cfg.splashMinMs + holdMs);
         }
-        main.postDelayed(() -> checkUpdate(repo.config()), SPLASH_HARD_CAP_MS + 300);
+        main.postDelayed(() -> checkUpdate(repo.config()), (isTv ? TV_SPLASH_HARD_CAP_MS : SPLASH_HARD_CAP_MS) + 300);
     }
 
     /** Page progress (UI thread); lets the splash go once the site has started to paint. */
     void onProgress(int percent) {
+        if (isTv) return; // TV waits for MovyTvNative.ready() or the 6s hard cap
         if (!launching || splash == null || percent < READY_PROGRESS) return;
+        long left = repo.config().splashMinMs + holdMs - (SystemClock.elapsedRealtime() - splashShownAt);
+        main.postDelayed(this::dismissSplash, Math.max(0, left));
+    }
+
+    /** Called when the page signals MovyTvNative.ready() (TV only). */
+    void onAdapterReady() {
+        if (!launching || splash == null) return;
+        Log.i(KillLog.TAG, "adapter ready received; dismissing TV splash");
         long left = repo.config().splashMinMs + holdMs - (SystemClock.elapsedRealtime() - splashShownAt);
         main.postDelayed(this::dismissSplash, Math.max(0, left));
     }
@@ -113,6 +130,11 @@ final class LaunchController implements SourceRepository.Listener, ChooserView.L
             splash.bringToFront();
             dismissSplash();
         }
+    }
+
+    /** Debug builds only: shows the chooser on top of whatever is loaded (never persists anything by itself). */
+    void debugShowChooser() {
+        if (chooser == null) showChooser();
     }
 
     @Override

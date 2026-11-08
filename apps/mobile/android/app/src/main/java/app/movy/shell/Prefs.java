@@ -100,4 +100,30 @@ public final class Prefs {
     public void setIslandY(float y) {
         sp.edit().putFloat(ISLAND_Y, y).apply();
     }
+
+    /** TV: the one-time "Press MENU to switch source" hint has been shown. */
+    /** TV: source and URL to reopen after the WebView was destroyed in the background; consumed once. */
+    public String tvResumeId() {
+        return sp.getString("tvResumeId", null);
+    }
+
+    public String tvResumeUrl() {
+        return sp.getString("tvResumeUrl", null);
+    }
+
+    public void setTvResume(String id, String url) {
+        sp.edit().putString("tvResumeId", id).putString("tvResumeUrl", url).apply();
+    }
+
+    public void clearTvResume() {
+        sp.edit().remove("tvResumeId").remove("tvResumeUrl").apply();
+    }
+
+    public boolean tvHintShown() {
+        return sp.getBoolean("tvHintShown", false);
+    }
+
+    public void setTvHintShown() {
+        sp.edit().putBoolean("tvHintShown", true).apply();
+    }
 }

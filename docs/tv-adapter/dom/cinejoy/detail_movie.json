@@ -1,0 +1,333 @@
+{
+  "url": "<cinejoy>/movie/1567605-ebenezer-2026",
+  "pathname": "/movie/1567605-ebenezer-2026",
+  "title": "Cinejoy",
+  "viewport": {
+    "width": 1280,
+    "height": 720,
+    "meta": "width=1280"
+  },
+  "fullscreen": null,
+  "summary": {
+    "interactiveCount": 16,
+    "scrollContainerCount": 0,
+    "overlayCount": 1,
+    "hasPlayer": false
+  },
+  "player": null,
+  "overlays": [
+    {
+      "tag": "div",
+      "className": "flex fixed top-0 left-0 right-0 z-50 pointer-events-none px-6 lg:px-12 py-4 justify-between items-center header-row lg:py-6 svelte-1elxaub",
+      "position": "fixed",
+      "zIndex": 50,
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 102
+      }
+    }
+  ],
+  "scrollContainers": [],
+  "interactive": [
+    {
+      "tag": "button",
+      "className": "flex items-center justify-center text-white drop-shadow-lg transition-transform duration-200 hover:scale-110 active:scale-90",
+      "ariaLabel": "Go back",
+      "rect": {
+        "x": 48,
+        "y": 37,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "group relative flex items-center justify-center",
+      "ariaLabel": "Home",
+      "rect": {
+        "x": 84,
+        "y": 29,
+        "width": 41,
+        "height": 44
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "relative z-10 flex items-center justify-center gap-2 px-6 rounded-full text-sm font-medium nav-item whitespace-nowrap text-white/60 hover:text-white svelte-1elxaub",
+      "text": "Home",
+      "rect": {
+        "x": 722,
+        "y": 31,
+        "width": 86,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "relative z-10 flex items-center justify-center gap-2 px-6 rounded-full text-sm font-medium nav-item whitespace-nowrap text-black theme-icon-active svelte-1elxaub",
+      "text": "Movies",
+      "rect": {
+        "x": 811,
+        "y": 31,
+        "width": 117,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "relative z-10 flex items-center justify-center gap-2 px-6 rounded-full text-sm font-medium nav-item whitespace-nowrap text-white/60 hover:text-white svelte-1elxaub",
+      "text": "Shows",
+      "rect": {
+        "x": 933,
+        "y": 31,
+        "width": 90,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "relative z-10 flex items-center justify-center gap-2 px-6 rounded-full text-sm font-medium nav-item whitespace-nowrap text-white/60 hover:text-white svelte-1elxaub",
+      "text": "My List",
+      "rect": {
+        "x": 1026,
+        "y": 31,
+        "width": 94,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative z-10 flex items-center justify-center rounded-full nav-item is-icon text-white/60 hover:text-white hover:bg-white/[0.08] svelte-1elxaub",
+      "ariaLabel": "Search",
+      "rect": {
+        "x": 1141,
+        "y": 31,
+        "width": 40,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative flex items-center justify-center rounded-full nav-item is-icon text-white/60 hover:text-white hover:bg-white/[0.08] svelte-1elxaub",
+      "ariaLabel": "Settings",
+      "rect": {
+        "x": 1185,
+        "y": 31,
+        "width": 40,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "relative flex items-center justify-center w-[14vw] max-w-[60px] h-10 rounded-full transition-colors duration-300 text-[#9ca3af] hover:text-white",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "relative flex items-center justify-center w-[14vw] max-w-[60px] h-10 rounded-full transition-colors duration-300 theme-glass-tint-active text-white",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "relative flex items-center justify-center w-[14vw] max-w-[60px] h-10 rounded-full transition-colors duration-300 text-[#9ca3af] hover:text-white",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "relative flex items-center justify-center w-[14vw] max-w-[60px] h-10 rounded-full transition-colors duration-300 text-[#9ca3af] hover:text-white",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative flex items-center justify-center w-[14vw] max-w-[60px] h-10 rounded-full transition-colors duration-300 text-[#9ca3af] hover:text-white",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative flex items-center justify-center w-[14vw] max-w-[60px] h-10 rounded-full transition-colors duration-300 text-[#9ca3af] hover:text-white",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "group relative flex items-center justify-center",
+      "ariaLabel": "Home",
+      "rect": {
+        "x": 572,
+        "y": 752,
+        "width": 135,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-white/30 text-xs hover:text-white/60 transition-colors duration-200 underline underline-offset-2",
+      "text": "contact@<cinejoy>",
+      "rect": {
+        "x": 588,
+        "y": 875,
+        "width": 104,
+        "height": 16
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    }
+  ]
+}

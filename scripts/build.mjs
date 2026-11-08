@@ -14,10 +14,10 @@ import { commitBuildNumber, pickBuildNumber } from './android/buildnumber.mjs';
 const BUILDERS = {
   phone: async (app, o) => (await import('./build-android.mjs')).buildAndroid(app, 'phone', o),
   tv: async (app, o) => (await import('./build-android.mjs')).buildAndroid(app, 'tv', o),
-  desktop: async (app) => {
+  desktop: async (app, o) => {
     const file = path.join(ROOT, 'scripts', 'build-desktop.mjs');
     if (!fs.existsSync(file)) throw new Error('Desktop target is not available yet (scripts/build-desktop.mjs missing)');
-    return (await import(pathToFileURL(file).href)).buildDesktop(app);
+    return (await import(pathToFileURL(file).href)).buildDesktop(app, o);
   },
 };
 

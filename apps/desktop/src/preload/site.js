@@ -1,7 +1,7 @@
 'use strict';
 // Sandboxed preload for every frame of the remote site (nodeIntegrationInSubFrames + sandbox: no Node).
-// It exposes NOTHING to the page. It runs the shared loading.js / cosmetic.js in the preload's isolated
-// world (DOM access is shared) and sends scriptlets to the page's main world.
+// It exposes NOTHING to the page. It runs the shared loading.js / cosmetic.js / scamguard.js in the preload's isolated
+// world (DOM access is shared) and sends scriptlets and navguard.js to the page's main world.
 const { ipcRenderer, webFrame } = require('electron');
 
 (function () {
@@ -10,6 +10,12 @@ const { ipcRenderer, webFrame } = require('electron');
 
   const boot = ipcRenderer.sendSync('movy:boot');
   if (!boot) return;
+
+  // Desktop: pages scroll (wheel, keys, touch) but no scrollbar is ever drawn; every frame, every navigation.
+  const NO_SCROLLBARS = '::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}html,body,*{scrollbar-width:none!important}';
+  try {
+    webFrame.insertCSS(NO_SCROLLBARS);
+  } catch (e) { /* page without a document yet: nothing to style */ }
 
   const run = (code, vars) => {
     try {
@@ -32,7 +38,14 @@ const { ipcRenderer, webFrame } = require('electron');
     webFrame.executeJavaScript(`(function(){try{${code}\n}catch(e){}})();`).catch(() => {});
   };
 
+  let top = false;
+  try {
+    top = window.self === window.top;
+  } catch (e) { /* cross-origin parent: not top */ }
+
   run(boot.loadingJs, {});
+  if (top) run(boot.scamguardJs, {}); // fake-captcha / QR overlays only appear in the top document
+  if (boot.navguardJs) runInPage(`window.MOVY_NAV=${JSON.stringify(boot.nav)};${boot.navguardJs}`);
 
   if (boot.cosmetic) {
     const bridge = {

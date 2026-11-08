@@ -82,11 +82,15 @@ public final class CosmeticBridge {
         String script;
         String loading;
         String navguard;
+        String tvnav = null;
+        String scam;
         try {
             JSONObject opts = new JSONObject().put("cosmetic", cosmetic).put("tv", tv);
             script = "(function(){var MOVY_OPTS=" + opts + ";" + readAsset(ctx, "adblock/cosmetic.js") + "\n})();";
             loading = readAsset(ctx, "shell/loading.js");
             navguard = "(function(){" + readAsset(ctx, "shell/navguard.js") + "\n})();";
+            scam = "(function(){" + readAsset(ctx, "shell/scamguard.js") + "\n})();";
+            if (tv) tvnav = readAsset(ctx, "shell/tvnav-pure.js") + "\n" + readAsset(ctx, "shell/tvnav.js") + "\n" + readAsset(ctx, "shell/tvfs.js"); // each file is its own IIFE
         } catch (Exception e) {
             Log.e(TAG, "cannot prepare cosmetic script", e);
             return null;
@@ -97,6 +101,8 @@ public final class CosmeticBridge {
             WebViewCompat.addDocumentStartJavaScript(webView, script, all);
             WebViewCompat.addDocumentStartJavaScript(webView, loading, all);
             WebViewCompat.addDocumentStartJavaScript(webView, navguard, all);
+            WebViewCompat.addDocumentStartJavaScript(webView, scam, all);
+            if (tvnav != null) WebViewCompat.addDocumentStartJavaScript(webView, tvnav, all);
             return null;
         }
         Log.w(TAG, "DOCUMENT_START_SCRIPT unsupported: falling back to onPageStarted injection");

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { isValidAppId, isValidHostPattern } from './hosts.mjs';
+import { cacheSchema, tvProfilesSchema } from './tvprofile.mjs';
 
 const httpUrl = z
   .string()
@@ -68,11 +69,14 @@ const baseFields = {
   versionCode: z.number().int().min(1).max(2100000000).default(1),
   allowedHosts: z.array(hostPattern).optional().describe('Hosts allowed for in-app top-level navigation. Default: URL host and its subdomains.'),
   authHosts: z.array(hostPattern).optional().describe('Extra sign-in hosts (added to the built-in list) that a user tap may open as a top-level navigation.'),
+  dohHosts: z.array(hostPattern).optional().describe('Hosts whose requests are answered over DNS-over-HTTPS, for networks whose resolver poisons a name the site depends on.'),
   externalLinks: z.enum(['block', 'in-app', 'open-external']).default('block').describe('Non-allowed hosts: "block" (default, silently ignored) or "in-app". "open-external" is deprecated and treated as "block"; the app never launches other apps.'),
   userAgent: z.string().min(1).nullable().default(null).describe('null = platform default with WebView markers removed.'),
   backgroundColor: color.default('#000000'),
   orientation: z.enum(['any', 'portrait', 'landscape']).default('any'),
   adblock: adblockSchema.default(() => adblockSchema.parse({})),
+  tvProfiles: tvProfilesSchema.optional().describe('Per-source TV navigation profiles (selectors only); overridable from Remote Config.'),
+  cache: cacheSchema.optional().describe('Disk asset cache (images, fonts, versioned static files); on by default for tv only.'),
 };
 
 // Per-target overrides: any key except identity ones, all optional, adblock partial.

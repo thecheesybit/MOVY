@@ -1,0 +1,1357 @@
+{
+  "url": "<movy>/browse/movie",
+  "pathname": "/browse/movie",
+  "title": "Movies | Movy",
+  "viewport": {
+    "width": 1280,
+    "height": 720,
+    "meta": "width=1280"
+  },
+  "fullscreen": null,
+  "summary": {
+    "interactiveCount": 70,
+    "scrollContainerCount": 1,
+    "overlayCount": 2,
+    "hasPlayer": false
+  },
+  "player": null,
+  "overlays": [
+    {
+      "tag": "div",
+      "id": "_rht_toaster",
+      "className": "app-toaster",
+      "position": "fixed",
+      "zIndex": 9999,
+      "rect": {
+        "x": 16,
+        "y": 16,
+        "width": 1248,
+        "height": 676
+      }
+    },
+    {
+      "tag": "header",
+      "className": "fixed left-0 right-0 top-0 z-40 pointer-events-none",
+      "position": "fixed",
+      "zIndex": 40,
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 80
+      }
+    }
+  ],
+  "scrollContainers": [
+    {
+      "tag": "div",
+      "className": "ScrollRow-module-scss-module__-kZXvG__track",
+      "scrollX": true,
+      "scrollY": false,
+      "scrollWidth": 3928,
+      "clientWidth": 1088,
+      "scrollHeight": 277,
+      "clientHeight": 277,
+      "rect": {
+        "x": 96,
+        "y": -31,
+        "width": 1088,
+        "height": 277
+      }
+    }
+  ],
+  "interactive": [
+    {
+      "tag": "a",
+      "className": "relative z-10 shrink-0 drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)]",
+      "ariaLabel": "Movy",
+      "rect": {
+        "x": 96,
+        "y": 22,
+        "width": 36,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "relative z-[1] inline-flex items-center gap-1.5 h-8 px-3 rounded-[8px] text-[13px] font-medium transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-white focus-visible:-outline-offset-2 text-ink-300 hover:text-white hover:bg-white/[0.06]",
+      "text": "Home",
+      "rect": {
+        "x": 757,
+        "y": 24,
+        "width": 81,
+        "height": 32
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "relative z-[1] inline-flex items-center gap-1.5 h-8 px-3 rounded-[8px] text-[13px] font-medium transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-white focus-visible:-outline-offset-2 text-white font-semibold",
+      "text": "Movies",
+      "rect": {
+        "x": 840,
+        "y": 24,
+        "width": 90,
+        "height": 32
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "relative z-[1] inline-flex items-center gap-1.5 h-8 px-3 rounded-[8px] text-[13px] font-medium transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-white focus-visible:-outline-offset-2 text-ink-300 hover:text-white hover:bg-white/[0.06]",
+      "text": "Shows",
+      "rect": {
+        "x": 931,
+        "y": 24,
+        "width": 86,
+        "height": 32
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "relative z-[1] inline-flex items-center gap-1.5 h-8 px-3 rounded-[8px] text-[13px] font-medium transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-white focus-visible:-outline-offset-2 text-ink-300 hover:text-white hover:bg-white/[0.06]",
+      "text": "Anime",
+      "rect": {
+        "x": 1019,
+        "y": 24,
+        "width": 84,
+        "height": 32
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "flex items-center justify-center h-8 w-8 rounded-[8px] text-ink-300 hover:text-white hover:bg-white/[0.06] transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-white focus-visible:-outline-offset-2",
+      "ariaLabel": "Search",
+      "rect": {
+        "x": 1115,
+        "y": 24,
+        "width": 32,
+        "height": 32
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "flex items-center justify-center h-8 w-8 rounded-[8px] text-ink-300 hover:text-white hover:bg-white/[0.06] transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-white focus-visible:-outline-offset-2 overflow-visible",
+      "ariaLabel": "Login",
+      "rect": {
+        "x": 1147,
+        "y": 24,
+        "width": 32,
+        "height": 32
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "Dock-module-scss-module__qZDorW__dockItem",
+      "ariaLabel": "Home",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "Dock-module-scss-module__qZDorW__dockItem Dock-module-scss-module__qZDorW__active",
+      "ariaLabel": "Movies",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "Dock-module-scss-module__qZDorW__dockItem",
+      "ariaLabel": "Shows",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "Dock-module-scss-module__qZDorW__dockItem",
+      "ariaLabel": "Anime",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "Dock-module-scss-module__qZDorW__dockItem",
+      "ariaLabel": "Search",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "Dock-module-scss-module__qZDorW__dockItem  profile-trigger",
+      "ariaLabel": "Login",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "div",
+      "className": "ScrollRow-module-scss-module__-kZXvG__track",
+      "role": "group",
+      "ariaLabel": "Trending in India",
+      "text": "Project Hail Mary 8.6 · 2026 · Movie The Dark Knight 8.5 · 2008 · Movie Apocalyp",
+      "rect": {
+        "x": 96,
+        "y": -31,
+        "width": 1088,
+        "height": 277
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Project Hail Mary 8.6 · 2026 · Movie",
+      "rect": {
+        "x": 96,
+        "y": -31,
+        "width": 156,
+        "height": 277
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "The Dark Knight 8.5 · 2008 · Movie",
+      "rect": {
+        "x": 260,
+        "y": -31,
+        "width": 156,
+        "height": 277
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Apocalypse Z: New World 6.0 · 2026 · Movie",
+      "rect": {
+        "x": 424,
+        "y": -31,
+        "width": 156,
+        "height": 277
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "A Story of Derry 7.0 · 2026 · Movie",
+      "rect": {
+        "x": 588,
+        "y": -31,
+        "width": 156,
+        "height": 277
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Coco 8.2 · 2017 · Movie",
+      "rect": {
+        "x": 752,
+        "y": -31,
+        "width": 156,
+        "height": 277
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "The Mongoose 5.8 · 2026 · Movie",
+      "rect": {
+        "x": 916,
+        "y": -31,
+        "width": 156,
+        "height": 277
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "The Awakening 6.4 · 2026 · Movie",
+      "rect": {
+        "x": 1080,
+        "y": -31,
+        "width": 156,
+        "height": 277
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Drive - The Pretenders 7.7 · 2026 · Movie",
+      "rect": {
+        "x": 1244,
+        "y": -31,
+        "width": 156,
+        "height": 277
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Collision Course 6.4 · 2026 · Movie",
+      "rect": {
+        "x": 1408,
+        "y": -31,
+        "width": 156,
+        "height": 277
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Pinocchio: Unstrung 6.4 · 2026 · Movie",
+      "rect": {
+        "x": 1572,
+        "y": -31,
+        "width": 156,
+        "height": 277
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Surviving Hurricane Otis 7.5 · 2026 · Movie",
+      "rect": {
+        "x": 1736,
+        "y": -31,
+        "width": 156,
+        "height": 277
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "A Dog's Perfect Christmas 8.3 · 2026 · Movie",
+      "rect": {
+        "x": 1900,
+        "y": -31,
+        "width": 156,
+        "height": 277
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Obsession 8.2 · 2026 · Movie",
+      "rect": {
+        "x": 2064,
+        "y": -31,
+        "width": 156,
+        "height": 277
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "The Nightmare Before Christmas 7.9 · 1993 · Movie",
+      "rect": {
+        "x": 2228,
+        "y": -31,
+        "width": 156,
+        "height": 277
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Matchbox the Movie 7.6 · 2026 · Movie",
+      "rect": {
+        "x": 2392,
+        "y": -31,
+        "width": 156,
+        "height": 277
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "War of the Worlds 4.0 · 2025 · Movie",
+      "rect": {
+        "x": 2556,
+        "y": -31,
+        "width": 156,
+        "height": 277
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Gajab Raat 5.7 · 2026 · Movie",
+      "rect": {
+        "x": 2720,
+        "y": -31,
+        "width": 156,
+        "height": 277
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Toy Story 5 8.3 · 2026 · Movie",
+      "rect": {
+        "x": 2884,
+        "y": -31,
+        "width": 156,
+        "height": 277
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Ali G: Who Iz I? 5.7 · 2026 · Movie",
+      "rect": {
+        "x": 3048,
+        "y": -31,
+        "width": 156,
+        "height": 277
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Disclosure Day 7.4 · 2026 · Movie",
+      "rect": {
+        "x": 3212,
+        "y": -31,
+        "width": 156,
+        "height": 277
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Moana 7.5 · 2026 · Movie",
+      "rect": {
+        "x": 3376,
+        "y": -31,
+        "width": 156,
+        "height": 277
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Animals 6.9 · 2026 · Movie",
+      "rect": {
+        "x": 3540,
+        "y": -31,
+        "width": 156,
+        "height": 277
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Masterplan 6.8 · 2026 · Movie",
+      "rect": {
+        "x": 3704,
+        "y": -31,
+        "width": 156,
+        "height": 277
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Interstellar 8.5 · 2014 · Movie",
+      "rect": {
+        "x": 3868,
+        "y": -31,
+        "width": 156,
+        "height": 277
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "ScrollRow-module-scss-module__-kZXvG__arrow ScrollRow-module-scss-module__-kZXvG__arrowPrev",
+      "ariaLabel": "Scroll back",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "none",
+      "tabindex": "-1",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "ScrollRow-module-scss-module__-kZXvG__arrow ScrollRow-module-scss-module__-kZXvG__arrowNext",
+      "ariaLabel": "Scroll forward",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "none",
+      "tabindex": "-1",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "inline-flex min-h-9 shrink-0 items-center gap-1 rounded-[4px] text-[13px] md:text-[14px] font-medium text-ink-300 hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
+      "text": "Sort by: Most popular",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "inline-flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "mv-chip movy-tvf",
+      "text": "Genres",
+      "rect": {
+        "x": 96,
+        "y": 345,
+        "width": 94,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false,
+      "isFocused": true
+    },
+    {
+      "tag": "button",
+      "className": "mv-chip",
+      "text": "Years",
+      "rect": {
+        "x": 198,
+        "y": 345,
+        "width": 84,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "mv-chip",
+      "text": "Countries",
+      "rect": {
+        "x": 290,
+        "y": 345,
+        "width": 110,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "inline-flex min-h-9 shrink-0 items-center gap-1 rounded-[4px] text-[13px] md:text-[14px] font-medium text-ink-300 hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
+      "text": "Sort by: Most popular",
+      "rect": {
+        "x": 1022,
+        "y": 345,
+        "width": 162,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "The Dark Knight 8.5 · 2008 · Movie",
+      "rect": {
+        "x": 96,
+        "y": 405,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Project Hail Mary 8.6 · 2026 · Movie",
+      "rect": {
+        "x": 461,
+        "y": 405,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Recently added Wildwood 8.5 · 2026 · Movie",
+      "rect": {
+        "x": 825,
+        "y": 405,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Resident Evil 7.5 · 2026 · Movie",
+      "rect": {
+        "x": 96,
+        "y": 674,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "The Hotel New Hampshire 5.7 · 1984 · Movie",
+      "rect": {
+        "x": 461,
+        "y": 674,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Spider-Man: Brand New Day 8.5 · 2026 · Movie",
+      "rect": {
+        "x": 825,
+        "y": 674,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Coco 8.2 · 2017 · Movie",
+      "rect": {
+        "x": 96,
+        "y": 942,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Recently added A Story of Derry 6.9 · 2026 · Movie",
+      "rect": {
+        "x": 461,
+        "y": 942,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Recently added The Mongoose 5.9 · 2026 · Movie",
+      "rect": {
+        "x": 825,
+        "y": 942,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Heart of the Beast 7.3 · 2026 · Movie",
+      "rect": {
+        "x": 96,
+        "y": 1211,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Verity 7.0 · 2026 · Movie",
+      "rect": {
+        "x": 461,
+        "y": 1211,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "The Odyssey 8.0 · 2026 · Movie",
+      "rect": {
+        "x": 825,
+        "y": 1211,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Fall 2: Deadpoint 7.3 · 2026 · Movie",
+      "rect": {
+        "x": 96,
+        "y": 1480,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Buddy 6.9 · 2026 · Movie",
+      "rect": {
+        "x": 461,
+        "y": 1480,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Pinocchio: Unstrung 6.4 · 2026 · Movie",
+      "rect": {
+        "x": 825,
+        "y": 1480,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Primetime 6.8 · 2026 · Movie",
+      "rect": {
+        "x": 96,
+        "y": 1748,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Insidious: Out of the Further 7.7 · 2026 · Movie",
+      "rect": {
+        "x": 461,
+        "y": 1748,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "The Fix 5.9 · 2026 · Movie",
+      "rect": {
+        "x": 825,
+        "y": 1748,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Recently added Clayface 7.4 · 2026 · Movie",
+      "rect": {
+        "x": 96,
+        "y": 2017,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Feed 5.3 · 2026 · Movie",
+      "rect": {
+        "x": 461,
+        "y": 2017,
+        "width": 359,
+        "height": 245
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "rounded-[4px] text-[13px] text-ink-300 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
+      "text": "Get help",
+      "rect": {
+        "x": 96,
+        "y": 2494,
+        "width": 52,
+        "height": 20
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "rounded-[4px] text-[13px] text-ink-300 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
+      "text": "Terms",
+      "rect": {
+        "x": 172,
+        "y": 2494,
+        "width": 38,
+        "height": 20
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "rounded-[4px] text-[13px] text-ink-300 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
+      "text": "Privacy",
+      "rect": {
+        "x": 234,
+        "y": 2494,
+        "width": 46,
+        "height": 20
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "rounded-[4px] text-[13px] text-ink-300 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
+      "text": "DMCA",
+      "rect": {
+        "x": 303,
+        "y": 2494,
+        "width": 39,
+        "height": 20
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "rounded-[4px] text-[13px] text-ink-300 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
+      "text": "API",
+      "rect": {
+        "x": 367,
+        "y": 2494,
+        "width": 21,
+        "height": 20
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    }
+  ]
+}

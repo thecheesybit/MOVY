@@ -132,6 +132,39 @@
   var types = Object.keys(SHOW).concat(Object.keys(HIDE));
   for (var i = 0; i < types.length; i++) document.addEventListener(types[i], onMedia, true);
 
+  // Fullscreen guard. On Android WebView (some GPUs/drivers) a video that is the only thing on screen gets promoted to a
+  // hardware overlay that sits behind the window; with our native fullscreen host it renders black (audio keeps playing)
+  // as soon as the player controls auto-hide. A near-invisible layer above the video keeps it composited in the page.
+  var guard = null;
+  function guardHost() {
+    var h = document.fullscreenElement || document.webkitFullscreenElement;
+    var t = h && h.tagName;
+    return h && t !== "VIDEO" && t !== "IFRAME" && t !== "EMBED" && t !== "OBJECT" ? h : null;
+  }
+  function syncGuard() {
+    var h = guardHost();
+    if (!h) {
+      if (guard && guard.parentNode) guard.parentNode.removeChild(guard);
+      return;
+    }
+    if (!guard) {
+      guard = document.createElement("div");
+      var s = guard.style;
+      s.setProperty("position", "fixed");
+      s.setProperty("left", "0");
+      s.setProperty("top", "0");
+      s.setProperty("right", "0");
+      s.setProperty("bottom", "0");
+      s.setProperty("z-index", "2147483647");
+      s.setProperty("pointer-events", "none");
+      s.setProperty("background", "rgba(0,0,0,0.012)");
+    }
+    if (guard.parentNode !== h) h.appendChild(guard);
+  }
+  document.addEventListener("fullscreenchange", syncGuard);
+  document.addEventListener("webkitfullscreenchange", syncGuard);
+  setInterval(function () { if (guard) syncGuard(); else if (guardHost()) syncGuard(); }, 1000); // re-attach if the page re-rendered its tree
+
   window.addEventListener('scroll', schedule, true);
   window.addEventListener('resize', schedule);
   document.addEventListener('fullscreenchange', schedule);

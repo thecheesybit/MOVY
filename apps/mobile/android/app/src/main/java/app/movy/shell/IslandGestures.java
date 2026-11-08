@@ -33,7 +33,7 @@ final class IslandGestures {
                 up(x, y);
                 return true;
             case MotionEvent.ACTION_CANCEL:
-                v.setPressedLook(false);
+                v.setPressedItem(-1);
                 dragging = false;
                 return true;
             default:
@@ -47,19 +47,19 @@ final class IslandGestures {
         downGear = downCard = false;
         downX = x;
         downY = y;
+        v.layoutNow();
         if (!v.isExpanded()) {
-            g.update(0);
             if (!g.tabHit(x, y)) return false; // never blocks touches outside the tab
             startCenter = g.collapsedCenter();
-            v.setPressedLook(true);
             v.touched();
             return true;
         }
-        g.update(1);
         startScroll = g.scroll;
         downItem = g.itemAt(x, y);
         downGear = downItem < 0 && g.gearHit(x, y);
         downCard = downItem < 0 && !downGear && g.cardHit(x, y);
+        if (downItem >= 0) v.setPressedItem(downItem);
+        else if (downGear) v.setPressedItem(g.count);
         v.touched();
         return true;
     }
@@ -75,7 +75,6 @@ final class IslandGestures {
                 v.setCenterFraction((startCenter + dy) / Math.max(1f, g.viewH));
             } else if (dx < -slop && Math.abs(dx) > Math.abs(dy)) {
                 swiped = true;
-                v.setPressedLook(false);
                 v.expand();
             }
             return;
@@ -83,9 +82,11 @@ final class IslandGestures {
         v.touched();
         if (dx > slop * 2 && Math.abs(dx) > Math.abs(dy)) {
             swiped = true;
+            v.setPressedItem(-1);
             v.collapse();
         } else if (g.scrollMax > 0 && Math.abs(dy) > slop && Math.abs(dy) > Math.abs(dx)) {
             scrolling = true;
+            v.setPressedItem(-1);
             g.scroll = startScroll - dy;
             v.invalidateBlock();
         }
@@ -93,7 +94,6 @@ final class IslandGestures {
 
     private void up(float x, float y) {
         if (!v.isExpanded()) {
-            v.setPressedLook(false);
             if (dragging) {
                 v.commitPosition();
             } else if (!swiped && !moved) {
@@ -101,6 +101,7 @@ final class IslandGestures {
             }
             return;
         }
+        v.setPressedItem(-1);
         if (swiped || scrolling || moved) return;
         if (downItem >= 0) {
             v.selectItem(downItem);

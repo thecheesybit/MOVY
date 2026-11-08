@@ -32,10 +32,21 @@ public final class SourceRepository {
     private volatile LiveConfig config;
     private volatile String activeId;
     private Loader loader;
+    private volatile String resumeId;
 
     public SourceRepository(Prefs prefs, LiveConfig initial) {
         this.prefs = prefs;
         this.config = initial;
+    }
+
+    /** TV: reopen this source on its last page at launch (after a background exit). */
+    public void seedResume(String sourceId, String url) {
+        Source s = config.find(sourceId);
+        if (s == null || url == null) return;
+        resumeId = sourceId;
+        synchronized (lastUrls) {
+            lastUrls.put(sourceId, url);
+        }
     }
 
     public void setLoader(Loader loader) {
@@ -81,6 +92,8 @@ public final class SourceRepository {
      * (show the chooser). Fallback order for a vanished default: the chooser is shown.
      */
     public Source launchSource() {
+        Source r = config.find(resumeId);
+        if (r != null && r.enabled) return r;
         String def = prefs.defaultSourceId();
         Source s = config.find(def);
         if (s != null && s.enabled && !prefs.askEveryLaunch()) return s;

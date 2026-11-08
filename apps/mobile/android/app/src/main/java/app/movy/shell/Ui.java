@@ -15,6 +15,24 @@ final class Ui {
 
     private Ui() {}
 
+    static boolean isTv(Context c) {
+        return c.getResources().getBoolean(R.bool.movy_is_tv);
+    }
+
+    /** Side padding for full-screen native panels: overscan-safe on TV, none elsewhere. */
+    static int safeH(Context c) {
+        return isTv(c) ? dp(c, UiTokens.TV_SAFE_H) : 0;
+    }
+
+    static int safeV(Context c) {
+        return isTv(c) ? dp(c, UiTokens.TV_SAFE_V) : 0;
+    }
+
+    /** Text size multiplier (10-foot on TV). */
+    static float textScale(Context c) {
+        return isTv(c) ? TvLayout.textScale(c.getResources().getConfiguration().screenWidthDp) : 1f;
+    }
+
     static int dp(Context c, float v) {
         return Math.round(v * c.getResources().getDisplayMetrics().density);
     }

@@ -17,12 +17,13 @@ function sourceUrlOf(details, type) {
 }
 
 /**
- * Cancels / redirects ad and tracker requests on `ses` using the native engine.
+ * Cancels / redirects ad and tracker requests on `ses` using the native engine (when `isEnabled()`).
  * Main-frame documents of allowed sites are never blocked.
  */
-function installNetworkBlocking(ses, engine, sites, stats, log) {
+function installNetworkBlocking(ses, engine, sites, stats, log, isEnabled = () => true) {
   ses.webRequest.onBeforeRequest(FILTER, (details, callback) => {
     try {
+      if (!isEnabled()) return callback({});
       const type = toAdblockType(details.resourceType);
       if (type === 'document' && sites.isAllowed(details.url)) return callback({});
       stats.checked++;

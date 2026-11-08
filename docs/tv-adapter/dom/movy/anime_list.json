@@ -1,0 +1,937 @@
+{
+  "url": "<movy>/browse/anime",
+  "pathname": "/browse/anime",
+  "title": "Anime | Movy",
+  "viewport": {
+    "width": 1280,
+    "height": 720,
+    "meta": "width=1280"
+  },
+  "fullscreen": null,
+  "summary": {
+    "interactiveCount": 49,
+    "scrollContainerCount": 0,
+    "overlayCount": 1,
+    "hasPlayer": false
+  },
+  "player": null,
+  "overlays": [
+    {
+      "tag": "header",
+      "className": "fixed left-0 right-0 top-0 z-40 pointer-events-none",
+      "position": "fixed",
+      "zIndex": 40,
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 80
+      }
+    }
+  ],
+  "scrollContainers": [],
+  "interactive": [
+    {
+      "tag": "a",
+      "className": "relative z-10 shrink-0 drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)]",
+      "ariaLabel": "Movy",
+      "rect": {
+        "x": 96,
+        "y": 22,
+        "width": 36,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "relative z-[1] inline-flex items-center gap-1.5 h-8 px-3 rounded-[8px] text-[13px] font-medium transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-white focus-visible:-outline-offset-2 text-ink-300 hover:text-white hover:bg-white/[0.06]",
+      "text": "Home",
+      "rect": {
+        "x": 757,
+        "y": 24,
+        "width": 81,
+        "height": 32
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "relative z-[1] inline-flex items-center gap-1.5 h-8 px-3 rounded-[8px] text-[13px] font-medium transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-white focus-visible:-outline-offset-2 text-ink-300 hover:text-white hover:bg-white/[0.06]",
+      "text": "Movies",
+      "rect": {
+        "x": 839,
+        "y": 24,
+        "width": 89,
+        "height": 32
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "relative z-[1] inline-flex items-center gap-1.5 h-8 px-3 rounded-[8px] text-[13px] font-medium transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-white focus-visible:-outline-offset-2 text-ink-300 hover:text-white hover:bg-white/[0.06]",
+      "text": "Shows",
+      "rect": {
+        "x": 930,
+        "y": 24,
+        "width": 86,
+        "height": 32
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "relative z-[1] inline-flex items-center gap-1.5 h-8 px-3 rounded-[8px] text-[13px] font-medium transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-white focus-visible:-outline-offset-2 text-white font-semibold",
+      "text": "Anime",
+      "rect": {
+        "x": 1018,
+        "y": 24,
+        "width": 84,
+        "height": 32
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "flex items-center justify-center h-8 w-8 rounded-[8px] text-ink-300 hover:text-white hover:bg-white/[0.06] transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-white focus-visible:-outline-offset-2",
+      "ariaLabel": "Search",
+      "rect": {
+        "x": 1115,
+        "y": 24,
+        "width": 32,
+        "height": 32
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "flex items-center justify-center h-8 w-8 rounded-[8px] text-ink-300 hover:text-white hover:bg-white/[0.06] transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-white focus-visible:-outline-offset-2 overflow-visible",
+      "ariaLabel": "Login",
+      "rect": {
+        "x": 1147,
+        "y": 24,
+        "width": 32,
+        "height": 32
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "Dock-module-scss-module__qZDorW__dockItem",
+      "ariaLabel": "Home",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "Dock-module-scss-module__qZDorW__dockItem",
+      "ariaLabel": "Movies",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "Dock-module-scss-module__qZDorW__dockItem",
+      "ariaLabel": "Shows",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "Dock-module-scss-module__qZDorW__dockItem Dock-module-scss-module__qZDorW__active",
+      "ariaLabel": "Anime",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "Dock-module-scss-module__qZDorW__dockItem",
+      "ariaLabel": "Search",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "Dock-module-scss-module__qZDorW__dockItem  profile-trigger",
+      "ariaLabel": "Login",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "inline-flex min-w-0 max-w-full items-center gap-1.5 rounded-[4px] text-lg font-semibold leading-tight tracking-[-0.015em] text-ink-100 transition-colors hover:text-white md:text-[22px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white movy-tvf",
+      "text": "Genres: Action",
+      "rect": {
+        "x": 96,
+        "y": 285,
+        "width": 93,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false,
+      "isFocused": true
+    },
+    {
+      "tag": "a",
+      "text": "Loner Life in Another World Anime · TV",
+      "rect": {
+        "x": 96,
+        "y": 336,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Dandadan Anime · TV",
+      "rect": {
+        "x": 279,
+        "y": 336,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Mechanical Arms Anime · TV",
+      "rect": {
+        "x": 462,
+        "y": 336,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "My Hero Academia Anime · TV",
+      "rect": {
+        "x": 645,
+        "y": 336,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Good Bye, Dragon Life. Anime · TV",
+      "rect": {
+        "x": 828,
+        "y": 336,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Is It Wrong to Try to Pick Up Girls in a Dungeon? V Anime · TV",
+      "rect": {
+        "x": 1011,
+        "y": 336,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Mobile Suit Gundam: Requiem for Vengeance Anime · ONA",
+      "rect": {
+        "x": 96,
+        "y": 661,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "The Seven Deadly Sins: Four Knights of the Apocalypse Season 2 Anime · TV",
+      "rect": {
+        "x": 279,
+        "y": 661,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "KamiErabi GOD.app Season 2 Anime · TV",
+      "rect": {
+        "x": 462,
+        "y": 661,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Sengoku Youko Anime · TV",
+      "rect": {
+        "x": 645,
+        "y": 661,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Tasuketsu -Fate of the Majority- Anime · TV",
+      "rect": {
+        "x": 828,
+        "y": 661,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Swallowed Star 2nd Season Anime · ONA",
+      "rect": {
+        "x": 1011,
+        "y": 661,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Seirei Gensouki: Spirit Chronicles Season 2 Anime · TV",
+      "rect": {
+        "x": 96,
+        "y": 985,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "The Most Notorious \"Talker\" Runs the World's Greatest Clan Anime · TV",
+      "rect": {
+        "x": 279,
+        "y": 985,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Arifureta: From Commonplace to World's Strongest Season 3 Anime · TV",
+      "rect": {
+        "x": 462,
+        "y": 985,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "A Record of Mortal's Journey to Immortality Season 3 Anime · ONA",
+      "rect": {
+        "x": 645,
+        "y": 985,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Blue Exorcist: Kyoto Saga Anime · TV",
+      "rect": {
+        "x": 828,
+        "y": 985,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Mardock Scramble: The First Compression Anime · Movie",
+      "rect": {
+        "x": 1011,
+        "y": 985,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Ghost in the Shell: The New Movie Anime · Movie",
+      "rect": {
+        "x": 96,
+        "y": 1309,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Boarding School Juliet Anime · TV",
+      "rect": {
+        "x": 279,
+        "y": 1309,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Mob Psycho 100 II Anime · TV",
+      "rect": {
+        "x": 462,
+        "y": 1309,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Code Geass: Lelouch of the Rebellion R2 Anime · TV",
+      "rect": {
+        "x": 645,
+        "y": 1309,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Gintama Movie 2: The Final Chapter - Be Forever Yorozuya Anime · Movie",
+      "rect": {
+        "x": 828,
+        "y": 1309,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Gintama Anime · TV",
+      "rect": {
+        "x": 1011,
+        "y": 1309,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Gintama Season 5 Anime · TV",
+      "rect": {
+        "x": 96,
+        "y": 1634,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Gintama: Enchousen Anime · TV",
+      "rect": {
+        "x": 279,
+        "y": 1634,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Gintama Season 2 Anime · TV",
+      "rect": {
+        "x": 462,
+        "y": 1634,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Gintama Season 4 Anime · TV",
+      "rect": {
+        "x": 645,
+        "y": 1634,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Hunter x Hunter Anime · TV",
+      "rect": {
+        "x": 828,
+        "y": 1634,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Fullmetal Alchemist: Brotherhood Anime · TV",
+      "rect": {
+        "x": 1011,
+        "y": 1634,
+        "width": 173,
+        "height": 302
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "rounded-[4px] text-[13px] text-ink-300 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
+      "text": "Get help",
+      "rect": {
+        "x": 96,
+        "y": 2169,
+        "width": 52,
+        "height": 20
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "rounded-[4px] text-[13px] text-ink-300 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
+      "text": "Terms",
+      "rect": {
+        "x": 172,
+        "y": 2169,
+        "width": 38,
+        "height": 20
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "rounded-[4px] text-[13px] text-ink-300 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
+      "text": "Privacy",
+      "rect": {
+        "x": 234,
+        "y": 2169,
+        "width": 46,
+        "height": 20
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "rounded-[4px] text-[13px] text-ink-300 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
+      "text": "DMCA",
+      "rect": {
+        "x": 303,
+        "y": 2169,
+        "width": 39,
+        "height": 20
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "rounded-[4px] text-[13px] text-ink-300 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
+      "text": "API",
+      "rect": {
+        "x": 367,
+        "y": 2169,
+        "width": 21,
+        "height": 20
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    }
+  ]
+}

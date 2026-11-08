@@ -1,0 +1,635 @@
+{
+  "url": "<moonflix>/my-list",
+  "pathname": "/my-list",
+  "title": "My List — Moonflix.site",
+  "viewport": {
+    "width": 1280,
+    "height": 720,
+    "meta": "width=1280"
+  },
+  "fullscreen": null,
+  "summary": {
+    "interactiveCount": 31,
+    "scrollContainerCount": 0,
+    "overlayCount": 2,
+    "hasPlayer": false
+  },
+  "player": null,
+  "overlays": [
+    {
+      "tag": "ol",
+      "className": "fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]",
+      "position": "fixed",
+      "zIndex": 100,
+      "rect": {
+        "x": 860,
+        "y": 688,
+        "width": 420,
+        "height": 32
+      }
+    },
+    {
+      "tag": "header",
+      "className": "fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-background to-transparent font-netflix pt-safe",
+      "position": "fixed",
+      "zIndex": 50,
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 72
+      }
+    }
+  ],
+  "scrollContainers": [],
+  "interactive": [
+    {
+      "tag": "a",
+      "className": "sr-only focus:not-sr-only focus:absolute focus:z-[60] focus:left-4 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md pt-safe",
+      "text": "Skip to main content",
+      "rect": {
+        "x": -1,
+        "y": -1,
+        "width": 1,
+        "height": 1
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "flex items-center",
+      "rect": {
+        "x": 64,
+        "y": 16,
+        "width": 140,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "div",
+      "className": "cursor-pointer",
+      "rect": {
+        "x": 64,
+        "y": 16,
+        "width": 140,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "transition-colors font-medium text-sm lg:text-base tv-focus-ring rounded-sm text-muted-foreground hover:text-foreground",
+      "text": "Home",
+      "rect": {
+        "x": 236,
+        "y": 27,
+        "width": 42,
+        "height": 19
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "transition-colors font-medium text-sm lg:text-base tv-focus-ring rounded-sm text-muted-foreground hover:text-foreground",
+      "text": "Movies",
+      "rect": {
+        "x": 303,
+        "y": 27,
+        "width": 51,
+        "height": 19
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "transition-colors font-medium text-sm lg:text-base tv-focus-ring rounded-sm text-muted-foreground hover:text-foreground",
+      "text": "TV Shows",
+      "rect": {
+        "x": 377,
+        "y": 27,
+        "width": 70,
+        "height": 19
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "transition-colors font-medium text-sm lg:text-base tv-focus-ring rounded-sm text-muted-foreground hover:text-foreground",
+      "text": "New & Popular",
+      "rect": {
+        "x": 471,
+        "y": 27,
+        "width": 103,
+        "height": 19
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "transition-colors font-medium text-sm lg:text-base tv-focus-ring rounded-sm text-foreground font-semibold",
+      "text": "My List",
+      "rect": {
+        "x": 598,
+        "y": 27,
+        "width": 51,
+        "height": 19
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 text-white/80 hover:text-white transition-colors rounded-md hover:bg-white/10",
+      "ariaLabel": "Open search",
+      "rect": {
+        "x": 812,
+        "y": 16,
+        "width": 40,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "items-center justify-center gap-2 whitespace-nowrap ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border bg-background hover:bg-accent hover:text-accent-foreground rounded-md hidden sm:inline-flex h-9 sm:h-10 px-3 text-xs sm:text-sm font-medium border-white/10 bg-gradient-to-r from-[#0f0f0f] via-[#151515] to-[#0b0b0b] text-white shadow-[0_0_0_1px_rgba(255,255,255,0.06),0_12px_30px_rgba(0,0,0,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#54b9c5]/50 hover:shadow-[0_0_20px_rgba(84,185,197,0.16)]",
+      "text": "AI Search",
+      "rect": {
+        "x": 868,
+        "y": 16,
+        "width": 116,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "items-center justify-center gap-2 whitespace-nowrap ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md hidden sm:inline-flex h-8 sm:h-10 px-3 text-xs sm:text-sm font-medium",
+      "text": "API",
+      "rect": {
+        "x": 1001,
+        "y": 16,
+        "width": 48,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:text-accent-foreground h-8 w-8 sm:h-10 sm:w-10 relative hover:bg-muted/50 transition-all duration-300 hover:scale-110",
+      "text": "2",
+      "rect": {
+        "x": 1064,
+        "y": 16,
+        "width": 40,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground w-5 h-5 sm:w-6 sm:h-6",
+      "rect": {
+        "x": 1192,
+        "y": 24,
+        "width": 24,
+        "height": 24
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground md:hidden h-8 w-8",
+      "ariaLabel": "Open menu",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "none",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "block group hover:scale-[1.02] transition-transform duration-300 movy-tvf movy-tvr",
+      "text": "TELEGRAM CHANNEL Join Our TeleGram Channel Now ⭐ Latest App/Website Updates ⭐ Re",
+      "rect": {
+        "x": 192,
+        "y": 346,
+        "width": 896,
+        "height": 194
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false,
+      "isFocused": true
+    },
+    {
+      "tag": "a",
+      "className": "text-foreground/80 underline underline-offset-4 hover:text-primary transition-colors",
+      "text": "moonflix.in",
+      "rect": {
+        "x": 383,
+        "y": 704,
+        "width": 67,
+        "height": 17
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-muted-foreground hover:text-foreground transition-colors",
+      "text": "Trending Movies & TV Shows",
+      "rect": {
+        "x": 133,
+        "y": 841,
+        "width": 176,
+        "height": 17
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-muted-foreground hover:text-foreground transition-colors",
+      "text": "Top Rated Movies & TV Shows",
+      "rect": {
+        "x": 325,
+        "y": 841,
+        "width": 184,
+        "height": 17
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-muted-foreground hover:text-foreground transition-colors",
+      "text": "Comedy Movies",
+      "rect": {
+        "x": 525,
+        "y": 841,
+        "width": 97,
+        "height": 17
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-muted-foreground hover:text-foreground transition-colors",
+      "text": "Action Movies",
+      "rect": {
+        "x": 638,
+        "y": 841,
+        "width": 86,
+        "height": 17
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-muted-foreground hover:text-foreground transition-colors",
+      "text": "Horror Movies",
+      "rect": {
+        "x": 740,
+        "y": 841,
+        "width": 86,
+        "height": 17
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-muted-foreground hover:text-foreground transition-colors",
+      "text": "Anime Series & Movies",
+      "rect": {
+        "x": 842,
+        "y": 841,
+        "width": 138,
+        "height": 17
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-muted-foreground hover:text-foreground transition-colors",
+      "text": "Korean Drama (K-Drama)",
+      "rect": {
+        "x": 996,
+        "y": 841,
+        "width": 151,
+        "height": 17
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-muted-foreground hover:text-foreground transition-colors",
+      "text": "Hindi & Bollywood Movies",
+      "rect": {
+        "x": 401,
+        "y": 869,
+        "width": 156,
+        "height": 17
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-muted-foreground hover:text-foreground transition-colors",
+      "text": "Sci-Fi Movies & Series",
+      "rect": {
+        "x": 573,
+        "y": 869,
+        "width": 132,
+        "height": 17
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-muted-foreground hover:text-foreground transition-colors",
+      "text": "All Movies",
+      "rect": {
+        "x": 721,
+        "y": 869,
+        "width": 62,
+        "height": 17
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-muted-foreground hover:text-foreground transition-colors",
+      "text": "All TV Shows",
+      "rect": {
+        "x": 800,
+        "y": 869,
+        "width": 79,
+        "height": 17
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-foreground underline underline-offset-4 hover:text-primary transition-colors",
+      "text": "About Moonflix",
+      "rect": {
+        "x": 632,
+        "y": 923,
+        "width": 93,
+        "height": 17
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-sm text-muted-foreground hover:text-foreground transition-colors",
+      "text": "Disclaimer",
+      "rect": {
+        "x": 505,
+        "y": 1000,
+        "width": 64,
+        "height": 20
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-sm text-muted-foreground hover:text-foreground transition-colors",
+      "text": "What is Moonflix?",
+      "rect": {
+        "x": 593,
+        "y": 1000,
+        "width": 108,
+        "height": 20
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-sm text-muted-foreground hover:text-foreground transition-colors",
+      "text": "Sitemap",
+      "rect": {
+        "x": 725,
+        "y": 1000,
+        "width": 50,
+        "height": 20
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    }
+  ]
+}

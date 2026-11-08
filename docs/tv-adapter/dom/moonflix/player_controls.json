@@ -1,0 +1,2419 @@
+{
+  "url": "<moonflix>/movies",
+  "pathname": "/movies",
+  "title": "Movies — Watch Free Online in HD — Moonflix.site",
+  "viewport": {
+    "width": 1280,
+    "height": 720,
+    "meta": "width=1280"
+  },
+  "fullscreen": null,
+  "summary": {
+    "interactiveCount": 114,
+    "scrollContainerCount": 10,
+    "overlayCount": 3,
+    "hasPlayer": false
+  },
+  "player": null,
+  "overlays": [
+    {
+      "tag": "ol",
+      "className": "fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]",
+      "position": "fixed",
+      "zIndex": 100,
+      "rect": {
+        "x": 860,
+        "y": 688,
+        "width": 420,
+        "height": 32
+      }
+    },
+    {
+      "tag": "header",
+      "className": "fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-background to-transparent font-netflix pt-safe",
+      "position": "fixed",
+      "zIndex": 50,
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 72
+      }
+    },
+    {
+      "tag": "div",
+      "className": "fixed inset-0 bg-black z-[999999] flex flex-col",
+      "position": "fixed",
+      "zIndex": 999999,
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 720
+      }
+    }
+  ],
+  "scrollContainers": [
+    {
+      "tag": "div",
+      "className": "flex gap-[0.35vw] sm:gap-[0.4vw]\n              overflow-x-scroll scroll-container outline-none\n              px-4 sm:px-6 lg:px-[60px]\n              pb-[2vw]\n              /* Give the row extra vertical padding so\n                 scaled-up cards don't clip at top/bottom */\n              pt-[0.5vw]\n              /* Prevent vertical overflow from clipping hover-scale */\n              overflow-y-visible",
+      "scrollX": true,
+      "scrollY": false,
+      "scrollWidth": 3202,
+      "clientWidth": 1216,
+      "scrollHeight": 282,
+      "clientHeight": 282,
+      "rect": {
+        "x": 32,
+        "y": 520,
+        "width": 1216,
+        "height": 282
+      }
+    },
+    {
+      "tag": "div",
+      "className": "flex gap-[0.35vw] sm:gap-[0.4vw]\n              overflow-x-scroll scroll-container outline-none\n              px-4 sm:px-6 lg:px-[60px]\n              pb-[2vw]\n              /* Give the row extra vertical padding so\n                 scaled-up cards don't clip at top/bottom */\n              pt-[0.5vw]\n              /* Prevent vertical overflow from clipping hover-scale */\n              overflow-y-visible",
+      "scrollX": true,
+      "scrollY": false,
+      "scrollWidth": 3545,
+      "clientWidth": 1216,
+      "scrollHeight": 282,
+      "clientHeight": 282,
+      "rect": {
+        "x": 32,
+        "y": 866,
+        "width": 1216,
+        "height": 282
+      }
+    },
+    {
+      "tag": "div",
+      "className": "flex items-end\n            gap-[2px] sm:gap-[3px] lg:gap-[4px]\n            px-4 lg:px-16\n            pb-8\n            overflow-x-auto scroll-smooth\n            [scrollbar-width:none] [&::-webkit-scrollbar]:hidden\n            outline-none tv-focus-ring",
+      "scrollX": true,
+      "scrollY": false,
+      "scrollWidth": 1949,
+      "clientWidth": 1216,
+      "scrollHeight": 232,
+      "clientHeight": 232,
+      "rect": {
+        "x": 32,
+        "y": 1535,
+        "width": 1216,
+        "height": 232
+      }
+    },
+    {
+      "tag": "div",
+      "className": "flex gap-[0.35vw] sm:gap-[0.4vw]\n              overflow-x-scroll scroll-container outline-none\n              px-4 sm:px-6 lg:px-[60px]\n              pb-[2vw]\n              /* Give the row extra vertical padding so\n                 scaled-up cards don't clip at top/bottom */\n              pt-[0.5vw]\n              /* Prevent vertical overflow from clipping hover-scale */\n              overflow-y-visible",
+      "scrollX": true,
+      "scrollY": false,
+      "scrollWidth": 2173,
+      "clientWidth": 1216,
+      "scrollHeight": 282,
+      "clientHeight": 282,
+      "rect": {
+        "x": 32,
+        "y": 1832,
+        "width": 1216,
+        "height": 282
+      }
+    },
+    {
+      "tag": "div",
+      "className": "flex gap-[0.35vw] sm:gap-[0.4vw]\n              overflow-x-scroll scroll-container outline-none\n              px-4 sm:px-6 lg:px-[60px]\n              pb-[2vw]\n              /* Give the row extra vertical padding so\n                 scaled-up cards don't clip at top/bottom */\n              pt-[0.5vw]\n              /* Prevent vertical overflow from clipping hover-scale */\n              overflow-y-visible",
+      "scrollX": true,
+      "scrollY": false,
+      "scrollWidth": 3202,
+      "clientWidth": 1216,
+      "scrollHeight": 282,
+      "clientHeight": 282,
+      "rect": {
+        "x": 32,
+        "y": 2525,
+        "width": 1216,
+        "height": 282
+      }
+    },
+    {
+      "tag": "div",
+      "className": "flex gap-[0.35vw] sm:gap-[0.4vw]\n              overflow-x-scroll scroll-container outline-none\n              px-4 sm:px-6 lg:px-[60px]\n              pb-[2vw]\n              /* Give the row extra vertical padding so\n                 scaled-up cards don't clip at top/bottom */\n              pt-[0.5vw]\n              /* Prevent vertical overflow from clipping hover-scale */\n              overflow-y-visible",
+      "scrollX": true,
+      "scrollY": false,
+      "scrollWidth": 2859,
+      "clientWidth": 1216,
+      "scrollHeight": 282,
+      "clientHeight": 282,
+      "rect": {
+        "x": 32,
+        "y": 2871,
+        "width": 1216,
+        "height": 282
+      }
+    },
+    {
+      "tag": "div",
+      "className": "flex gap-[0.35vw] sm:gap-[0.4vw]\n              overflow-x-scroll scroll-container outline-none\n              px-4 sm:px-6 lg:px-[60px]\n              pb-[2vw]\n              /* Give the row extra vertical padding so\n                 scaled-up cards don't clip at top/bottom */\n              pt-[0.5vw]\n              /* Prevent vertical overflow from clipping hover-scale */\n              overflow-y-visible",
+      "scrollX": true,
+      "scrollY": false,
+      "scrollWidth": 2516,
+      "clientWidth": 1216,
+      "scrollHeight": 282,
+      "clientHeight": 282,
+      "rect": {
+        "x": 32,
+        "y": 3217,
+        "width": 1216,
+        "height": 282
+      }
+    },
+    {
+      "tag": "div",
+      "className": "flex gap-[0.35vw] sm:gap-[0.4vw]\n              overflow-x-scroll scroll-container outline-none\n              px-4 sm:px-6 lg:px-[60px]\n              pb-[2vw]\n              /* Give the row extra vertical padding so\n                 scaled-up cards don't clip at top/bottom */\n              pt-[0.5vw]\n              /* Prevent vertical overflow from clipping hover-scale */\n              overflow-y-visible",
+      "scrollX": true,
+      "scrollY": false,
+      "scrollWidth": 2002,
+      "clientWidth": 1216,
+      "scrollHeight": 282,
+      "clientHeight": 282,
+      "rect": {
+        "x": 32,
+        "y": 4256,
+        "width": 1216,
+        "height": 282
+      }
+    },
+    {
+      "tag": "div",
+      "className": "flex gap-[0.35vw] sm:gap-[0.4vw]\n              overflow-x-scroll scroll-container outline-none\n              px-4 sm:px-6 lg:px-[60px]\n              pb-[2vw]\n              /* Give the row extra vertical padding so\n                 scaled-up cards don't clip at top/bottom */\n              pt-[0.5vw]\n              /* Prevent vertical overflow from clipping hover-scale */\n              overflow-y-visible",
+      "scrollX": true,
+      "scrollY": false,
+      "scrollWidth": 2002,
+      "clientWidth": 1216,
+      "scrollHeight": 282,
+      "clientHeight": 282,
+      "rect": {
+        "x": 32,
+        "y": 4602,
+        "width": 1216,
+        "height": 282
+      }
+    },
+    {
+      "tag": "div",
+      "className": "flex gap-[0.35vw] sm:gap-[0.4vw]\n              overflow-x-scroll scroll-container outline-none\n              px-4 sm:px-6 lg:px-[60px]\n              pb-[2vw]\n              /* Give the row extra vertical padding so\n                 scaled-up cards don't clip at top/bottom */\n              pt-[0.5vw]\n              /* Prevent vertical overflow from clipping hover-scale */\n              overflow-y-visible",
+      "scrollX": true,
+      "scrollY": false,
+      "scrollWidth": 1659,
+      "clientWidth": 1216,
+      "scrollHeight": 282,
+      "clientHeight": 282,
+      "rect": {
+        "x": 32,
+        "y": 4948,
+        "width": 1216,
+        "height": 282
+      }
+    }
+  ],
+  "interactive": [
+    {
+      "tag": "a",
+      "className": "sr-only focus:not-sr-only focus:absolute focus:z-[60] focus:left-4 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md pt-safe",
+      "text": "Skip to main content",
+      "rect": {
+        "x": -1,
+        "y": -266,
+        "width": 1,
+        "height": 1
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "flex items-center",
+      "rect": {
+        "x": 64,
+        "y": 16,
+        "width": 140,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "div",
+      "className": "cursor-pointer",
+      "rect": {
+        "x": 64,
+        "y": 16,
+        "width": 140,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "transition-colors font-medium text-sm lg:text-base tv-focus-ring rounded-sm text-muted-foreground hover:text-foreground",
+      "text": "Home",
+      "rect": {
+        "x": 236,
+        "y": 27,
+        "width": 42,
+        "height": 19
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "transition-colors font-medium text-sm lg:text-base tv-focus-ring rounded-sm text-foreground font-semibold",
+      "text": "Movies",
+      "rect": {
+        "x": 303,
+        "y": 27,
+        "width": 51,
+        "height": 19
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "transition-colors font-medium text-sm lg:text-base tv-focus-ring rounded-sm text-muted-foreground hover:text-foreground",
+      "text": "TV Shows",
+      "rect": {
+        "x": 377,
+        "y": 27,
+        "width": 70,
+        "height": 19
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "transition-colors font-medium text-sm lg:text-base tv-focus-ring rounded-sm text-muted-foreground hover:text-foreground",
+      "text": "New & Popular",
+      "rect": {
+        "x": 472,
+        "y": 27,
+        "width": 103,
+        "height": 19
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "transition-colors font-medium text-sm lg:text-base tv-focus-ring rounded-sm text-muted-foreground hover:text-foreground",
+      "text": "My List",
+      "rect": {
+        "x": 599,
+        "y": 27,
+        "width": 51,
+        "height": 19
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 text-white/80 hover:text-white transition-colors rounded-md hover:bg-white/10",
+      "ariaLabel": "Open search",
+      "rect": {
+        "x": 812,
+        "y": 16,
+        "width": 40,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "items-center justify-center gap-2 whitespace-nowrap ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border bg-background hover:bg-accent hover:text-accent-foreground rounded-md hidden sm:inline-flex h-9 sm:h-10 px-3 text-xs sm:text-sm font-medium border-white/10 bg-gradient-to-r from-[#0f0f0f] via-[#151515] to-[#0b0b0b] text-white shadow-[0_0_0_1px_rgba(255,255,255,0.06),0_12px_30px_rgba(0,0,0,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#54b9c5]/50 hover:shadow-[0_0_20px_rgba(84,185,197,0.16)]",
+      "text": "AI Search",
+      "rect": {
+        "x": 868,
+        "y": 16,
+        "width": 116,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "items-center justify-center gap-2 whitespace-nowrap ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md hidden sm:inline-flex h-8 sm:h-10 px-3 text-xs sm:text-sm font-medium",
+      "text": "API",
+      "rect": {
+        "x": 1001,
+        "y": 16,
+        "width": 48,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:text-accent-foreground h-8 w-8 sm:h-10 sm:w-10 relative hover:bg-muted/50 transition-all duration-300 hover:scale-110",
+      "text": "2",
+      "rect": {
+        "x": 1064,
+        "y": 16,
+        "width": 40,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground w-5 h-5 sm:w-6 sm:h-6",
+      "rect": {
+        "x": 1192,
+        "y": 24,
+        "width": 24,
+        "height": 24
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground md:hidden h-8 w-8",
+      "ariaLabel": "Open menu",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "none",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "flex items-center gap-2.5 px-8 lg:px-10 py-2.5 lg:py-3 bg-white text-black font-bold rounded-[4px] hover:bg-white/85 active:scale-95 transition-all duration-150 shadow-lg text-sm lg:text-[1rem]",
+      "text": "Play",
+      "rect": {
+        "x": 80,
+        "y": 337,
+        "width": 142,
+        "height": 46
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "flex items-center gap-2.5 px-8 lg:px-10 py-2.5 lg:py-3 bg-[rgba(109,109,110,0.7)] text-white font-bold rounded-[4px] hover:bg-[rgba(109,109,110,0.5)] active:scale-95 transition-all duration-150 backdrop-blur-sm text-sm lg:text-[1rem] movy-tvf",
+      "text": "More Info",
+      "rect": {
+        "x": 234,
+        "y": 337,
+        "width": 180,
+        "height": 46
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false,
+      "isFocused": true
+    },
+    {
+      "tag": "button",
+      "className": "w-9 h-9 rounded-full border-2 border-white/55 bg-black/40 text-white flex items-center justify-center hover:border-white hover:bg-black/60 transition-all duration-150",
+      "ariaLabel": "Unmute",
+      "rect": {
+        "x": 1081,
+        "y": 347,
+        "width": 36,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "whitespace-nowrap ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-primary/90 h-10 flex-1 flex items-center justify-center gap-2 text-lg px-6 py-4 rounded-md bg-white text-black font-semibold",
+      "text": "Play",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "whitespace-nowrap ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-primary/90 h-10 flex-1 flex items-center justify-center gap-2 text-lg px-6 py-4 rounded-md bg-gray-600/80 backdrop-blur-sm text-white font-semibold",
+      "text": "My List",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative z-10 flex items-center justify-center\n                w-[40px] h-full\n                text-white transition-transform duration-200\n                hover:scale-110 disabled:opacity-40 disabled:cursor-not-allowed\n                focus:outline-none",
+      "ariaLabel": "Scroll Popular Movies left",
+      "rect": {
+        "x": 32,
+        "y": 520,
+        "width": 40,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative z-10 flex items-center justify-center\n                w-[40px] h-full\n                text-white transition-transform duration-200\n                hover:scale-110 disabled:opacity-40 disabled:cursor-not-allowed\n                focus:outline-none",
+      "ariaLabel": "Scroll Popular Movies right",
+      "rect": {
+        "x": 1208,
+        "y": 520,
+        "width": 40,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "div",
+      "className": "flex gap-[0.35vw] sm:gap-[0.4vw]\n              overflow-x-scroll scroll-container outline-none\n              px-4 sm:px-6 lg:px-[60px]\n              pb-[2vw]\n              /* Give the row extra vertical padding so\n                 scaled-up cards don't clip at top/bottom */\n              pt-[0.5vw]\n              /* Prevent vertical overflow from clipping hover-scale */\n              overflow-y-visible",
+      "role": "region",
+      "ariaLabel": "Popular Movies",
+      "text": "NEW NEW NEW NEW NEW NEW NEW",
+      "rect": {
+        "x": 32,
+        "y": 520,
+        "width": 1216,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative z-10 flex items-center justify-center\n                w-[40px] h-full\n                text-white transition-transform duration-200\n                hover:scale-110 disabled:opacity-40 disabled:cursor-not-allowed\n                focus:outline-none",
+      "ariaLabel": "Scroll Now Playing left",
+      "rect": {
+        "x": 32,
+        "y": 866,
+        "width": 40,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative z-10 flex items-center justify-center\n                w-[40px] h-full\n                text-white transition-transform duration-200\n                hover:scale-110 disabled:opacity-40 disabled:cursor-not-allowed\n                focus:outline-none",
+      "ariaLabel": "Scroll Now Playing right",
+      "rect": {
+        "x": 1208,
+        "y": 866,
+        "width": 40,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "div",
+      "className": "flex gap-[0.35vw] sm:gap-[0.4vw]\n              overflow-x-scroll scroll-container outline-none\n              px-4 sm:px-6 lg:px-[60px]\n              pb-[2vw]\n              /* Give the row extra vertical padding so\n                 scaled-up cards don't clip at top/bottom */\n              pt-[0.5vw]\n              /* Prevent vertical overflow from clipping hover-scale */\n              overflow-y-visible",
+      "role": "region",
+      "ariaLabel": "Now Playing",
+      "rect": {
+        "x": 32,
+        "y": 866,
+        "width": 1216,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "div",
+      "className": "flex items-end\n            gap-[2px] sm:gap-[3px] lg:gap-[4px]\n            px-4 lg:px-16\n            pb-8\n            overflow-x-auto scroll-smooth\n            [scrollbar-width:none] [&::-webkit-scrollbar]:hidden\n            outline-none tv-focus-ring",
+      "role": "region",
+      "ariaLabel": "Top 10 Movies in Netflix Today",
+      "text": "1 #1 TODAY Model Citizen 2 TOP 10 Possible Love 3 TRENDING Primetime 4 Musk",
+      "rect": {
+        "x": 32,
+        "y": 1225,
+        "width": 1216,
+        "height": 232
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                    rounded-full bg-white\n                    flex items-center justify-center flex-shrink-0\n                    transition-all duration-180 ease-out\n                    hover:scale-[1.18]\n                    hover:shadow-[0_0_16px_rgba(255,255,255,0.5)]",
+      "ariaLabel": "Play Model Citizen",
+      "rect": {
+        "x": 198,
+        "y": 1387,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                    rounded-full border flex items-center justify-center flex-shrink-0\n                    transition-all duration-180 ease-out hover:scale-[1.18]\n                    bg-black/60 border-white/60 text-white hover:border-white hover:bg-white/18",
+      "ariaLabel": "Add Model Citizen to list",
+      "rect": {
+        "x": 230,
+        "y": 1387,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                  rounded-full bg-black/60 border border-white/60 text-white\n                  flex items-center justify-center flex-shrink-0\n                  transition-all duration-180 ease-out\n                  hover:border-white hover:bg-white/18 hover:scale-[1.18]",
+      "ariaLabel": "More info about Model Citizen",
+      "rect": {
+        "x": 282,
+        "y": 1387,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                    rounded-full bg-white\n                    flex items-center justify-center flex-shrink-0\n                    transition-all duration-180 ease-out\n                    hover:scale-[1.18]\n                    hover:shadow-[0_0_16px_rgba(255,255,255,0.5)]",
+      "ariaLabel": "Play Possible Love",
+      "rect": {
+        "x": 426,
+        "y": 1387,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                    rounded-full border flex items-center justify-center flex-shrink-0\n                    transition-all duration-180 ease-out hover:scale-[1.18]\n                    bg-black/60 border-white/60 text-white hover:border-white hover:bg-white/18",
+      "ariaLabel": "Add Possible Love to list",
+      "rect": {
+        "x": 458,
+        "y": 1387,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                  rounded-full bg-black/60 border border-white/60 text-white\n                  flex items-center justify-center flex-shrink-0\n                  transition-all duration-180 ease-out\n                  hover:border-white hover:bg-white/18 hover:scale-[1.18]",
+      "ariaLabel": "More info about Possible Love",
+      "rect": {
+        "x": 510,
+        "y": 1387,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                    rounded-full bg-white\n                    flex items-center justify-center flex-shrink-0\n                    transition-all duration-180 ease-out\n                    hover:scale-[1.18]\n                    hover:shadow-[0_0_16px_rgba(255,255,255,0.5)]",
+      "ariaLabel": "Play Primetime",
+      "rect": {
+        "x": 654,
+        "y": 1387,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                    rounded-full border flex items-center justify-center flex-shrink-0\n                    transition-all duration-180 ease-out hover:scale-[1.18]\n                    bg-black/60 border-white/60 text-white hover:border-white hover:bg-white/18",
+      "ariaLabel": "Add Primetime to list",
+      "rect": {
+        "x": 686,
+        "y": 1387,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                  rounded-full bg-black/60 border border-white/60 text-white\n                  flex items-center justify-center flex-shrink-0\n                  transition-all duration-180 ease-out\n                  hover:border-white hover:bg-white/18 hover:scale-[1.18]",
+      "ariaLabel": "More info about Primetime",
+      "rect": {
+        "x": 738,
+        "y": 1387,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                    rounded-full bg-white\n                    flex items-center justify-center flex-shrink-0\n                    transition-all duration-180 ease-out\n                    hover:scale-[1.18]\n                    hover:shadow-[0_0_16px_rgba(255,255,255,0.5)]",
+      "ariaLabel": "Play Musk",
+      "rect": {
+        "x": 883,
+        "y": 1387,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                    rounded-full border flex items-center justify-center flex-shrink-0\n                    transition-all duration-180 ease-out hover:scale-[1.18]\n                    bg-black/60 border-white/60 text-white hover:border-white hover:bg-white/18",
+      "ariaLabel": "Add Musk to list",
+      "rect": {
+        "x": 915,
+        "y": 1387,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                  rounded-full bg-black/60 border border-white/60 text-white\n                  flex items-center justify-center flex-shrink-0\n                  transition-all duration-180 ease-out\n                  hover:border-white hover:bg-white/18 hover:scale-[1.18]",
+      "ariaLabel": "More info about Musk",
+      "rect": {
+        "x": 967,
+        "y": 1387,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "absolute right-0 top-0 h-full z-20\n            w-[40px] sm:w-[50px] lg:w-[60px]\n            flex items-center justify-center\n            bg-gradient-to-l from-black/85 to-transparent\n            opacity-0 group-hover/row:opacity-100\n            transition-opacity duration-300\n            cursor-pointer\n            opacity-90 hover:opacity-100",
+      "ariaLabel": "Scroll Top 10 Movies in Netflix Today right",
+      "rect": {
+        "x": 1188,
+        "y": 1225,
+        "width": 60,
+        "height": 232
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 0.9,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "div",
+      "className": "flex items-end\n            gap-[2px] sm:gap-[3px] lg:gap-[4px]\n            px-4 lg:px-16\n            pb-8\n            overflow-x-auto scroll-smooth\n            [scrollbar-width:none] [&::-webkit-scrollbar]:hidden\n            outline-none tv-focus-ring",
+      "role": "region",
+      "ariaLabel": "Top 10 Series in Netflix Today",
+      "text": "1 #1 TODAY Black Doves 2 TOP 10 MobLand 3 TRENDING The Remarried Empress 4 Dexte",
+      "rect": {
+        "x": 32,
+        "y": 1535,
+        "width": 1216,
+        "height": 232
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                    rounded-full bg-white\n                    flex items-center justify-center flex-shrink-0\n                    transition-all duration-180 ease-out\n                    hover:scale-[1.18]\n                    hover:shadow-[0_0_16px_rgba(255,255,255,0.5)]",
+      "ariaLabel": "Play Black Doves",
+      "rect": {
+        "x": 198,
+        "y": 1697,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                    rounded-full border flex items-center justify-center flex-shrink-0\n                    transition-all duration-180 ease-out hover:scale-[1.18]\n                    bg-black/60 border-white/60 text-white hover:border-white hover:bg-white/18",
+      "ariaLabel": "Add Black Doves to list",
+      "rect": {
+        "x": 230,
+        "y": 1697,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                  rounded-full bg-black/60 border border-white/60 text-white\n                  flex items-center justify-center flex-shrink-0\n                  transition-all duration-180 ease-out\n                  hover:border-white hover:bg-white/18 hover:scale-[1.18]",
+      "ariaLabel": "More info about Black Doves",
+      "rect": {
+        "x": 282,
+        "y": 1697,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                    rounded-full bg-white\n                    flex items-center justify-center flex-shrink-0\n                    transition-all duration-180 ease-out\n                    hover:scale-[1.18]\n                    hover:shadow-[0_0_16px_rgba(255,255,255,0.5)]",
+      "ariaLabel": "Play MobLand",
+      "rect": {
+        "x": 426,
+        "y": 1697,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                    rounded-full border flex items-center justify-center flex-shrink-0\n                    transition-all duration-180 ease-out hover:scale-[1.18]\n                    bg-black/60 border-white/60 text-white hover:border-white hover:bg-white/18",
+      "ariaLabel": "Add MobLand to list",
+      "rect": {
+        "x": 458,
+        "y": 1697,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                  rounded-full bg-black/60 border border-white/60 text-white\n                  flex items-center justify-center flex-shrink-0\n                  transition-all duration-180 ease-out\n                  hover:border-white hover:bg-white/18 hover:scale-[1.18]",
+      "ariaLabel": "More info about MobLand",
+      "rect": {
+        "x": 510,
+        "y": 1697,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                    rounded-full bg-white\n                    flex items-center justify-center flex-shrink-0\n                    transition-all duration-180 ease-out\n                    hover:scale-[1.18]\n                    hover:shadow-[0_0_16px_rgba(255,255,255,0.5)]",
+      "ariaLabel": "Play The Remarried Empress",
+      "rect": {
+        "x": 654,
+        "y": 1697,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                    rounded-full border flex items-center justify-center flex-shrink-0\n                    transition-all duration-180 ease-out hover:scale-[1.18]\n                    bg-black/60 border-white/60 text-white hover:border-white hover:bg-white/18",
+      "ariaLabel": "Add The Remarried Empress to list",
+      "rect": {
+        "x": 686,
+        "y": 1697,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                  rounded-full bg-black/60 border border-white/60 text-white\n                  flex items-center justify-center flex-shrink-0\n                  transition-all duration-180 ease-out\n                  hover:border-white hover:bg-white/18 hover:scale-[1.18]",
+      "ariaLabel": "More info about The Remarried Empress",
+      "rect": {
+        "x": 738,
+        "y": 1697,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                    rounded-full bg-white\n                    flex items-center justify-center flex-shrink-0\n                    transition-all duration-180 ease-out\n                    hover:scale-[1.18]\n                    hover:shadow-[0_0_16px_rgba(255,255,255,0.5)]",
+      "ariaLabel": "Play Dexter: Resurrection",
+      "rect": {
+        "x": 883,
+        "y": 1697,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                    rounded-full border flex items-center justify-center flex-shrink-0\n                    transition-all duration-180 ease-out hover:scale-[1.18]\n                    bg-black/60 border-white/60 text-white hover:border-white hover:bg-white/18",
+      "ariaLabel": "Add Dexter: Resurrection to list",
+      "rect": {
+        "x": 915,
+        "y": 1697,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                  rounded-full bg-black/60 border border-white/60 text-white\n                  flex items-center justify-center flex-shrink-0\n                  transition-all duration-180 ease-out\n                  hover:border-white hover:bg-white/18 hover:scale-[1.18]",
+      "ariaLabel": "More info about Dexter: Resurrection",
+      "rect": {
+        "x": 967,
+        "y": 1697,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                    rounded-full bg-white\n                    flex items-center justify-center flex-shrink-0\n                    transition-all duration-180 ease-out\n                    hover:scale-[1.18]\n                    hover:shadow-[0_0_16px_rgba(255,255,255,0.5)]",
+      "ariaLabel": "Play Campus Drivers",
+      "rect": {
+        "x": 1111,
+        "y": 1697,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                    rounded-full border flex items-center justify-center flex-shrink-0\n                    transition-all duration-180 ease-out hover:scale-[1.18]\n                    bg-black/60 border-white/60 text-white hover:border-white hover:bg-white/18",
+      "ariaLabel": "Add Campus Drivers to list",
+      "rect": {
+        "x": 1143,
+        "y": 1697,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                  rounded-full bg-black/60 border border-white/60 text-white\n                  flex items-center justify-center flex-shrink-0\n                  transition-all duration-180 ease-out\n                  hover:border-white hover:bg-white/18 hover:scale-[1.18]",
+      "ariaLabel": "More info about Campus Drivers",
+      "rect": {
+        "x": 1195,
+        "y": 1697,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                    rounded-full bg-white\n                    flex items-center justify-center flex-shrink-0\n                    transition-all duration-180 ease-out\n                    hover:scale-[1.18]\n                    hover:shadow-[0_0_16px_rgba(255,255,255,0.5)]",
+      "ariaLabel": "Play Black Clover",
+      "rect": {
+        "x": 1339,
+        "y": 1697,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                    rounded-full border flex items-center justify-center flex-shrink-0\n                    transition-all duration-180 ease-out hover:scale-[1.18]\n                    bg-black/60 border-white/60 text-white hover:border-white hover:bg-white/18",
+      "ariaLabel": "Add Black Clover to list",
+      "rect": {
+        "x": 1371,
+        "y": 1697,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                  rounded-full bg-black/60 border border-white/60 text-white\n                  flex items-center justify-center flex-shrink-0\n                  transition-all duration-180 ease-out\n                  hover:border-white hover:bg-white/18 hover:scale-[1.18]",
+      "ariaLabel": "More info about Black Clover",
+      "rect": {
+        "x": 1423,
+        "y": 1697,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                    rounded-full bg-white\n                    flex items-center justify-center flex-shrink-0\n                    transition-all duration-180 ease-out\n                    hover:scale-[1.18]\n                    hover:shadow-[0_0_16px_rgba(255,255,255,0.5)]",
+      "ariaLabel": "Play VisionQuest",
+      "rect": {
+        "x": 1567,
+        "y": 1697,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                    rounded-full border flex items-center justify-center flex-shrink-0\n                    transition-all duration-180 ease-out hover:scale-[1.18]\n                    bg-black/60 border-white/60 text-white hover:border-white hover:bg-white/18",
+      "ariaLabel": "Add VisionQuest to list",
+      "rect": {
+        "x": 1599,
+        "y": 1697,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                  rounded-full bg-black/60 border border-white/60 text-white\n                  flex items-center justify-center flex-shrink-0\n                  transition-all duration-180 ease-out\n                  hover:border-white hover:bg-white/18 hover:scale-[1.18]",
+      "ariaLabel": "More info about VisionQuest",
+      "rect": {
+        "x": 1651,
+        "y": 1697,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                    rounded-full bg-white\n                    flex items-center justify-center flex-shrink-0\n                    transition-all duration-180 ease-out\n                    hover:scale-[1.18]\n                    hover:shadow-[0_0_16px_rgba(255,255,255,0.5)]",
+      "ariaLabel": "Play Lupin",
+      "rect": {
+        "x": 1795,
+        "y": 1697,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                    rounded-full border flex items-center justify-center flex-shrink-0\n                    transition-all duration-180 ease-out hover:scale-[1.18]\n                    bg-black/60 border-white/60 text-white hover:border-white hover:bg-white/18",
+      "ariaLabel": "Add Lupin to list",
+      "rect": {
+        "x": 1827,
+        "y": 1697,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-[26px] h-[26px] sm:w-[28px] sm:h-[28px]\n                  rounded-full bg-black/60 border border-white/60 text-white\n                  flex items-center justify-center flex-shrink-0\n                  transition-all duration-180 ease-out\n                  hover:border-white hover:bg-white/18 hover:scale-[1.18]",
+      "ariaLabel": "More info about Lupin",
+      "rect": {
+        "x": 1879,
+        "y": 1697,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "absolute right-0 top-0 h-full z-20\n            w-[40px] sm:w-[50px] lg:w-[60px]\n            flex items-center justify-center\n            bg-gradient-to-l from-black/85 to-transparent\n            opacity-0 group-hover/row:opacity-100\n            transition-opacity duration-300\n            cursor-pointer\n            opacity-90 hover:opacity-100",
+      "ariaLabel": "Scroll Top 10 Series in Netflix Today right",
+      "rect": {
+        "x": 1188,
+        "y": 1535,
+        "width": 60,
+        "height": 232
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 0.9,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative z-10 flex items-center justify-center\n                w-[40px] h-full\n                text-white transition-transform duration-200\n                hover:scale-110 disabled:opacity-40 disabled:cursor-not-allowed\n                focus:outline-none",
+      "ariaLabel": "Scroll Top Rated Movies left",
+      "rect": {
+        "x": 32,
+        "y": 1832,
+        "width": 40,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative z-10 flex items-center justify-center\n                w-[40px] h-full\n                text-white transition-transform duration-200\n                hover:scale-110 disabled:opacity-40 disabled:cursor-not-allowed\n                focus:outline-none",
+      "ariaLabel": "Scroll Top Rated Movies right",
+      "rect": {
+        "x": 1208,
+        "y": 1832,
+        "width": 40,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "div",
+      "className": "flex gap-[0.35vw] sm:gap-[0.4vw]\n              overflow-x-scroll scroll-container outline-none\n              px-4 sm:px-6 lg:px-[60px]\n              pb-[2vw]\n              /* Give the row extra vertical padding so\n                 scaled-up cards don't clip at top/bottom */\n              pt-[0.5vw]\n              /* Prevent vertical overflow from clipping hover-scale */\n              overflow-y-visible",
+      "role": "region",
+      "ariaLabel": "Top Rated Movies",
+      "text": "NEW NEW NEW NEW NEW",
+      "rect": {
+        "x": 32,
+        "y": 1832,
+        "width": 1216,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative z-10 flex items-center justify-center\n                w-[40px] h-full\n                text-white transition-transform duration-200\n                hover:scale-110 disabled:opacity-40 disabled:cursor-not-allowed\n                focus:outline-none",
+      "ariaLabel": "Scroll Coming Soon - This Month & Next left",
+      "rect": {
+        "x": 32,
+        "y": 2178,
+        "width": 40,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative z-10 flex items-center justify-center\n                w-[40px] h-full\n                text-white transition-transform duration-200\n                hover:scale-110 disabled:opacity-40 disabled:cursor-not-allowed\n                focus:outline-none",
+      "ariaLabel": "Scroll Coming Soon - This Month & Next right",
+      "rect": {
+        "x": 1208,
+        "y": 2178,
+        "width": 40,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "div",
+      "className": "flex gap-[0.35vw] sm:gap-[0.4vw]\n              overflow-x-scroll scroll-container outline-none\n              px-4 sm:px-6 lg:px-[60px]\n              pb-[2vw]\n              /* Give the row extra vertical padding so\n                 scaled-up cards don't clip at top/bottom */\n              pt-[0.5vw]\n              /* Prevent vertical overflow from clipping hover-scale */\n              overflow-y-visible",
+      "role": "region",
+      "ariaLabel": "Coming Soon - This Month & Next",
+      "text": "NEW NEW NEW NEW NEW NEW",
+      "rect": {
+        "x": 32,
+        "y": 2178,
+        "width": 1216,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative z-10 flex items-center justify-center\n                w-[40px] h-full\n                text-white transition-transform duration-200\n                hover:scale-110 disabled:opacity-40 disabled:cursor-not-allowed\n                focus:outline-none",
+      "ariaLabel": "Scroll Action Movies left",
+      "rect": {
+        "x": 32,
+        "y": 2525,
+        "width": 40,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative z-10 flex items-center justify-center\n                w-[40px] h-full\n                text-white transition-transform duration-200\n                hover:scale-110 disabled:opacity-40 disabled:cursor-not-allowed\n                focus:outline-none",
+      "ariaLabel": "Scroll Action Movies right",
+      "rect": {
+        "x": 1208,
+        "y": 2525,
+        "width": 40,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "div",
+      "className": "flex gap-[0.35vw] sm:gap-[0.4vw]\n              overflow-x-scroll scroll-container outline-none\n              px-4 sm:px-6 lg:px-[60px]\n              pb-[2vw]\n              /* Give the row extra vertical padding so\n                 scaled-up cards don't clip at top/bottom */\n              pt-[0.5vw]\n              /* Prevent vertical overflow from clipping hover-scale */\n              overflow-y-visible",
+      "role": "region",
+      "ariaLabel": "Action Movies",
+      "rect": {
+        "x": 32,
+        "y": 2525,
+        "width": 1216,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative z-10 flex items-center justify-center\n                w-[40px] h-full\n                text-white transition-transform duration-200\n                hover:scale-110 disabled:opacity-40 disabled:cursor-not-allowed\n                focus:outline-none",
+      "ariaLabel": "Scroll Comedy Movies left",
+      "rect": {
+        "x": 32,
+        "y": 2871,
+        "width": 40,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative z-10 flex items-center justify-center\n                w-[40px] h-full\n                text-white transition-transform duration-200\n                hover:scale-110 disabled:opacity-40 disabled:cursor-not-allowed\n                focus:outline-none",
+      "ariaLabel": "Scroll Comedy Movies right",
+      "rect": {
+        "x": 1208,
+        "y": 2871,
+        "width": 40,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "div",
+      "className": "flex gap-[0.35vw] sm:gap-[0.4vw]\n              overflow-x-scroll scroll-container outline-none\n              px-4 sm:px-6 lg:px-[60px]\n              pb-[2vw]\n              /* Give the row extra vertical padding so\n                 scaled-up cards don't clip at top/bottom */\n              pt-[0.5vw]\n              /* Prevent vertical overflow from clipping hover-scale */\n              overflow-y-visible",
+      "role": "region",
+      "ariaLabel": "Comedy Movies",
+      "text": "NEW NEW NEW NEW NEW",
+      "rect": {
+        "x": 32,
+        "y": 2871,
+        "width": 1216,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative z-10 flex items-center justify-center\n                w-[40px] h-full\n                text-white transition-transform duration-200\n                hover:scale-110 disabled:opacity-40 disabled:cursor-not-allowed\n                focus:outline-none",
+      "ariaLabel": "Scroll Horror Movies left",
+      "rect": {
+        "x": 32,
+        "y": 3217,
+        "width": 40,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative z-10 flex items-center justify-center\n                w-[40px] h-full\n                text-white transition-transform duration-200\n                hover:scale-110 disabled:opacity-40 disabled:cursor-not-allowed\n                focus:outline-none",
+      "ariaLabel": "Scroll Horror Movies right",
+      "rect": {
+        "x": 1208,
+        "y": 3217,
+        "width": 40,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "div",
+      "className": "flex gap-[0.35vw] sm:gap-[0.4vw]\n              overflow-x-scroll scroll-container outline-none\n              px-4 sm:px-6 lg:px-[60px]\n              pb-[2vw]\n              /* Give the row extra vertical padding so\n                 scaled-up cards don't clip at top/bottom */\n              pt-[0.5vw]\n              /* Prevent vertical overflow from clipping hover-scale */\n              overflow-y-visible",
+      "role": "region",
+      "ariaLabel": "Horror Movies",
+      "rect": {
+        "x": 32,
+        "y": 3217,
+        "width": 1216,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative z-10 flex items-center justify-center\n                w-[40px] h-full\n                text-white transition-transform duration-200\n                hover:scale-110 disabled:opacity-40 disabled:cursor-not-allowed\n                focus:outline-none",
+      "ariaLabel": "Scroll Thriller Movies left",
+      "rect": {
+        "x": 32,
+        "y": 3563,
+        "width": 40,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative z-10 flex items-center justify-center\n                w-[40px] h-full\n                text-white transition-transform duration-200\n                hover:scale-110 disabled:opacity-40 disabled:cursor-not-allowed\n                focus:outline-none",
+      "ariaLabel": "Scroll Thriller Movies right",
+      "rect": {
+        "x": 1208,
+        "y": 3563,
+        "width": 40,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "div",
+      "className": "flex gap-[0.35vw] sm:gap-[0.4vw]\n              overflow-x-scroll scroll-container outline-none\n              px-4 sm:px-6 lg:px-[60px]\n              pb-[2vw]\n              /* Give the row extra vertical padding so\n                 scaled-up cards don't clip at top/bottom */\n              pt-[0.5vw]\n              /* Prevent vertical overflow from clipping hover-scale */\n              overflow-y-visible",
+      "role": "region",
+      "ariaLabel": "Thriller Movies",
+      "rect": {
+        "x": 32,
+        "y": 3563,
+        "width": 1216,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative z-10 flex items-center justify-center\n                w-[40px] h-full\n                text-white transition-transform duration-200\n                hover:scale-110 disabled:opacity-40 disabled:cursor-not-allowed\n                focus:outline-none",
+      "ariaLabel": "Scroll Drama Movies left",
+      "rect": {
+        "x": 32,
+        "y": 3909,
+        "width": 40,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative z-10 flex items-center justify-center\n                w-[40px] h-full\n                text-white transition-transform duration-200\n                hover:scale-110 disabled:opacity-40 disabled:cursor-not-allowed\n                focus:outline-none",
+      "ariaLabel": "Scroll Drama Movies right",
+      "rect": {
+        "x": 1208,
+        "y": 3909,
+        "width": 40,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "div",
+      "className": "flex gap-[0.35vw] sm:gap-[0.4vw]\n              overflow-x-scroll scroll-container outline-none\n              px-4 sm:px-6 lg:px-[60px]\n              pb-[2vw]\n              /* Give the row extra vertical padding so\n                 scaled-up cards don't clip at top/bottom */\n              pt-[0.5vw]\n              /* Prevent vertical overflow from clipping hover-scale */\n              overflow-y-visible",
+      "role": "region",
+      "ariaLabel": "Drama Movies",
+      "text": "NEW",
+      "rect": {
+        "x": 32,
+        "y": 3909,
+        "width": 1216,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative z-10 flex items-center justify-center\n                w-[40px] h-full\n                text-white transition-transform duration-200\n                hover:scale-110 disabled:opacity-40 disabled:cursor-not-allowed\n                focus:outline-none",
+      "ariaLabel": "Scroll Sci-Fi Movies left",
+      "rect": {
+        "x": 32,
+        "y": 4256,
+        "width": 40,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative z-10 flex items-center justify-center\n                w-[40px] h-full\n                text-white transition-transform duration-200\n                hover:scale-110 disabled:opacity-40 disabled:cursor-not-allowed\n                focus:outline-none",
+      "ariaLabel": "Scroll Sci-Fi Movies right",
+      "rect": {
+        "x": 1208,
+        "y": 4256,
+        "width": 40,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "div",
+      "className": "flex gap-[0.35vw] sm:gap-[0.4vw]\n              overflow-x-scroll scroll-container outline-none\n              px-4 sm:px-6 lg:px-[60px]\n              pb-[2vw]\n              /* Give the row extra vertical padding so\n                 scaled-up cards don't clip at top/bottom */\n              pt-[0.5vw]\n              /* Prevent vertical overflow from clipping hover-scale */\n              overflow-y-visible",
+      "role": "region",
+      "ariaLabel": "Sci-Fi Movies",
+      "rect": {
+        "x": 32,
+        "y": 4256,
+        "width": 1216,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative z-10 flex items-center justify-center\n                w-[40px] h-full\n                text-white transition-transform duration-200\n                hover:scale-110 disabled:opacity-40 disabled:cursor-not-allowed\n                focus:outline-none",
+      "ariaLabel": "Scroll Animation Movies left",
+      "rect": {
+        "x": 32,
+        "y": 4602,
+        "width": 40,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative z-10 flex items-center justify-center\n                w-[40px] h-full\n                text-white transition-transform duration-200\n                hover:scale-110 disabled:opacity-40 disabled:cursor-not-allowed\n                focus:outline-none",
+      "ariaLabel": "Scroll Animation Movies right",
+      "rect": {
+        "x": 1208,
+        "y": 4602,
+        "width": 40,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "div",
+      "className": "flex gap-[0.35vw] sm:gap-[0.4vw]\n              overflow-x-scroll scroll-container outline-none\n              px-4 sm:px-6 lg:px-[60px]\n              pb-[2vw]\n              /* Give the row extra vertical padding so\n                 scaled-up cards don't clip at top/bottom */\n              pt-[0.5vw]\n              /* Prevent vertical overflow from clipping hover-scale */\n              overflow-y-visible",
+      "role": "region",
+      "ariaLabel": "Animation Movies",
+      "rect": {
+        "x": 32,
+        "y": 4602,
+        "width": 1216,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative z-10 flex items-center justify-center\n                w-[40px] h-full\n                text-white transition-transform duration-200\n                hover:scale-110 disabled:opacity-40 disabled:cursor-not-allowed\n                focus:outline-none",
+      "ariaLabel": "Scroll Crime Movies left",
+      "rect": {
+        "x": 32,
+        "y": 4948,
+        "width": 40,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "relative z-10 flex items-center justify-center\n                w-[40px] h-full\n                text-white transition-transform duration-200\n                hover:scale-110 disabled:opacity-40 disabled:cursor-not-allowed\n                focus:outline-none",
+      "ariaLabel": "Scroll Crime Movies right",
+      "rect": {
+        "x": 1208,
+        "y": 4948,
+        "width": 40,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "div",
+      "className": "flex gap-[0.35vw] sm:gap-[0.4vw]\n              overflow-x-scroll scroll-container outline-none\n              px-4 sm:px-6 lg:px-[60px]\n              pb-[2vw]\n              /* Give the row extra vertical padding so\n                 scaled-up cards don't clip at top/bottom */\n              pt-[0.5vw]\n              /* Prevent vertical overflow from clipping hover-scale */\n              overflow-y-visible",
+      "role": "region",
+      "ariaLabel": "Crime Movies",
+      "rect": {
+        "x": 32,
+        "y": 4948,
+        "width": 1216,
+        "height": 282
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "absolute top-4 right-4 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-black/60 text-white transition-all duration-300 ease-in-out hover:bg-black/80 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50",
+      "ariaLabel": "Close player",
+      "rect": {
+        "x": 1224,
+        "y": 16,
+        "width": 40,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "iframe",
+      "className": "w-full h-full border-none block",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 720
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "block group hover:scale-[1.02] transition-transform duration-300",
+      "text": "TELEGRAM CHANNEL Join Our TeleGram Channel Now ⭐ Latest App/Website Updates ⭐ Re",
+      "rect": {
+        "x": 192,
+        "y": 5326,
+        "width": 896,
+        "height": 194
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-foreground/80 underline underline-offset-4 hover:text-primary transition-colors",
+      "text": "moonflix.in",
+      "rect": {
+        "x": 383,
+        "y": 5684,
+        "width": 67,
+        "height": 17
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-muted-foreground hover:text-foreground transition-colors",
+      "text": "Trending Movies & TV Shows",
+      "rect": {
+        "x": 133,
+        "y": 5821,
+        "width": 176,
+        "height": 17
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-muted-foreground hover:text-foreground transition-colors",
+      "text": "Top Rated Movies & TV Shows",
+      "rect": {
+        "x": 325,
+        "y": 5821,
+        "width": 184,
+        "height": 17
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-muted-foreground hover:text-foreground transition-colors",
+      "text": "Comedy Movies",
+      "rect": {
+        "x": 525,
+        "y": 5821,
+        "width": 97,
+        "height": 17
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-muted-foreground hover:text-foreground transition-colors",
+      "text": "Action Movies",
+      "rect": {
+        "x": 638,
+        "y": 5821,
+        "width": 86,
+        "height": 17
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-muted-foreground hover:text-foreground transition-colors",
+      "text": "Horror Movies",
+      "rect": {
+        "x": 740,
+        "y": 5821,
+        "width": 86,
+        "height": 17
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-muted-foreground hover:text-foreground transition-colors",
+      "text": "Anime Series & Movies",
+      "rect": {
+        "x": 842,
+        "y": 5821,
+        "width": 138,
+        "height": 17
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-muted-foreground hover:text-foreground transition-colors",
+      "text": "Korean Drama (K-Drama)",
+      "rect": {
+        "x": 996,
+        "y": 5821,
+        "width": 151,
+        "height": 17
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-muted-foreground hover:text-foreground transition-colors",
+      "text": "Hindi & Bollywood Movies",
+      "rect": {
+        "x": 401,
+        "y": 5849,
+        "width": 156,
+        "height": 17
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-muted-foreground hover:text-foreground transition-colors",
+      "text": "Sci-Fi Movies & Series",
+      "rect": {
+        "x": 573,
+        "y": 5849,
+        "width": 132,
+        "height": 17
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-muted-foreground hover:text-foreground transition-colors",
+      "text": "All Movies",
+      "rect": {
+        "x": 721,
+        "y": 5849,
+        "width": 62,
+        "height": 17
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-muted-foreground hover:text-foreground transition-colors",
+      "text": "All TV Shows",
+      "rect": {
+        "x": 800,
+        "y": 5849,
+        "width": 79,
+        "height": 17
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-foreground underline underline-offset-4 hover:text-primary transition-colors",
+      "text": "About Moonflix",
+      "rect": {
+        "x": 632,
+        "y": 5902,
+        "width": 93,
+        "height": 17
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "inline",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-sm text-muted-foreground hover:text-foreground transition-colors",
+      "text": "Disclaimer",
+      "rect": {
+        "x": 505,
+        "y": 5979,
+        "width": 64,
+        "height": 20
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-sm text-muted-foreground hover:text-foreground transition-colors",
+      "text": "What is Moonflix?",
+      "rect": {
+        "x": 593,
+        "y": 5979,
+        "width": 108,
+        "height": 20
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "className": "text-sm text-muted-foreground hover:text-foreground transition-colors",
+      "text": "Sitemap",
+      "rect": {
+        "x": 725,
+        "y": 5979,
+        "width": 50,
+        "height": 20
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    }
+  ]
+}

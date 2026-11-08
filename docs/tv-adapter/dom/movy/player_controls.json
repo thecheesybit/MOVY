@@ -1,0 +1,1208 @@
+{
+  "url": "<movy>/tv/65701/1/1?play=true",
+  "pathname": "/tv/65701/1/1",
+  "title": "Good Mythical Morning | Movy",
+  "viewport": {
+    "width": 1280,
+    "height": 720,
+    "meta": "width=1280"
+  },
+  "fullscreen": null,
+  "summary": {
+    "interactiveCount": 57,
+    "scrollContainerCount": 1,
+    "overlayCount": 3,
+    "hasPlayer": true
+  },
+  "player": {
+    "selector": "#vp-shell",
+    "tag": "div",
+    "id": "vp-shell",
+    "className": "fixed inset-0",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 1280,
+      "height": 720
+    },
+    "video": {
+      "paused": false,
+      "currentTime": 0,
+      "duration": 0,
+      "readyState": 0
+    }
+  },
+  "overlays": [
+    {
+      "tag": "div",
+      "id": "_rht_toaster",
+      "className": "app-toaster",
+      "position": "fixed",
+      "zIndex": 9999,
+      "rect": {
+        "x": 16,
+        "y": 16,
+        "width": 1248,
+        "height": 676
+      }
+    },
+    {
+      "tag": "div",
+      "id": "vp-shell",
+      "className": "fixed inset-0",
+      "position": "fixed",
+      "zIndex": 0,
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "tag": "div",
+      "className": "fixed inset-0 vp-root",
+      "position": "fixed",
+      "zIndex": 0,
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 720
+      }
+    }
+  ],
+  "scrollContainers": [
+    {
+      "tag": "div",
+      "className": "flex-1 min-h-0 overflow-y-auto custom-vertical-scroll space-y-0.5 pr-1",
+      "scrollX": false,
+      "scrollY": true,
+      "scrollWidth": 151,
+      "clientWidth": 151,
+      "scrollHeight": 673,
+      "clientHeight": 395,
+      "rect": {
+        "x": 720,
+        "y": 116,
+        "width": 154,
+        "height": 395
+      }
+    }
+  ],
+  "interactive": [
+    {
+      "tag": "svg",
+      "rect": {
+        "x": 40,
+        "y": 34,
+        "width": 28,
+        "height": 28
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "tabindex": "-1",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "tabbable flex items-center gap-2 p-2 md:px-3 md:py-2 rounded-lg text-white/90 hover:text-white hover:bg-white/10 transition-all text-sm font-semibold",
+      "text": "Quality",
+      "rect": {
+        "x": 787,
+        "y": 28,
+        "width": 104,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-left transition-colors text-gray-300 hover:text-white hover:bg-white/[0.08]",
+      "text": "Miami",
+      "rect": {
+        "x": 720,
+        "y": 116,
+        "width": 147,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "p-1 -m-0.5 rounded-md text-gray-500 hover:text-red-400 hover:bg-white/10 transition-colors flex-shrink-0 cursor-pointer",
+      "role": "button",
+      "ariaLabel": "Favorite server",
+      "rect": {
+        "x": 836,
+        "y": 123,
+        "width": 21,
+        "height": 21
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-left transition-colors text-gray-300 hover:text-white hover:bg-white/[0.08]",
+      "text": "Boise",
+      "rect": {
+        "x": 720,
+        "y": 154,
+        "width": 147,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "p-1 -m-0.5 rounded-md text-gray-500 hover:text-red-400 hover:bg-white/10 transition-colors flex-shrink-0 cursor-pointer",
+      "role": "button",
+      "ariaLabel": "Favorite server",
+      "rect": {
+        "x": 836,
+        "y": 161,
+        "width": 21,
+        "height": 21
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-left transition-colors text-gray-300 hover:text-white hover:bg-white/[0.08]",
+      "text": "Nashville",
+      "rect": {
+        "x": 720,
+        "y": 191,
+        "width": 147,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "p-1 -m-0.5 rounded-md text-gray-500 hover:text-red-400 hover:bg-white/10 transition-colors flex-shrink-0 cursor-pointer",
+      "role": "button",
+      "ariaLabel": "Favorite server",
+      "rect": {
+        "x": 836,
+        "y": 198,
+        "width": 21,
+        "height": 21
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-left transition-colors text-gray-300 hover:text-white hover:bg-white/[0.08]",
+      "text": "Chicago",
+      "rect": {
+        "x": 720,
+        "y": 229,
+        "width": 147,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "p-1 -m-0.5 rounded-md text-gray-500 hover:text-red-400 hover:bg-white/10 transition-colors flex-shrink-0 cursor-pointer",
+      "role": "button",
+      "ariaLabel": "Favorite server",
+      "rect": {
+        "x": 836,
+        "y": 236,
+        "width": 21,
+        "height": 21
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-left transition-colors text-gray-300 hover:text-white hover:bg-white/[0.08]",
+      "text": "Vegas",
+      "rect": {
+        "x": 720,
+        "y": 266,
+        "width": 147,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "p-1 -m-0.5 rounded-md text-gray-500 hover:text-red-400 hover:bg-white/10 transition-colors flex-shrink-0 cursor-pointer",
+      "role": "button",
+      "ariaLabel": "Favorite server",
+      "rect": {
+        "x": 836,
+        "y": 273,
+        "width": 21,
+        "height": 21
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-left transition-colors text-gray-300 hover:text-white hover:bg-white/[0.08]",
+      "text": "Reno",
+      "rect": {
+        "x": 720,
+        "y": 304,
+        "width": 147,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "p-1 -m-0.5 rounded-md text-gray-500 hover:text-red-400 hover:bg-white/10 transition-colors flex-shrink-0 cursor-pointer",
+      "role": "button",
+      "ariaLabel": "Favorite server",
+      "rect": {
+        "x": 836,
+        "y": 311,
+        "width": 21,
+        "height": 21
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-left transition-colors text-white bg-white/[0.14]",
+      "text": "Oakland",
+      "rect": {
+        "x": 720,
+        "y": 341,
+        "width": 147,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "p-1 -m-0.5 rounded-md text-gray-500 hover:text-red-400 hover:bg-white/10 transition-colors flex-shrink-0 cursor-pointer",
+      "role": "button",
+      "ariaLabel": "Favorite server",
+      "rect": {
+        "x": 836,
+        "y": 348,
+        "width": 21,
+        "height": 21
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-left transition-colors text-gray-300 hover:text-white hover:bg-white/[0.08]",
+      "text": "Seattle",
+      "rect": {
+        "x": 720,
+        "y": 379,
+        "width": 147,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "p-1 -m-0.5 rounded-md text-gray-500 hover:text-red-400 hover:bg-white/10 transition-colors flex-shrink-0 cursor-pointer",
+      "role": "button",
+      "ariaLabel": "Favorite server",
+      "rect": {
+        "x": 836,
+        "y": 386,
+        "width": 21,
+        "height": 21
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-left transition-colors text-gray-300 hover:text-white hover:bg-white/[0.08]",
+      "text": "Phoenix",
+      "rect": {
+        "x": 720,
+        "y": 416,
+        "width": 147,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "p-1 -m-0.5 rounded-md text-gray-500 hover:text-red-400 hover:bg-white/10 transition-colors flex-shrink-0 cursor-pointer",
+      "role": "button",
+      "ariaLabel": "Favorite server",
+      "rect": {
+        "x": 836,
+        "y": 423,
+        "width": 21,
+        "height": 21
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-left transition-colors text-gray-300 hover:text-white hover:bg-white/[0.08]",
+      "text": "Atlanta",
+      "rect": {
+        "x": 720,
+        "y": 454,
+        "width": 147,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "p-1 -m-0.5 rounded-md text-gray-500 hover:text-red-400 hover:bg-white/10 transition-colors flex-shrink-0 cursor-pointer",
+      "role": "button",
+      "ariaLabel": "Favorite server",
+      "rect": {
+        "x": 836,
+        "y": 461,
+        "width": 21,
+        "height": 21
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-left transition-colors text-gray-300 hover:text-white hover:bg-white/[0.08]",
+      "text": "Portland",
+      "rect": {
+        "x": 720,
+        "y": 491,
+        "width": 147,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "p-1 -m-0.5 rounded-md text-gray-500 hover:text-red-400 hover:bg-white/10 transition-colors flex-shrink-0 cursor-pointer",
+      "role": "button",
+      "ariaLabel": "Favorite server",
+      "rect": {
+        "x": 836,
+        "y": 498,
+        "width": 21,
+        "height": 21
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-left transition-colors text-gray-300 hover:text-white hover:bg-white/[0.08]",
+      "text": "Austin",
+      "rect": {
+        "x": 720,
+        "y": 529,
+        "width": 147,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "p-1 -m-0.5 rounded-md text-gray-500 hover:text-red-400 hover:bg-white/10 transition-colors flex-shrink-0 cursor-pointer",
+      "role": "button",
+      "ariaLabel": "Favorite server",
+      "rect": {
+        "x": 836,
+        "y": 536,
+        "width": 21,
+        "height": 21
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-left transition-colors text-gray-300 hover:text-white hover:bg-white/[0.08]",
+      "text": "Dallas",
+      "rect": {
+        "x": 720,
+        "y": 566,
+        "width": 147,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "p-1 -m-0.5 rounded-md text-gray-500 hover:text-red-400 hover:bg-white/10 transition-colors flex-shrink-0 cursor-pointer",
+      "role": "button",
+      "ariaLabel": "Favorite server",
+      "rect": {
+        "x": 836,
+        "y": 573,
+        "width": 21,
+        "height": 21
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-left transition-colors text-gray-300 hover:text-white hover:bg-white/[0.08]",
+      "text": "Munich",
+      "rect": {
+        "x": 720,
+        "y": 604,
+        "width": 147,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "p-1 -m-0.5 rounded-md text-gray-500 hover:text-red-400 hover:bg-white/10 transition-colors flex-shrink-0 cursor-pointer",
+      "role": "button",
+      "ariaLabel": "Favorite server",
+      "rect": {
+        "x": 836,
+        "y": 611,
+        "width": 21,
+        "height": 21
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-left transition-colors text-gray-300 hover:text-white hover:bg-white/[0.08]",
+      "text": "Berlin",
+      "rect": {
+        "x": 720,
+        "y": 641,
+        "width": 147,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "p-1 -m-0.5 rounded-md text-gray-500 hover:text-red-400 hover:bg-white/10 transition-colors flex-shrink-0 cursor-pointer",
+      "role": "button",
+      "ariaLabel": "Favorite server",
+      "rect": {
+        "x": 836,
+        "y": 648,
+        "width": 21,
+        "height": 21
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-left transition-colors text-gray-300 hover:text-white hover:bg-white/[0.08]",
+      "text": "Paris",
+      "rect": {
+        "x": 720,
+        "y": 679,
+        "width": 147,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "p-1 -m-0.5 rounded-md text-gray-500 hover:text-red-400 hover:bg-white/10 transition-colors flex-shrink-0 cursor-pointer",
+      "role": "button",
+      "ariaLabel": "Favorite server",
+      "rect": {
+        "x": 836,
+        "y": 686,
+        "width": 21,
+        "height": 21
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-left transition-colors text-gray-300 hover:text-white hover:bg-white/[0.08]",
+      "text": "Delhi",
+      "rect": {
+        "x": 720,
+        "y": 716,
+        "width": 147,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "p-1 -m-0.5 rounded-md text-gray-500 hover:text-red-400 hover:bg-white/10 transition-colors flex-shrink-0 cursor-pointer",
+      "role": "button",
+      "ariaLabel": "Favorite server",
+      "rect": {
+        "x": 836,
+        "y": 723,
+        "width": 21,
+        "height": 21
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-left transition-colors text-gray-300 hover:text-white hover:bg-white/[0.08]",
+      "text": "Cancun",
+      "rect": {
+        "x": 720,
+        "y": 754,
+        "width": 147,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "p-1 -m-0.5 rounded-md text-gray-500 hover:text-red-400 hover:bg-white/10 transition-colors flex-shrink-0 cursor-pointer",
+      "role": "button",
+      "ariaLabel": "Favorite server",
+      "rect": {
+        "x": 836,
+        "y": 761,
+        "width": 21,
+        "height": 21
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "flex-1 rounded-full px-1.5 py-1.5 text-[11.5px] font-semibold tabular-nums transition-colors text-gray-400 hover:bg-white/10 hover:text-white",
+      "text": "0.5x",
+      "rect": {
+        "x": 601,
+        "y": 536,
+        "width": 42,
+        "height": 29
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "flex-1 rounded-full px-1.5 py-1.5 text-[11.5px] font-semibold tabular-nums transition-colors text-gray-400 hover:bg-white/10 hover:text-white",
+      "text": "0.75x",
+      "rect": {
+        "x": 647,
+        "y": 536,
+        "width": 43,
+        "height": 29
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "flex-1 rounded-full px-1.5 py-1.5 text-[11.5px] font-semibold tabular-nums transition-colors bg-white text-black",
+      "text": "1x",
+      "rect": {
+        "x": 694,
+        "y": 536,
+        "width": 42,
+        "height": 29
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "flex-1 rounded-full px-1.5 py-1.5 text-[11.5px] font-semibold tabular-nums transition-colors text-gray-400 hover:bg-white/10 hover:text-white",
+      "text": "1.25x",
+      "rect": {
+        "x": 740,
+        "y": 536,
+        "width": 42,
+        "height": 29
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "flex-1 rounded-full px-1.5 py-1.5 text-[11.5px] font-semibold tabular-nums transition-colors text-gray-400 hover:bg-white/10 hover:text-white",
+      "text": "1.5x",
+      "rect": {
+        "x": 786,
+        "y": 536,
+        "width": 42,
+        "height": 29
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "flex-1 rounded-full px-1.5 py-1.5 text-[11.5px] font-semibold tabular-nums transition-colors text-gray-400 hover:bg-white/10 hover:text-white",
+      "text": "2x",
+      "rect": {
+        "x": 832,
+        "y": 536,
+        "width": 42,
+        "height": 29
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "tabbable flex items-center gap-2 p-2 md:px-3 md:py-2 rounded-lg text-white/90 hover:text-white hover:bg-white/10 transition-all text-sm font-semibold",
+      "text": "Audio & Subtitles",
+      "rect": {
+        "x": 907,
+        "y": 28,
+        "width": 172,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-left transition-colors text-white bg-white/[0.14]",
+      "text": "Off",
+      "rect": {
+        "x": 908,
+        "y": 116,
+        "width": 150,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "input",
+      "className": "absolute inset-0 z-10 opacity-0 cursor-pointer",
+      "rect": {
+        "x": 909,
+        "y": 218,
+        "width": 148,
+        "height": 35
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 0,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "svg",
+      "rect": {
+        "x": 921,
+        "y": 228,
+        "width": 14,
+        "height": 14
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-full flex items-center justify-between gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-colors text-left",
+      "text": "Search on OpenSubtitles",
+      "rect": {
+        "x": 722,
+        "y": 279,
+        "width": 340,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "w-full flex items-center justify-between gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-colors text-left",
+      "text": "Customize appearance",
+      "rect": {
+        "x": 722,
+        "y": 316,
+        "width": 340,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 0,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "a",
+      "text": "Next Episode",
+      "rect": {
+        "x": 1095,
+        "y": 28,
+        "width": 145,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "tabbable flex items-center gap-2 p-2 md:px-3 md:py-2 rounded-lg text-white/90 hover:text-white hover:bg-white/10 transition-all text-sm font-semibold",
+      "text": "Next Episode",
+      "rect": {
+        "x": 1095,
+        "y": 28,
+        "width": 145,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "tabbable p-2 rounded-full hover:bg-white/20 transition-transform duration-100 flex items-center gap-3 active:scale-110 active:bg-white/30 active:text-white",
+      "rect": {
+        "x": 488,
+        "y": 340,
+        "width": 40,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "pointer-events-none p-2 rounded-full flex items-center justify-center",
+      "ariaLabel": "Loading",
+      "rect": {
+        "x": 620,
+        "y": 340,
+        "width": 40,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "tabindex": "-1",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "tabbable p-2 rounded-full hover:bg-white/20 transition-transform duration-100 flex items-center gap-3 active:scale-110 active:bg-white/30 active:text-white",
+      "rect": {
+        "x": 752,
+        "y": 340,
+        "width": 40,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "tabbable group flex items-center gap-1.5 px-3 py-2 rounded-full hover:bg-white/10 transition-colors text-white",
+      "text": "Episodes",
+      "rect": {
+        "x": 578,
+        "y": 678,
+        "width": 125,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "id": "ButtonFullscreen",
+      "className": "tabbable p-2 rounded-full hover:bg-white/20 transition-transform duration-100 flex items-center gap-3 active:scale-110 active:bg-white/30 active:text-white",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "none",
+      "isInert": false,
+      "ariaHidden": false
+    }
+  ]
+}

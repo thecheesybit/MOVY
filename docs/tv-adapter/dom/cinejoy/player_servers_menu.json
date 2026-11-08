@@ -1,0 +1,546 @@
+{
+  "url": "<cinejoy>/watch/tv/456/1/6",
+  "pathname": "/watch/tv/456/1/6",
+  "title": "The Simpsons S1:E6 - Cinejoy",
+  "viewport": {
+    "width": 1280,
+    "height": 720,
+    "meta": "width=1280"
+  },
+  "fullscreen": null,
+  "summary": {
+    "interactiveCount": 26,
+    "scrollContainerCount": 0,
+    "overlayCount": 0,
+    "hasPlayer": true
+  },
+  "player": {
+    "selector": ".player-root",
+    "tag": "div",
+    "className": "player-root relative w-full h-full bg-black overflow-hidden font-['Inter'] group select-none  svelte-l6y7q",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 1280,
+      "height": 720
+    },
+    "video": {
+      "paused": false,
+      "currentTime": 41,
+      "duration": 1390,
+      "readyState": 4
+    }
+  },
+  "overlays": [],
+  "scrollContainers": [],
+  "interactive": [
+    {
+      "tag": "button",
+      "className": "flex items-center justify-center w-12 h-12 shrink-0 hover:scale-110 active:scale-95 transition-all text-white svelte-l6y7q movy-tvf movy-tvr",
+      "ariaLabel": "Back",
+      "rect": {
+        "x": 24,
+        "y": 24,
+        "width": 48,
+        "height": 48
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false,
+      "isFocused": true
+    },
+    {
+      "tag": "button",
+      "className": "group/title flex flex-col items-center max-w-[60%] text-center cursor-pointer select-none focus:outline-none bg-transparent border-0 p-0 m-0 svelte-l6y7q",
+      "ariaLabel": "View details for The Simpsons",
+      "text": "The Simpsons S1 E6",
+      "rect": {
+        "x": 601,
+        "y": 24,
+        "width": 126,
+        "height": 48
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "panel-icon-btn -mr-1 svelte-lqlqkq",
+      "ariaLabel": "Close",
+      "rect": {
+        "x": 1193,
+        "y": 370,
+        "width": 26,
+        "height": 26
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "src-grip svelte-lqlqkq",
+      "role": "button",
+      "ariaLabel": "Reorder secret (hold and drag, or alt + arrow keys)",
+      "rect": {
+        "x": 861,
+        "y": 418,
+        "width": 26,
+        "height": 34
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "src-row svelte-lqlqkq",
+      "text": "Secret",
+      "rect": {
+        "x": 887,
+        "y": 415,
+        "width": 336,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "src-grip svelte-lqlqkq",
+      "role": "button",
+      "ariaLabel": "Reorder Nebula (hold and drag, or alt + arrow keys)",
+      "rect": {
+        "x": 861,
+        "y": 458,
+        "width": 26,
+        "height": 34
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "src-row svelte-lqlqkq",
+      "text": "Nebula",
+      "rect": {
+        "x": 887,
+        "y": 455,
+        "width": 336,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "src-grip svelte-lqlqkq",
+      "role": "button",
+      "ariaLabel": "Reorder Lisbon (hold and drag, or alt + arrow keys)",
+      "rect": {
+        "x": 861,
+        "y": 498,
+        "width": 26,
+        "height": 34
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "src-row svelte-lqlqkq",
+      "text": "Lisbon",
+      "rect": {
+        "x": 887,
+        "y": 495,
+        "width": 336,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "src-grip svelte-lqlqkq",
+      "role": "button",
+      "ariaLabel": "Reorder Solara (hold and drag, or alt + arrow keys)",
+      "rect": {
+        "x": 861,
+        "y": 538,
+        "width": 26,
+        "height": 34
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "src-row svelte-lqlqkq",
+      "text": "Solara",
+      "rect": {
+        "x": 887,
+        "y": 535,
+        "width": 336,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "span",
+      "className": "src-grip svelte-lqlqkq",
+      "role": "button",
+      "ariaLabel": "Reorder Athens (hold and drag, or alt + arrow keys)",
+      "rect": {
+        "x": 861,
+        "y": 578,
+        "width": 26,
+        "height": 34
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "tabindex": "0",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "src-row svelte-lqlqkq",
+      "text": "Athens",
+      "rect": {
+        "x": 887,
+        "y": 575,
+        "width": 336,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "input",
+      "className": "slider-thumb absolute inset-0 w-full h-full opacity-0 cursor-pointer z-30 m-0 p-0 appearance-none touch-action-none svelte-l6y7q",
+      "ariaLabel": "Seek Video",
+      "rect": {
+        "x": 32,
+        "y": 636,
+        "width": 1216,
+        "height": 32
+      },
+      "cursor": "none",
+      "pointerEvents": "none",
+      "opacity": 0,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "p-2 rounded-full hover:bg-white/10 transition-transform duration-100 flex items-center gap-3 active:scale-110 active:bg-white/30 svelte-l6y7q",
+      "ariaLabel": "Pause",
+      "rect": {
+        "x": 32,
+        "y": 668,
+        "width": 40,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "p-2 rounded-full hover:bg-white/10 transition-transform duration-100 flex items-center gap-3 active:scale-110 active:bg-white/30 svelte-l6y7q",
+      "ariaLabel": "Rewind 10s",
+      "text": "10",
+      "rect": {
+        "x": 84,
+        "y": 668,
+        "width": 40,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "p-2 rounded-full hover:bg-white/10 transition-transform duration-100 flex items-center gap-3 active:scale-110 active:bg-white/30 svelte-l6y7q",
+      "ariaLabel": "Forward 10s",
+      "text": "10",
+      "rect": {
+        "x": 136,
+        "y": 668,
+        "width": 40,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "p-2 rounded-full transition-transform duration-100 flex items-center gap-3 active:scale-110 svelte-l6y7q",
+      "ariaLabel": "Mute",
+      "rect": {
+        "x": 188,
+        "y": 668,
+        "width": 40,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "input",
+      "className": "absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 m-0 p-0 svelte-l6y7q",
+      "ariaLabel": "Volume",
+      "rect": {
+        "x": 220,
+        "y": 668,
+        "width": 16,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 0,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "block",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "p-2 rounded-full hover:bg-white/10 transition-transform duration-100 text-sm font-medium text-white flex items-center gap-3 cursor-pointer active:scale-110 active:bg-white/30 whitespace-nowrap shrink-0 svelte-l6y7q",
+      "text": "0:40 / 23:10",
+      "rect": {
+        "x": 232,
+        "y": 670,
+        "width": 97,
+        "height": 36
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "p-2 rounded-full hover:bg-white/10 transition-transform duration-100 flex items-center gap-3 active:scale-110 active:bg-white/30  svelte-l6y7q",
+      "ariaLabel": "Episodes",
+      "rect": {
+        "x": 1000,
+        "y": 668,
+        "width": 40,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "p-2 rounded-full hover:bg-white/10 transition-transform duration-100 flex items-center gap-3 active:scale-110 active:bg-white/30 svelte-l6y7q",
+      "ariaLabel": "Picture in Picture",
+      "rect": {
+        "x": 1052,
+        "y": 668,
+        "width": 40,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "p-2 rounded-full hover:bg-white/10 transition-transform duration-100 flex items-center gap-3 active:scale-110 active:bg-white/30 text-white scale-105 svelte-l6y7q",
+      "ariaLabel": "Servers",
+      "rect": {
+        "x": 1103,
+        "y": 667,
+        "width": 42,
+        "height": 42
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "p-2 rounded-full hover:bg-white/10 transition-transform duration-100 flex items-center gap-3 active:scale-110 active:bg-white/30  svelte-l6y7q",
+      "ariaLabel": "Subtitles",
+      "rect": {
+        "x": 1156,
+        "y": 668,
+        "width": 40,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "p-2 rounded-full hover:bg-white/10 transition-transform duration-100 flex items-center gap-3 active:scale-110 active:bg-white/30  svelte-l6y7q",
+      "ariaLabel": "Settings",
+      "rect": {
+        "x": 1208,
+        "y": 668,
+        "width": 40,
+        "height": 40
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "flex",
+      "isInert": false,
+      "ariaHidden": false
+    },
+    {
+      "tag": "button",
+      "className": "p-2 rounded-full hover:bg-white/10 transition-transform duration-100 flex items-center gap-3 active:scale-110 active:bg-white/30 svelte-l6y7q",
+      "ariaLabel": "Fullscreen",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "cursor": "none",
+      "pointerEvents": "auto",
+      "opacity": 1,
+      "minAncestorOpacity": 1,
+      "visibility": "visible",
+      "display": "none",
+      "isInert": false,
+      "ariaHidden": false
+    }
+  ]
+}

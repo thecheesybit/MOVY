@@ -26,6 +26,10 @@ public final class ShellConfig {
     public final boolean blockPopups;
     public final String backgroundColor;
     public final boolean tv;
+    /** Disk asset cache (TV only for now). */
+    public final boolean cacheEnabled;
+    public final long cacheMaxBytes;
+    public final long cacheTtlMs;
 
     private ShellConfig(JSONObject o, boolean tv, boolean debug) throws JSONException {
         List<String> auth = new ArrayList<>();
@@ -41,6 +45,10 @@ public final class ShellConfig {
         this.blockPopups = ab == null || ab.optBoolean("blockPopups", true);
         this.backgroundColor = o.optString("backgroundColor", "#000000");
         this.tv = tv;
+        JSONObject ca = o.optJSONObject("cache");
+        this.cacheEnabled = tv && ca != null && ca.optBoolean("enabled", false);
+        this.cacheMaxBytes = (ca == null ? 300 : ca.optLong("maxMb", 300)) * 1024L * 1024L;
+        this.cacheTtlMs = (ca == null ? 30 : ca.optLong("maxAgeDays", 30)) * 24L * 60L * 60L * 1000L;
     }
 
     public static ShellConfig load(Context ctx) {

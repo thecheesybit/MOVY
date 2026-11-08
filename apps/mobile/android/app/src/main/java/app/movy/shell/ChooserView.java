@@ -1,13 +1,11 @@
 package app.movy.shell;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
-import android.graphics.Typeface;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -16,8 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Native source chooser: title, cards (monogram in an accent ring, name only), "Recommended" pill,
- * "Always open this source" (checked by default) and a Continue button. D-pad navigable.
+ * Native source chooser in the iOS look: large title, an inset-grouped list of squircle source tiles with a checkmark
+ * for the selection, an "Always open this source" switch and a full-width primary button. D-pad navigable.
  * Shows names only, never URLs or hosts.
  */
 public final class ChooserView extends FrameLayout {
@@ -25,33 +23,41 @@ public final class ChooserView extends FrameLayout {
         void onChosen(Source source, boolean alwaysOpen);
     }
 
-    private static final int TWO_COLUMN_MIN_DP = 700;
+    private static final int WIDE_MIN_DP = 700;
 
     private final Listener listener;
     private final LinearLayout column;
-    private final List<View> cards = new ArrayList<>();
+    private final LinearLayout footer;
+    private final List<View> rows = new ArrayList<>();
+    private final List<View> marks = new ArrayList<>();
     private List<Source> sources = new ArrayList<>();
-    private LiveConfig config;
     private String selectedId;
-    private boolean always = true;
-    private TextView cta;
+    private boolean always;
+    private IosSwitch alwaysSwitch;
+    private TvChooserLayout tvLayout;
 
     public ChooserView(Context ctx, LiveConfig config, String preselectedId, boolean alwaysChecked, Listener listener) {
         super(ctx);
         this.listener = listener;
         this.selectedId = preselectedId;
         this.always = alwaysChecked;
-        setBackgroundColor(Ui.BLACK);
+        setBackgroundColor(UiTokens.BLACK);
         setClickable(true);
+        LinearLayout root = new LinearLayout(ctx);
+        root.setOrientation(LinearLayout.VERTICAL);
+        addView(root, new LayoutParams(-1, -1));
         ScrollView scroll = new ScrollView(ctx);
         scroll.setFillViewport(true);
         scroll.setVerticalScrollBarEnabled(false);
-        addView(scroll, new LayoutParams(-1, -1));
+        root.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1f));
+        footer = new LinearLayout(ctx); // pinned: the primary button stays on screen however short the window is
+        footer.setOrientation(LinearLayout.VERTICAL);
+        footer.setPadding(Ui.dp(ctx, 20), Ui.dp(ctx, 8), Ui.dp(ctx, 20), Ui.dp(ctx, 16));
+        root.addView(footer, new LinearLayout.LayoutParams(-1, -2));
         column = new LinearLayout(ctx);
         column.setOrientation(LinearLayout.VERTICAL);
-        column.setGravity(Gravity.CENTER_HORIZONTAL);
-        int pad = Ui.dp(ctx, 24);
-        column.setPadding(pad, pad, pad, pad);
+        int pad = Ui.dp(ctx, 20);
+        column.setPadding(pad, Ui.dp(ctx, 16), pad, Ui.dp(ctx, 8));
         scroll.addView(column, new ScrollView.LayoutParams(-1, -2));
         build(config, true);
     }
@@ -61,147 +67,160 @@ public final class ChooserView extends FrameLayout {
         build(next, false);
     }
 
-    private void build(LiveConfig cfg, boolean animate) {
-        Context ctx = getContext();
-        this.config = cfg;
-        this.sources = cfg.enabledSources();
-        if (find(selectedId) == null) selectedId = cfg.recommended().id;
-        column.removeAllViews();
-        cards.clear();
-
-        int maxW = Ui.dp(ctx, getResources().getConfiguration().screenWidthDp >= TWO_COLUMN_MIN_DP ? 640 : 460);
-        column.addView(new View(ctx), new LinearLayout.LayoutParams(1, 0, 1f)); // top spacer
-
-        TextView title = label(ctx, cfg.chooserTitle, 26, Ui.WHITE, true);
-        column.addView(title, widthCap(maxW, 0, 0));
-        if (animate) Ui.fadeIn(title, 60, Ui.dp(ctx, 10));
-        if (!cfg.chooserSubtitle.isEmpty()) {
-            TextView sub = label(ctx, cfg.chooserSubtitle, 14, Ui.MUTED, false);
-            column.addView(sub, widthCap(maxW, 6, 0));
-            if (animate) Ui.fadeIn(sub, 120, Ui.dp(ctx, 10));
-        }
-
-        boolean twoCols = getResources().getConfiguration().screenWidthDp >= TWO_COLUMN_MIN_DP;
-        LinearLayout row = null;
-        for (int i = 0; i < sources.size(); i++) {
-            Source s = sources.get(i);
-            View card = card(ctx, s);
-            cards.add(card);
-            if (twoCols) {
-                if (i % 2 == 0) {
-                    row = new LinearLayout(ctx);
-                    row.setOrientation(LinearLayout.HORIZONTAL);
-                    column.addView(row, widthCap(maxW, 14, 0));
-                }
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, -2, 1f);
-                lp.setMargins(i % 2 == 0 ? 0 : Ui.dp(ctx, 7), 0, i % 2 == 0 ? Ui.dp(ctx, 7) : 0, 0);
-                row.addView(card, lp);
-            } else {
-                column.addView(card, widthCap(maxW, 12, 0));
-            }
-            if (animate) Ui.fadeIn(card, 180 + 70L * i, Ui.dp(ctx, 24));
-        }
-
-        CheckBox box = new CheckBox(ctx);
-        box.setText(cfg.chooserAlways);
-        box.setTextColor(0xFFD1D1D6);
-        box.setTextSize(15);
-        box.setChecked(always);
-        box.setButtonTintList(ColorStateList.valueOf(selectedAccent()));
-        box.setOnCheckedChangeListener((b, on) -> always = on);
-        box.setPadding(Ui.dp(ctx, 8), Ui.dp(ctx, 8), Ui.dp(ctx, 8), Ui.dp(ctx, 8));
-        column.addView(box, widthCap(maxW, 18, 0));
-        if (animate) Ui.fadeIn(box, 180 + 70L * sources.size(), Ui.dp(ctx, 16));
-
-        cta = label(ctx, cfg.chooserCta, 17, Ui.WHITE, true);
-        cta.setFocusable(true);
-        cta.setClickable(true);
-        cta.setPadding(0, Ui.dp(ctx, 15), 0, Ui.dp(ctx, 15));
-        cta.setOnClickListener(v -> confirm());
-        cta.setOnFocusChangeListener((v, f) -> styleCta());
-        column.addView(cta, widthCap(maxW, 14, 0));
-        if (animate) Ui.fadeIn(cta, 260 + 70L * sources.size(), Ui.dp(ctx, 16));
-        column.addView(new View(ctx), new LinearLayout.LayoutParams(1, 0, 1f)); // bottom spacer
-        refresh();
-        View sel = cards.isEmpty() ? cta : cards.get(indexOf(selectedId));
-        sel.post(sel::requestFocus);
+    /** Short windows (phone landscape): tighter spacing. */
+    private boolean compactHeight() {
+        return getResources().getConfiguration().screenHeightDp < 480;
     }
 
-    private LinearLayout.LayoutParams widthCap(int maxW, int topDp, int bottomDp) {
+    private LinearLayout.LayoutParams capped(int topDp) {
+        int maxW = Ui.dp(getContext(), getResources().getConfiguration().screenWidthDp >= WIDE_MIN_DP ? 520 : 460);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(maxW, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.topMargin = Ui.dp(getContext(), topDp);
-        lp.bottomMargin = Ui.dp(getContext(), bottomDp);
         lp.gravity = Gravity.CENTER_HORIZONTAL;
         return lp;
     }
 
-    private static TextView label(Context c, String s, float sp, int color, boolean bold) {
-        TextView t = new TextView(c);
-        t.setText(s);
-        t.setTextSize(sp);
-        t.setTextColor(color);
-        t.setGravity(Gravity.CENTER);
-        t.setTypeface(Typeface.create(bold ? "sans-serif-medium" : "sans-serif", bold ? Typeface.BOLD : Typeface.NORMAL));
-        return t;
+    /** 10-foot variant: a row of large cards, then the options row. */
+    private void buildTv(LiveConfig cfg, boolean animate) {
+        Context ctx = getContext();
+        this.sources = cfg.enabledSources();
+        if (find(selectedId) == null) selectedId = cfg.recommended().id;
+        column.removeAllViews();
+        footer.removeAllViews();
+        rows.clear();
+        marks.clear();
+        column.setPadding(Ui.safeH(ctx), Ui.safeV(ctx), Ui.safeH(ctx), Ui.safeV(ctx));
+        column.setClipToPadding(false);
+        column.setClipChildren(false);
+        ((ViewGroup) column.getParent()).setClipChildren(false);
+        ((ViewGroup) column.getParent()).setClipToPadding(false);
+        column.addView(new View(ctx), new LinearLayout.LayoutParams(1, 0, 1f));
+        tvLayout = new TvChooserLayout(ctx, cfg, selectedId, always, new TvChooserLayout.Callbacks() {
+            @Override public void onPick(Source source) {
+                selectedId = source.id;
+                tvLayout.select(selectedId);
+                confirm();
+            }
+            @Override public void onAlwaysChanged(boolean a) { always = a; }
+            @Override public void onContinue() { confirm(); }
+        }, v -> { if (animate) Ui.fadeIn(v, 80, Ui.dp(ctx, 10)); });
+        column.addView(tvLayout.root, new LinearLayout.LayoutParams(-1, -2));
+        column.addView(new View(ctx), new LinearLayout.LayoutParams(1, 0, 1f));
+        View focus = tvLayout.initialFocus(selectedId);
+        focus.post(focus::requestFocus);
     }
 
-    private View card(Context ctx, Source s) {
-        LinearLayout card = new LinearLayout(ctx);
-        card.setOrientation(LinearLayout.HORIZONTAL);
-        card.setGravity(Gravity.CENTER_VERTICAL);
-        card.setFocusable(true);
-        card.setClickable(true);
-        card.setTag(s.id);
-        int p = Ui.dp(ctx, 14);
-        card.setPadding(p, p, p, p);
-
-        TextView mono = label(ctx, s.monogram(), 20, Ui.WHITE, true);
-        mono.setBackground(Ui.ring(ctx, 0xFF0B0B0C, s.accent, 3));
-        int d = Ui.dp(ctx, 52);
-        card.addView(mono, new LinearLayout.LayoutParams(d, d));
-
-        TextView name = label(ctx, s.name, 18, Ui.WHITE, true);
-        name.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-        LinearLayout.LayoutParams np = new LinearLayout.LayoutParams(0, -2, 1f);
-        np.leftMargin = Ui.dp(ctx, 14);
-        card.addView(name, np);
-
-        if (s.id.equals(config.recommendedSource)) {
-            TextView pill = label(ctx, config.chooserRecommended, 11, Ui.onColor(s.accent), true);
-            pill.setBackground(Ui.rounded(ctx, s.accent, 10, 0, 0));
-            pill.setPadding(Ui.dp(ctx, 9), Ui.dp(ctx, 3), Ui.dp(ctx, 9), Ui.dp(ctx, 3));
-            card.addView(pill, new LinearLayout.LayoutParams(-2, -2));
+    private void build(LiveConfig cfg, boolean animate) {
+        Context ctx = getContext();
+        if (Ui.isTv(ctx)) {
+            buildTv(cfg, animate);
+            return;
         }
-        card.setOnClickListener(v -> {
+        this.sources = cfg.enabledSources();
+        if (find(selectedId) == null) selectedId = cfg.recommended().id;
+        column.removeAllViews();
+        footer.removeAllViews();
+        rows.clear();
+        marks.clear();
+        column.addView(new View(ctx), new LinearLayout.LayoutParams(1, 0, 1f)); // top spacer
+
+        TextView title = IosViews.text(ctx, cfg.chooserTitle, 30, UiTokens.WHITE, false);
+        title.setTypeface(android.graphics.Typeface.create("sans-serif", android.graphics.Typeface.BOLD));
+        title.setAccessibilityHeading(true);
+        column.addView(title, capped(0));
+        if (animate) Ui.fadeIn(title, 60, Ui.dp(ctx, 10));
+        if (!cfg.chooserSubtitle.isEmpty()) {
+            TextView sub = IosViews.text(ctx, cfg.chooserSubtitle, 15, UiTokens.LABEL_SECONDARY, false);
+            column.addView(sub, capped(6));
+            if (animate) Ui.fadeIn(sub, 120, Ui.dp(ctx, 10));
+        }
+
+        LinearLayout list = IosViews.groupCard(ctx, UiTokens.SURFACE);
+        for (int i = 0; i < sources.size(); i++) {
+            if (i > 0) list.addView(IosViews.separator(ctx, 16 + 44 + 12));
+            list.addView(sourceRow(ctx, cfg, sources.get(i)), new LinearLayout.LayoutParams(-1, -2));
+        }
+        column.addView(list, capped(compactHeight() ? 14 : 22));
+        if (animate) Ui.fadeIn(list, 180, Ui.dp(ctx, 24));
+
+        LinearLayout opt = IosViews.groupCard(ctx, UiTokens.SURFACE);
+        opt.addView(alwaysRow(ctx, cfg), new LinearLayout.LayoutParams(-1, -2));
+        column.addView(opt, capped(16));
+        if (animate) Ui.fadeIn(opt, 240, Ui.dp(ctx, 16));
+
+        TextView cta = IosViews.primaryButton(ctx, cfg.chooserCta, UiTokens.BLUE);
+        cta.setOnClickListener(v -> confirm());
+        footer.addView(cta, capped(0));
+        if (animate) Ui.fadeIn(cta, 300, Ui.dp(ctx, 16));
+        column.addView(new View(ctx), new LinearLayout.LayoutParams(1, 0, 1f)); // bottom spacer
+        refresh();
+        View sel = rows.isEmpty() ? cta : rows.get(indexOf(selectedId));
+        sel.post(sel::requestFocus);
+    }
+
+    private View sourceRow(Context ctx, LiveConfig cfg, Source s) {
+        LinearLayout row = new LinearLayout(ctx);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setMinimumHeight(Ui.dp(ctx, 68));
+        row.setPadding(Ui.dp(ctx, 16), Ui.dp(ctx, 10), Ui.dp(ctx, 16), Ui.dp(ctx, 10));
+        row.setFocusable(true);
+        row.setClickable(true);
+        row.setBackground(IosViews.rowBackground(ctx));
+        row.setTag(s.id);
+
+        int d = Ui.dp(ctx, 44);
+        row.addView(new IosViews.Tile(ctx, s), new LinearLayout.LayoutParams(d, d));
+        LinearLayout text = new LinearLayout(ctx);
+        text.setOrientation(LinearLayout.VERTICAL);
+        text.addView(IosViews.text(ctx, s.name, 17, UiTokens.WHITE, false));
+        boolean rec = s.id.equals(cfg.recommendedSource);
+        if (rec) text.addView(IosViews.text(ctx, cfg.chooserRecommended, 13, UiTokens.LABEL_SECONDARY, false));
+        LinearLayout.LayoutParams tp = new LinearLayout.LayoutParams(0, -2, 1f);
+        tp.leftMargin = Ui.dp(ctx, 12);
+        row.addView(text, tp);
+
+        ImageView mark = new ImageView(ctx);
+        mark.setImageResource(R.drawable.ic_check);
+        mark.setColorFilter(UiTokens.BLUE);
+        mark.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
+        row.addView(mark, new LinearLayout.LayoutParams(Ui.dp(ctx, 24), Ui.dp(ctx, 24)));
+        marks.add(mark);
+        row.setContentDescription(rec ? s.name + ", " + cfg.chooserRecommended : s.name);
+        row.setOnClickListener(v -> {
             selectedId = s.id;
             refresh();
         });
-        card.setOnFocusChangeListener((v, f) -> refresh());
-        return card;
+        rows.add(row);
+        return row;
+    }
+
+    private View alwaysRow(Context ctx, LiveConfig cfg) {
+        LinearLayout row = new LinearLayout(ctx);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setMinimumHeight(Ui.dp(ctx, 56));
+        row.setPadding(Ui.dp(ctx, 16), Ui.dp(ctx, 6), Ui.dp(ctx, 16), Ui.dp(ctx, 6));
+        row.setFocusable(true);
+        row.setClickable(true);
+        row.setBackground(IosViews.rowBackground(ctx));
+        row.addView(IosViews.text(ctx, cfg.chooserAlways, 17, UiTokens.WHITE, false), new LinearLayout.LayoutParams(0, -2, 1f));
+        alwaysSwitch = new IosSwitch(ctx);
+        alwaysSwitch.setChecked(always, false);
+        row.addView(alwaysSwitch);
+        row.setContentDescription(cfg.chooserAlways);
+        row.setOnClickListener(v -> {
+            alwaysSwitch.toggle();
+            always = alwaysSwitch.isChecked();
+        });
+        return row;
     }
 
     private void refresh() {
-        Context ctx = getContext();
-        for (View c : cards) {
-            boolean sel = c.getTag().equals(selectedId);
-            Source s = find((String) c.getTag());
-            int stroke = c.isFocused() ? Ui.WHITE : sel ? s.accent : Ui.CARD_STROKE;
-            float w = c.isFocused() ? 3 : sel ? 2 : 1;
-            c.setBackground(Ui.rounded(ctx, sel ? 0xFF1C1C1F : Ui.CARD, 18, stroke, w));
+        for (int i = 0; i < rows.size(); i++) {
+            boolean sel = rows.get(i).getTag().equals(selectedId);
+            marks.get(i).setVisibility(sel ? VISIBLE : INVISIBLE);
+            rows.get(i).setSelected(sel);
         }
-        styleCta();
-    }
-
-    private void styleCta() {
-        if (cta == null) return;
-        int accent = selectedAccent();
-        cta.setTextColor(Ui.onColor(accent));
-        cta.setBackground(Ui.rounded(getContext(), accent, 16, Ui.WHITE, cta.isFocused() ? 3 : 0));
-    }
-
-    private int selectedAccent() {
-        Source s = find(selectedId);
-        return s != null ? s.accent : SpinnerView.RED;
     }
 
     private Source find(String id) {

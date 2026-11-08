@@ -58,7 +58,7 @@ final class IslandAccessibility extends ExploreByTouchHelper {
         String name;
         if (id == tabId()) {
             name = v.getContext().getString(R.string.movy_island_tab);
-            g.update(0);
+            v.layoutNow();
             tmp.set((int) (g.viewW - g.hitW), (int) g.top, (int) g.viewW, (int) g.bottom);
         } else if (id == cardId()) {
             name = v.announcementText();

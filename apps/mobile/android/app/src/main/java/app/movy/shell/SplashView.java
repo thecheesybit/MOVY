@@ -38,7 +38,8 @@ public final class SplashView extends FrameLayout {
         ImageView icon = new ImageView(ctx);
         int resId = ctx.getResources().getIdentifier("splash_icon", "drawable", ctx.getPackageName());
         if (resId != 0) icon.setImageResource(resId);
-        int size = Ui.dp(ctx, 112);
+        boolean shortWindow = ctx.getResources().getConfiguration().screenHeightDp < 480; // phone landscape
+        int size = Ui.dp(ctx, (shortWindow ? 80 : 112) * (Ui.isTv(ctx) ? 1.3f : 1f));
         center.addView(icon, new LinearLayout.LayoutParams(size, size));
         icon.setScaleX(0.86f);
         icon.setScaleY(0.86f);
@@ -62,7 +63,7 @@ public final class SplashView extends FrameLayout {
         spinner = new SpinnerView(ctx);
         spinner.setVisibility(View.INVISIBLE);
         LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(Ui.dp(ctx, 36), Ui.dp(ctx, 36));
-        sp.topMargin = Ui.dp(ctx, 28);
+        sp.topMargin = Ui.dp(ctx, shortWindow ? 16 : 28);
         center.addView(spinner, sp);
 
         LinearLayout foot = new LinearLayout(ctx);
@@ -85,7 +86,7 @@ public final class SplashView extends FrameLayout {
     private static TextView text(Context c, String s, float sp, int color, boolean bold) {
         TextView t = new TextView(c);
         t.setText(s);
-        t.setTextSize(sp);
+        t.setTextSize(sp * Ui.textScale(c));
         t.setTextColor(color);
         t.setGravity(Gravity.CENTER);
         t.setTypeface(bold ? Typeface.create("sans-serif-medium", Typeface.BOLD) : Typeface.create("sans-serif", Typeface.NORMAL));

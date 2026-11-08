@@ -4,6 +4,11 @@ const path = require('node:path');
 const { app, session } = require('electron');
 const { genDir } = require('./paths');
 const { initLog, log } = require('./log');
+const { loadAppConfig } = require('./config');
+const { NavRules } = require('../core/nav-rules');
+const live = require('../core/live-config');
+const { Prefs } = require('../core/prefs');
+const { resolverOptions } = require('../core/doh');
 const { createSites } = require('./sites');
 const { chromeUserAgent } = require('./user-agent');
 const { loadEngine } = require('./engine');
@@ -12,20 +17,20 @@ const { installNetworkBlocking } = require('./adblock');
 const { installCosmeticIpc } = require('./cosmetic-ipc');
 const { installPermissions } = require('./permissions');
 const { installDownloads } = require('./downloads');
-const { createNavigationPolicy } = require('./navigation');
-const { createMainWindow } = require('./main-window');
+const { createShell } = require('./shell');
+const { initialConfig, startRemote } = require('./remote');
 const { saveSessionCookies, restoreSessionCookies } = require('./cookie-store');
 const { installScreenshot, installStorageCheck } = require('./debug');
 
 const gen = genDir();
-const cfg = JSON.parse(fs.readFileSync(path.join(gen, 'app-config.json'), 'utf8'));
+const { app: appCfg, defaults, obf } = loadAppConfig(gen);
 
 // Stable per-app user data folder: survives updates and reinstalls (the installer never deletes it).
-const userDir = path.join(app.getPath('appData'), `movy-${cfg.name}`);
+const userDir = path.join(app.getPath('appData'), `movy-${appCfg.name}`);
 app.setPath('userData', userDir);
 
 // Always a persistent, named partition (logins, localStorage, IndexedDB, Cache Storage, service workers).
-const PARTITION = `persist:${cfg.appId}`;
+const PARTITION = `persist:${appCfg.appId}`;
 
 if (!app.requestSingleInstanceLock()) {
   app.quit();
@@ -45,45 +50,66 @@ function start() {
 
   app.whenReady().then(async () => {
     initLog(userDir);
-    const sites = createSites(cfg);
+    const prefs = new Prefs(userDir, log);
+    const initial = initialConfig({ defaults, obf, userDir, log });
+
+    // DNS-over-HTTPS rescue for hosts the ISP resolver poisons (Cloudflare first, dns.google fallback).
+    const doh = resolverOptions(initial.dohHosts);
+    if (doh) {
+      app.configureHostResolver(doh);
+      log('[doh] secure DNS enabled (automatic, cloudflare + google)');
+    }
+
+    const rules = new NavRules({
+      startUrl: initial.sources[0].url,
+      allowedHosts: live.allAllowedHosts(initial),
+      authHosts: initial.authHosts,
+      externalLinks: appCfg.externalLinks,
+    });
+    rules.update({ allowedHosts: live.allAllowedHosts(initial), startHosts: live.startHosts(initial), authHosts: initial.authHosts });
+    const sites = createSites(rules);
     const stats = new BlockStats();
     const ses = session.fromPartition(PARTITION);
 
-    const ua = cfg.userAgent || chromeUserAgent(ses.getUserAgent(), [app.getName(), cfg.appName, 'movy']);
+    const ua = appCfg.userAgent || chromeUserAgent(ses.getUserAgent(), [app.getName(), appCfg.appName, 'movy']);
     ses.setUserAgent(ua);
     app.userAgentFallback = ua;
 
     let engine = null;
-    if (cfg.adblock.enabled) {
+    if (appCfg.adblock.enabled) {
       try {
         engine = loadEngine(gen);
       } catch (e) {
         log('[adblock] engine failed to load, running without blocking:', e.message);
       }
     }
-    log(`[adblock] engine ${engine ? 'loaded' : 'not loaded'}; UA=${ua}`);
-    if (engine) installNetworkBlocking(ses, engine, sites, stats, log);
+    log(`[adblock] engine ${engine ? 'loaded' : 'not loaded'}`);
+    const adblockOn = () => !!prefs.get('adblockEnabled');
+    if (engine) installNetworkBlocking(ses, engine, sites, stats, log, adblockOn);
     installPermissions(ses, sites);
 
     const read = (f) => fs.readFileSync(path.join(gen, f), 'utf8');
-    let site = null;
+    let siteId = -1;
     installCosmeticIpc({
       engine,
-      cosmetic: cfg.adblock.cosmetic,
-      assets: { cosmeticJs: read('cosmetic.js'), loadingJs: read('loading.js') },
-      isSite: (wc) => !!site && wc.id === site.webContents.id,
+      cosmetic: appCfg.adblock.cosmetic,
+      isEnabled: adblockOn,
+      assets: { cosmeticJs: read('cosmetic.js'), loadingJs: read('loading.js'), scamguardJs: read('scamguard.js'), navguardJs: read('navguard.js') },
+      navConfig: () => ({ allow: rules.allowedPatterns(), auth: rules.authPatterns() }),
+      isSite: (wc) => wc.id === siteId,
       stats,
     });
 
     await restoreSessionCookies(ses, sites, userDir, log);
 
-    const policy = createNavigationPolicy({ cfg, sites, engine, offlineUrl: null, log });
-    const icon = path.join(gen, 'icon.png');
-    const made = createMainWindow({ cfg, sites, ses, gen, userDir, icon, policy, log });
-    mainWin = made.win;
-    site = made.site;
-    const wc = site.webContents;
-    policy.setOfflineUrl(made.offlineUrl);
+    const isEngineBlocked = (url, source) => !!engine && adblockOn() && engine.check(url, source || url, 'document').matched;
+    const shell = createShell({
+      app: appCfg, defaults: initial, prefs, rules, stats, ses, partition: PARTITION, gen, userDir,
+      icon: path.join(gen, 'icon.png'), adblockConfigured: !!engine, isEngineBlocked, log,
+    });
+    mainWin = shell.win;
+    siteId = shell.site.webContents.id;
+    const wc = shell.site.webContents;
     installDownloads(ses, mainWin, log);
 
     // Persist cookies eagerly: after each load, when the window loses focus, and on quit.
@@ -102,8 +128,10 @@ function start() {
         .finally(() => app.quit());
     });
 
+    startRemote({ app: appCfg, defaults, obf, userDir, prefs, repo: shell.repo, log });
     installScreenshot(wc, stats, log);
     installStorageCheck(wc, log);
-    wc.loadURL(sites.startUrl);
+    shell.start();
+    shell.health.refresh();
   });
 }

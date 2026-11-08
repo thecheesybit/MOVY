@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MovyTvFocusMap",
+  "description": "Schema for site-specific TV activity grid and focus map",
+  "type": "object",
+  "required": ["siteId", "screens"],
+  "properties": {
+    "siteId": {
+      "type": "string"
+    },
+    "screens": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["zones"],
+        "properties": {
+          "name": { "type": "string" },
+          "pathPattern": { "type": "string" },
+          "defaultZone": { "type": "string" },
+          "zones": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "selector", "items", "orientation", "exits"],
+              "properties": {
+                "id": { "type": "string" },
+                "selector": { "type": "string" },
+                "items": { "type": "string" },
+                "orientation": {
+                  "type": "string",
+                  "enum": ["horizontal", "vertical", "grid"]
+                },
+                "entry": {
+                  "type": "string",
+                  "enum": ["first", "last", "same-column", "last-used"]
+                },
+                "exits": {
+                  "type": "object",
+                  "properties": {
+                    "up": { "type": "string" },
+                    "down": { "type": "string" },
+                    "left": { "type": "string" },
+                    "right": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
