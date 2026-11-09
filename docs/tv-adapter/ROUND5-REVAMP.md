@@ -175,9 +175,22 @@ Gate 2: from any non-player page on all four sources: LEFT, LEFT, RIGHT×n, OK s
 signed-out; drawer opens < 100 ms after the key; no JS rail left in `tvnav.js`.
 
 ### Level 3 — Search (keyboard + voice) and Continue watching
-**Search overlay (native)**
-- Opened by drawer Search, `KEYCODE_SEARCH`, or OK on any site text search input (intercepted — the site input is never
-  focused for typing).
+**Two different mics (user decision 2026-11-10, ref screenshot: a mic beside the site's own search box)**
+- **In-page search mic (per site, for typing)**: on every site search page, inject a round mic button right of the
+  site's search field (same height as the field, outline icon, focus ring like the cards). It is a normal D-pad
+  stop: RIGHT from the field reaches it. OK on it → native `RecognizerIntent` (small listening pill, not the global
+  overlay) → the recognised text is **typed into that site search box** (native value setter + `input`/`change`
+  events so the site's live search runs; Enter if the site needs a submit). Focus then moves to the first result.
+- **Search box always opens the TV keyboard**: OK (or focusing by D-pad and pressing OK) on any site search box opens
+  the on-screen keyboard every time. Implementation: native proxy — a hidden native `EditText` takes focus +
+  `showSoftInput`, every keystroke is mirrored into the site input (value setter + `input` event), the keyboard's
+  Done/Search = Enter in the site; BACK/hide keyboard returns D-pad focus to the field. The WebView input is never
+  focused for typing (no D-pad trap). Profile `search.input` selector per site; also used by drawer "Search", which
+  opens the site's search page, focuses the box and opens the keyboard.
+- **Remote mic key = global search** (below) is a separate feature with its own overlay.
+
+**Global search overlay (native)**
+- Opened by the remote mic/search key and by "Search all sources" in the drawer.
 - Layout: top field (native `EditText`, TV keyboard opens at once), **mic button** beside it (`RecognizerIntent`; hidden
   if nothing resolves it; `RECORD_AUDIO` only if we fall back to `SpeechRecognizer`), recent searches (last 8, per
   source, chips), suggestions = recent titles.
@@ -227,7 +240,7 @@ has a mic key or a Google Assistant key)
   launcher and the Bravia; if Google TV hides it, record that (in-app row still works).
 - In-app: drawer "Continue watching" items and the first row of the drawer list.
 
-Gate 3: the mic key's delivered keycode is documented for emulator and Bravia; global search shows the four stages
+Gate 3: on all four sites OK on the search box opens the TV keyboard every time and typing appears live; the in-page mic types the spoken text into the box and results appear; the mic key's delivered keycode is documented for emulator and Bravia; global search shows the four stages
 and results rows for every source with a search endpoint; OK → detail → BACK returns to the same results card 3
 times in a row across different sources; type and voice search work on all four (voice: on a device with Google app); results reachable; re-search from
 results works 3 times in a row; a watched title appears on the home screen (or the limitation is documented) and its
