@@ -18,7 +18,7 @@ Paste this into a new Claude Code session in `D:\Movy`:
 |---|---|
 | Current level | **L1 — navigation, loading, start screen, no-resize** (agent running) |
 | Next step | When the L1 agent reports: check its diff (no hosts), run `npm test` + Gradle `testTvDebugUnitTest`, commit, log it, then launch L2 (native drawer) |
-| Last commit | `d87c092` |
+| Last commit | `9f417a6` (L0 inventory) |
 | Uncommitted, on purpose | `config/apps/movy.json` is git-ignored (`recommendedSource` changed to `cinejoy`) |
 
 ## 3. Decisions (user-confirmed) — do not re-ask
@@ -49,9 +49,15 @@ Paste this into a new Claude Code session in `D:\Movy`:
 | 2026-11-10 | Plan update | Start screen with source avatars and a progress ring; global mic search with 4 overlay stages; Hotstar-style drawer; Cinejoy default. Reference images saved in `docs/design/`. L0 agent also asked for each site's search JSON endpoint and mic keycodes (§9). | `b48b3b1` |
 | 2026-11-10 | Plan update | In-page search mic beside the site search box + the keyboard always opens on the search box. | `d87c092` |
 | 2026-11-10 | Resume log | This file + memory notes. | `2e8d78d` |
-| 2026-11-10 | L0 done | `R5-INVENTORY.md`. Cold first poster: Movy 6.0 s, **Cinejoy 24.1 s**, 7Movies 7.1 s, Moonflix 11.9 s. Switch: Cinejoy 15.7 s (black screen ~10 s, no spinner). RAM 97→125 MB, stable. Causes: Cinejoy 33 XHR + 125 images; Moonflix/7Movies analytics NOT blocked; all 10 inject scripts (187 KB) run in every frame; tvnav rebuilds 77–118 ms ×9–26. Resize: tvfs requests fullscreen 1.5–2.2 s after `playing` → 1280→960 jump (7Movies embed stays re-laid out). BACK from player needs 3 presses; first key after idle swallowed. Cinejoy quality exists (gear → QUALITY) but D-pad can't reach it. No slider/colour inputs reachable on any site. KEYCODE_SEARCH(84) reaches the app (unmapped); 231/219 taken by the system Assistant. Search XHR templates recorded in §4. | (this commit) |
+| 2026-11-10 | L0 done | `R5-INVENTORY.md`. Cold first poster: Movy 6.0 s, **Cinejoy 24.1 s**, 7Movies 7.1 s, Moonflix 11.9 s. Switch: Cinejoy 15.7 s (black screen ~10 s, no spinner). RAM 97→125 MB, stable. Causes: Cinejoy 33 XHR + 125 images; Moonflix/7Movies analytics NOT blocked; all 10 inject scripts (187 KB) run in every frame; tvnav rebuilds 77–118 ms ×9–26. Resize: tvfs requests fullscreen 1.5–2.2 s after `playing` → 1280→960 jump (7Movies embed stays re-laid out). BACK from player needs 3 presses; first key after idle swallowed. Cinejoy quality exists (gear → QUALITY) but D-pad can't reach it. No slider/colour inputs reachable on any site. KEYCODE_SEARCH(84) reaches the app (unmapped); 231/219 taken by the system Assistant. Search XHR templates recorded in §4. | `9f417a6` |
 | 2026-11-10 | L1 started | Agent launched with L0 findings as priorities. | — |
 
+
+## 4b. L0 findings that change later levels
+- **L3 mic key:** the remote's mic/Assistant keys (`KEYCODE_VOICE_ASSIST` 231, `KEYCODE_ASSIST` 219) never reach the app on the emulator; the system Assistant takes them. `KEYCODE_SEARCH` (84) does reach `dispatchKeyEvent`. So global search opens on key 84, from the drawer, and from the search overlay's own mic. Re-check 231/219 on the Bravia in L6.
+- **L3 global search data:** Movy and Moonflix use a TMDB-style `/3/search/multi?query={q}`. Cinejoy uses the same TMDB search plus its own lists search. 7Movies uses a same-origin `/api/search?v=5&q={q}` with its cookie. Moonflix has no detail URL, only a modal, so its results must open the modal. Full templates are in `R5-INVENTORY.md` §4.
+- **L3 keyboard:** on Cinejoy and 7Movies, DOWN stays inside the search input with the keyboard up; on Movy and Moonflix it falls through to the page behind. The native keyboard proxy fixes both.
+- **L4 player:** Cinejoy's quality option is real (gear → QUALITY: Auto/1080p/720p/360p) but its tiles are unreachable by D-pad. No site's sliders or colour inputs are reachable, and Moonflix has no subtitle styling at all, so Movy-owned subtitle styling is required. 7Movies speed/fit/boost live in a legacy `#settingsPanel`. Movy's "Customize appearance" leaks focus into the hidden Quality menu.
 
 ## 5. Level checklist
 - [x] L0 baseline + inventory (`R5-INVENTORY.md`)

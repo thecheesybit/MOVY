@@ -202,6 +202,7 @@ signed-out; drawer opens < 100 ms after the key; no JS rail left in `tvnav.js`.
 
 **Remote mic button = global search across all four sources** (ref `docs/design/ref-remote-mic-keys.png`: the remote
 has a mic key or a Google Assistant key)
+- **L0 result:** on the emulator only `KEYCODE_SEARCH` (84) reaches the app; 231 and 219 go to the system Assistant. Open global search on 84, from the drawer, and from the overlay mic.
 - Key capture: handle `KEYCODE_SEARCH` (84), `KEYCODE_VOICE_ASSIST` (231) and `KEYCODE_ASSIST` (219) in
   `dispatchKeyEvent`, and override `onSearchRequested()` (the TV framework routes the search key there when the app
   has focus). First task: log on the emulator and the Bravia which code(s) the mic key actually delivers to the app
@@ -253,6 +254,7 @@ deep link resumes.
   selector, apply/close semantics from L0) in the page or frame (`tvmenu.js` relay). Selected value read back and shown.
 - **Movy-owned subtitle style** (works even where the site lacks it): size S/M/L/XL, background on/off, raised
   position — injected CSS for `::cue` and each site's cue element (profile `player.subtitles`), persisted globally.
+- **L0 result:** Cinejoy quality = gear → QUALITY tile (Auto/1080p/720p/360p), unreachable by D-pad today. No site's sliders or colour inputs are reachable, and Moonflix has no subtitle styling, so Movy-owned subtitle styling is mandatory.
 - Cinejoy quality and every option in the L0 matrix marked "exists" must be reachable from the panel or the site menu.
 - Site menus stay usable (existing Round 4 model) but the panel is the primary path.
 - Controls: OK play/pause, LEFT/RIGHT seek ±10 s (hold = accelerate), UP top bar, DOWN bottom bar, play/pause key,
