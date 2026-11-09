@@ -176,7 +176,7 @@
     if (aria.indexOf('unmute') !== -1 || aria.indexOf('mute') !== -1) return true;
     if (aria.indexOf('notifications') !== -1) return true;
     var href = (el.getAttribute('href') || '').toLowerCase();
-    if (href.indexOf('discord') !== -1 || href.indexOf('telegram') !== -1 || href.indexOf('twitter') !== -1) return true;
+    if (href.indexOf('discord') !== -1 || href.indexOf('telegram') !== -1 || href.indexOf('t.me') !== -1 || href.indexOf('twitter') !== -1) return true;
     if (el.className && typeof el.className === 'string') {
       if (el.className.indexOf('group/label') !== -1) return true;
       if (el.className.indexOf('rail-arrow') !== -1) return true;
@@ -603,7 +603,7 @@
     ensureCache();
     var cur = activeEl() || (current && current.isConnected && current.classList.contains('movy-tvf') ? current : null);
     var from = currentRect();
-    if (!cur || !from) return focusFirst(null, true);
+    if (!cur || !from || !usable(cur, from)) return focusFirst(null, true);
     var items = candItems(null);
     var curId = idOf(cur);
     var hasCur = false, i;
@@ -799,6 +799,9 @@
   var RECENT_MAX = 8;
   var RECENT_SHOWN = 3;
 
+  /** Movy's header account button (labelled Login when signed out). */
+  var MOVY_ACCOUNT = 'header button[aria-label="Login" i], header button[aria-label*="account" i], header button[aria-label*="profile" i]';
+
   var SOURCE_THEMES = {
     movy: {
       brand: 'Movy', accent: '#e50914',
@@ -807,7 +810,12 @@
         { id: 'home', label: 'Home', icon: 'home', path: '/' },
         { id: 'movies', label: 'Movies', icon: 'film', path: '/browse/movie' },
         { id: 'shows', label: 'TV Shows', icon: 'tv', path: '/browse/tv' },
-        { id: 'anime', label: 'Anime', icon: 'sparkles', path: '/browse/anime' }
+        { id: 'anime', label: 'Anime', icon: 'sparkles', path: '/browse/anime' },
+        // The account button opens a menu (History, Watchlist, Watch Party, Login / Sign up); signed out, the first two ask to sign in.
+        { id: 'history', label: 'History', icon: 'history', action: 'pick', open: MOVY_ACCOUNT, item: '^history$' },
+        { id: 'watchlist', label: 'Watchlist', icon: 'bookmark', action: 'pick', open: MOVY_ACCOUNT, item: '^watchlist$' },
+        { id: 'party', label: 'Watch Party', icon: 'users', action: 'pick', open: MOVY_ACCOUNT, item: '^watch party$' },
+        { id: 'account', label: 'Account', icon: 'user', action: 'pick', open: MOVY_ACCOUNT, item: '^(log ?in|sign in|account|profile|log ?out|sign out)$' }
       ]
     },
     cinejoy: {
@@ -817,7 +825,12 @@
         { id: 'home', label: 'Home', icon: 'home', path: '/' },
         { id: 'movies', label: 'Movies', icon: 'film', path: '/movies' },
         { id: 'shows', label: 'Series', icon: 'tv', path: '/series' },
-        { id: 'mylist', label: 'My List', icon: 'bookmark', path: '/lists' }
+        { id: 'mylist', label: 'My List', icon: 'bookmark', path: '/lists' },
+        { id: 'history', label: 'Watch History', icon: 'history', path: '/continue-watching' },
+        { id: 'shorts', label: 'Shorts', icon: 'clip', path: '/shorts' },
+        { id: 'settings', label: 'Settings', icon: 'settings', path: '/settings' },
+        // The gear opens Login / Settings / Watch History / Shorts; Login is a sign-in box (16-digit account number).
+        { id: 'account', label: 'Account', icon: 'user', action: 'account' }
       ]
     },
     '7movies': {
@@ -827,7 +840,11 @@
         { id: 'home', label: 'Home', icon: 'home', path: '/' },
         { id: 'movies', label: 'Movies', icon: 'film', path: '/movies' },
         { id: 'shows', label: 'TV Shows', icon: 'tv', path: '/tv' },
-        { id: 'discover', label: 'Discover', icon: 'sparkles', path: '/discover' }
+        { id: 'discover', label: 'Discover', icon: 'sparkles', path: '/discover' },
+        { id: 'mylist', label: 'My List', icon: 'bookmark', action: 'pick', open: 'header button, nav button', openText: '^my list$' },
+        { id: 'settings', label: 'Settings', icon: 'settings', path: '/settings' },
+        // The gear opens Sign in / Settings (Discord and Telegram there are never offered).
+        { id: 'account', label: 'Account', icon: 'user', action: 'pick', open: 'button[aria-label="Settings"]', item: '^(sign in|log ?in|account|profile|sign out|log ?out)$', itemSel: '.profile-menu-primary' }
       ]
     },
     moonflix: {
@@ -837,6 +854,7 @@
         { id: 'home', label: 'Home', icon: 'home', path: '/browse' },
         { id: 'movies', label: 'Movies', icon: 'film', path: '/movies' },
         { id: 'shows', label: 'TV Shows', icon: 'tv', path: '/tv-shows' },
+        { id: 'new', label: 'New & Popular', icon: 'flame', path: '/new-popular' },
         { id: 'mylist', label: 'My List', icon: 'bookmark', path: '/my-list' }
       ]
     }
@@ -854,6 +872,12 @@
     tv: svgIcon('<rect x="2" y="7" width="20" height="15" rx="3"></rect><polyline points="17 2 12 7 7 2"></polyline>'),
     sparkles: svgIcon('<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>'),
     bookmark: svgIcon('<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>'),
+    settings: svgIcon('<circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>'),
+    user: svgIcon('<circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path>'),
+    users: svgIcon('<circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20a6.5 6.5 0 0 1 13 0"></path><path d="M16 4.5a3.5 3.5 0 0 1 0 7"></path><path d="M18 14a6.5 6.5 0 0 1 3.5 6"></path>'),
+    history: svgIcon('<path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><polyline points="3 3 3 8 8 8"></polyline><polyline points="12 7 12 12 15 14"></polyline>'),
+    clip: svgIcon('<rect x="6" y="2" width="12" height="20" rx="3"></rect><polygon points="10.5 9 14.5 12 10.5 15 10.5 9"></polygon>'),
+    flame: svgIcon('<path d="M12 22c4 0 7-2.7 7-6.8 0-3.9-3-6.2-4.4-9.2-.4 2.3-1.6 3.6-3 4.4C11 7.8 9.6 5 9.6 2 6.6 4.6 5 8.8 5 12.6 5 18.7 8 22 12 22z"></path>'),
     play: svgIcon('<polygon points="6 4 20 12 6 20 6 4"></polygon>', 18),
     chevron: svgIcon('<polyline points="9 6 15 12 9 18"></polyline>', 20)
   };
@@ -971,7 +995,19 @@
     var key = activeSourceKey();
     var cur = root.location.pathname || '/';
     var items = theme.items.map(function (it) {
-      return { kind: 'nav', id: it.id, label: it.label, icon: it.icon, action: it.action, path: it.path, active: !!(it.path && pathIsActive(it.path)) };
+      return {
+        kind: 'nav',
+        id: it.id,
+        label: it.label,
+        icon: it.icon,
+        action: it.action,
+        path: it.path,
+        open: it.open,
+        openText: it.openText,
+        item: it.item,
+        itemSel: it.itemSel,
+        active: !!(it.path && pathIsActive(it.path))
+      };
     });
     readRecent().filter(function (e) { return e.p !== cur || !!e.q; }).slice(0, RECENT_SHOWN).forEach(function (e) {
       items.push({ kind: 'recent', label: e.t, icon: 'play', path: e.p, q: e.q });
@@ -1115,6 +1151,73 @@
     }, 150);
   }
 
+  function openCinejoySignIn() {
+    var tries = 0;
+    (function findSignIn() {
+      var btns = doc.querySelectorAll('button');
+      for (var i = 0; i < btns.length; i++) {
+        if ((btns[i].textContent || '').trim() === 'Sign In') {
+          pressLike(btns[i]);
+          return;
+        }
+      }
+      if (++tries < 15) setTimeout(findSignIn, 150);
+    })();
+  }
+
+  function activatePick(it) {
+    closeRail(false);
+    if (!it.open && !it.openText) return;
+    var openEl = null;
+    if (it.openText) {
+      var reg = new RegExp(it.openText, 'i');
+      var all = doc.querySelectorAll(it.open || 'button, a');
+      for (var i = 0; i < all.length; i++) {
+        if (reg.test((all[i].innerText || all[i].getAttribute('aria-label') || '').trim())) {
+          openEl = all[i];
+          break;
+        }
+      }
+    } else if (it.open) {
+      openEl = doc.querySelector(it.open);
+    }
+    if (!openEl) return;
+
+    var hidParent = openEl.closest('header, div.fixed.top-0.z-50, header.topbar, div.pref-pill-wrap, header.fixed');
+    if (hidParent) {
+      var prevDisp = hidParent.style.display;
+      hidParent.style.setProperty('display', 'block', 'important');
+      hidParent.style.setProperty('visibility', 'hidden', 'important');
+    }
+    firePointerMouse(openEl, 'down');
+    firePointerMouse(openEl, 'up');
+    if (typeof openEl.click === 'function') openEl.click();
+
+    var itemRe = it.item ? new RegExp(it.item, 'i') : null;
+    var tries = 0;
+    (function findItem() {
+      var candidates = doc.querySelectorAll(it.itemSel || '.profile-menu-primary, .profile-menu-actions button, .profile-menu-actions a, [role="menuitem"], [role="menu"] button, .profile-popover button, .player-surface button');
+      for (var j = 0; j < candidates.length; j++) {
+        var txt = (candidates[j].innerText || candidates[j].getAttribute('aria-label') || '').trim();
+        if (!itemRe || itemRe.test(txt)) {
+          if (hidParent) {
+            hidParent.style.display = prevDisp;
+            hidParent.style.removeProperty('visibility');
+          }
+          firePointerMouse(candidates[j], 'down');
+          firePointerMouse(candidates[j], 'up');
+          if (typeof candidates[j].click === 'function') candidates[j].click();
+          return;
+        }
+      }
+      if (++tries < 12) setTimeout(findItem, 100);
+      else if (hidParent) {
+        hidParent.style.display = prevDisp;
+        hidParent.style.removeProperty('visibility');
+      }
+    })();
+  }
+
   function activateRailItem() {
     var it = railItems[railIndex];
     if (!it) return;
@@ -1136,7 +1239,25 @@
     if (it.action === 'search') {
       closeRail();
       openSiteSearch();
-    } else if (it.path) {
+      return;
+    }
+    if (it.action === 'account') {
+      closeRail(false);
+      if (activeSourceKey() === 'cinejoy') {
+        if (root.location.pathname === '/settings') {
+          openCinejoySignIn();
+        } else {
+          try { root.sessionStorage.setItem('movy_tv_open_signin', '1'); } catch (e) {}
+          root.location.href = '/settings';
+        }
+      }
+      return;
+    }
+    if (it.action === 'pick') {
+      activatePick(it);
+      return;
+    }
+    if (it.path) {
       if (root.location.pathname === it.path) closeRail();
       else { closeRail(false); root.location.href = it.path; }
     }
@@ -1307,14 +1428,31 @@
   var firstFocusTries = 0;
 
   function autoFirstFocus() {
-    if (inFrame || userMoved || cache.modal) return;
+    if (inFrame || cache.modal || (userMoved && (current || activeEl()))) return;
     var a = activeEl();
-    if (a && a !== current) return; // the site (or a text field) owns the focus
+    if (a && isTextField(a)) return; // text field owns the focus
+    if (a && a !== current && usable(a, toRect(a.getBoundingClientRect()))) {
+      colX = null;
+      fallbackFocus = false;
+      setCurrent(a, null);
+      return;
+    }
     var ff = firstFocusEl();
     if (ff && ff !== current) { colX = null; fallbackFocus = false; setCurrent(ff, null); return; } // the hero Play showed up after a fallback focus
     if (a) return;
     if (focusFirst()) return;
     if (++firstFocusTries < 40) setTimeout(autoFirstFocus, 600);
+  }
+
+  function checkOpenSignIn() {
+    if (activeSourceKey() === 'cinejoy' && root.location.pathname === '/settings') {
+      try {
+        if (root.sessionStorage.getItem('movy_tv_open_signin')) {
+          root.sessionStorage.removeItem('movy_tv_open_signin');
+          setTimeout(openCinejoySignIn, 500);
+        }
+      } catch (e) {}
+    }
   }
 
   function onRoute() {
@@ -1326,6 +1464,7 @@
     colX = null;
     cache.dirty = true;
     scheduleRebuild(250);
+    checkOpenSignIn();
     [350, 900, 1800, 3200].forEach(function (ms) { setTimeout(autoFirstFocus, ms); });
     if (!inFrame) {
       setTimeout(recordRecent, 1800);
@@ -1369,14 +1508,14 @@
       '.movy-tvc{border-radius:9999px!important}' +
       '@media(prefers-reduced-motion:reduce){.movy-tvf,.movy-tvf:focus{transition:none!important;scale:1!important}}' +
       'html{scroll-behavior:smooth}' +
-      '#__movy_tv_rail_scrim{position:fixed!important;top:0!important;bottom:0!important;left:0!important;width:70%!important;background:linear-gradient(90deg,rgba(0,0,0,0.82) 0%,rgba(0,0,0,0.5) 55%,rgba(0,0,0,0) 100%)!important;opacity:0!important;pointer-events:none!important;transition:opacity .26s ease!important;z-index:2147483500!important}' +
+      '#__movy_tv_rail_scrim{position:fixed!important;top:0!important;bottom:0!important;left:0!important;width:70%!important;background:linear-gradient(90deg,rgba(0,0,0,0.65) 0%,rgba(0,0,0,0.35) 55%,rgba(0,0,0,0) 100%)!important;opacity:0!important;pointer-events:none!important;transition:opacity .26s ease!important;z-index:2147483500!important}' +
       '#__movy_tv_rail_scrim.movy-scrim-open{opacity:1!important;pointer-events:auto!important}' +
       '#__movy_tv_rail{--a:#e50914;position:fixed!important;top:0!important;bottom:0!important;left:0!important;width:60px!important;box-sizing:border-box!important;padding:16px 8px!important;display:flex!important;flex-direction:column!important;overflow-x:hidden!important;overflow-y:auto!important;scrollbar-width:none!important;' +
-      'background:linear-gradient(90deg,rgba(8,9,13,0.92) 0%,rgba(8,9,13,0.6) 72%,rgba(8,9,13,0) 100%)!important;color:#fff!important;font-family:Roboto,-apple-system,"Segoe UI",sans-serif!important;opacity:.9!important;' +
+      'background:linear-gradient(90deg,rgba(8,9,13,0.7) 0%,rgba(8,9,13,0.4) 72%,rgba(8,9,13,0) 100%)!important;color:#fff!important;font-family:Roboto,-apple-system,"Segoe UI",sans-serif!important;' +
       'transition:width .26s cubic-bezier(0.2,0.8,0.2,1),background .26s ease,opacity .2s ease,transform .24s ease!important;z-index:2147483600!important}' +
       '#__movy_tv_rail::-webkit-scrollbar{display:none!important}' +
       '#__movy_tv_rail.movy-rail-hidden{transform:translateX(-100%)!important;opacity:0!important;pointer-events:none!important}' +
-      '#__movy_tv_rail.movy-rail-open{width:310px!important;padding:16px 12px!important;opacity:1!important;background:linear-gradient(90deg,rgba(8,9,13,0.98) 0%,rgba(8,9,13,0.96) 80%,rgba(8,9,13,0) 100%)!important}' +
+      '#__movy_tv_rail.movy-rail-open{width:310px!important;padding:16px 12px!important;opacity:1!important;background:linear-gradient(90deg,rgba(8,9,13,0.88) 0%,rgba(8,9,13,0.82) 80%,rgba(8,9,13,0.65) 100%)!important;backdrop-filter:blur(14px)!important;-webkit-backdrop-filter:blur(14px)!important}' +
       '.movy-rail-brand{display:flex!important;align-items:center!important;gap:12px!important;height:44px!important;padding:0 14px!important;margin-bottom:10px!important;flex:none!important;font-size:18px!important;font-weight:800!important;letter-spacing:.5px!important;white-space:nowrap!important}' +
       '.movy-rail-item{position:relative!important;display:flex!important;align-items:center!important;gap:16px!important;height:44px!important;padding:0 13px!important;margin:2px 0!important;flex:none!important;border-radius:10px!important;border:0!important;background:transparent!important;color:rgba(255,255,255,0.72)!important;font:600 15px/1 Roboto,-apple-system,"Segoe UI",sans-serif!important;white-space:nowrap!important;text-align:left!important;width:100%!important;box-sizing:border-box!important;transition:background 120ms ease,color 120ms ease!important}' +
       '.movy-rail-item svg{flex:none!important}' +
@@ -1411,6 +1550,7 @@
       '#__movy_tv_rail.movy-rail-open .movy-rail-label{max-width:220px!important}' +
       // Blurred poster glow behind the rows (Cinejoy): the artwork belongs to the top banner only, rows sit on the flat page colour.
       '.ambient-blur,.ambient-bleed{display:none!important}' +
+      'a[href*="discord" i],a[href*="telegram" i],a[href*="t.me" i]{display:none!important}' +
       'header,div.fixed.top-0.z-50,header.topbar,div.pref-pill-wrap,header.fixed{display:none!important}';
     (doc.head || doc.documentElement).appendChild(st);
   }
