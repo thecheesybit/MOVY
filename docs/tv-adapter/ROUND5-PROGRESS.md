@@ -73,6 +73,7 @@ Paste this into a new Claude Code session in `D:\Movy`:
 - [ ] L6 full QA (emulator + Bravia), docs
 
 ## 6. Where things are
+- Agent briefs to relaunch any level: `docs/tv-adapter/R5-AGENT-BRIEFS.md`. L1 review findings: `R5-L1-REVIEW.md`.
 - Plan: `docs/tv-adapter/ROUND5-REVAMP.md`. Inventory: `docs/tv-adapter/R5-INVENTORY.md`. Results per level:
   `docs/tv-adapter/REPORT.md` ("Round 5 — Level N"). Screenshots: `docs/tv-adapter/screenshots/r5-L<N>-*`.
 - Harness: `scripts/tv-test/` (`b.ps1` build+install, `t.sh` drive, `cdp.mjs` eval, `paint-wait.mjs` timings).
