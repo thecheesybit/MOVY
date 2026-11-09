@@ -40,10 +40,26 @@ final class Failover implements HealthChecker.Listener {
         health.addListener(this);
     }
 
-    /** A main-frame load started: arm the 15 s watchdog. */
+    /** Low-end TVs get a longer stall window: their pages make progress, just slowly. */
+    static final long LOW_END_TIMEOUT_MS = 30_000;
+    /** However slowly it progresses, a load that has not painted after this long has failed. */
+    static final long HARD_CAP_MS = 90_000;
+
+    private long stallMs = TIMEOUT_MS;
+    private long loadStartedAt;
+    private int lastProgress;
+
+    /** Low-end devices wait longer before calling a silent load dead. */
+    void setLowEnd(boolean lowEnd) {
+        stallMs = lowEnd ? LOW_END_TIMEOUT_MS : TIMEOUT_MS;
+    }
+
+    /** A main-frame load started: arm the stall watchdog. */
     void onLoadStarted() {
+        loadStartedAt = android.os.SystemClock.elapsedRealtime();
+        lastProgress = 0;
         main.removeCallbacks(timeout);
-        main.postDelayed(timeout, TIMEOUT_MS);
+        main.postDelayed(timeout, stallMs);
     }
 
     /** The load is clearly alive: first paint or progress past 80%. */
@@ -52,7 +68,21 @@ final class Failover implements HealthChecker.Listener {
     }
 
     void onProgress(int percent) {
-        if (percent >= ALIVE_PROGRESS) onAlive();
+        if (percent >= ALIVE_PROGRESS) {
+            onAlive();
+            return;
+        }
+        long elapsed = android.os.SystemClock.elapsedRealtime() - loadStartedAt;
+        if (shouldRearm(lastProgress, percent, elapsed)) {
+            main.removeCallbacks(timeout);
+            main.postDelayed(timeout, Math.min(stallMs, HARD_CAP_MS - elapsed));
+        }
+        lastProgress = Math.max(lastProgress, percent);
+    }
+
+    /** A load that is still moving forward is not dead: each step of progress restarts the stall window, up to the hard cap. */
+    static boolean shouldRearm(int lastPercent, int percent, long elapsedMs) {
+        return percent > lastPercent && elapsedMs < HARD_CAP_MS;
     }
 
     /** Network error, 5xx or watchdog timeout for the active source. */

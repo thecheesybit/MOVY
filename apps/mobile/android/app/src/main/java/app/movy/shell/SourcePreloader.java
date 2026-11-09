@@ -77,10 +77,10 @@ final class SourcePreloader {
     }
 
     /** Call when the visible source finished loading a page; only the first call per process starts the warm-up. */
-    void onActivePageFinished() {
+    void onActivePageFinished(boolean lowEnd) {
         if (started) return;
         started = true;
-        main.postDelayed(this::begin, PreloadPolicy.START_DELAY_MS);
+        main.postDelayed(this::begin, PreloadPolicy.startDelayMs(lowEnd));
     }
 
     /** First run: starts right away, in parallel with the active source. */

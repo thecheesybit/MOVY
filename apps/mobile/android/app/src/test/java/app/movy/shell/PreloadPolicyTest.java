@@ -9,6 +9,28 @@ import org.junit.Test;
 public class PreloadPolicyTest {
     private static final long H = 60L * 60 * 1000;
 
+    @Test public void thirtyTwoBitLowRamOrQuadCoreDevicesAreLowEnd() {
+        assertTrue(PreloadPolicy.isLowEnd(false, false, 8)); // 32-bit ARMv7 TV
+        assertTrue(PreloadPolicy.isLowEnd(true, true, 8));
+        assertTrue(PreloadPolicy.isLowEnd(false, true, 4));
+        assertFalse(PreloadPolicy.isLowEnd(false, true, 8));
+    }
+
+    @Test public void lowEndDevicesStartLaterAndNeverInParallel() {
+        assertEquals(PreloadPolicy.LOW_END_START_DELAY_MS, PreloadPolicy.startDelayMs(true));
+        assertEquals(PreloadPolicy.START_DELAY_MS, PreloadPolicy.startDelayMs(false));
+        assertFalse(PreloadPolicy.warmInParallel(true, true));
+        assertTrue(PreloadPolicy.warmInParallel(true, false));
+        assertFalse(PreloadPolicy.warmInParallel(false, false));
+    }
+
+    @Test public void onlyRealSourcePagesStartTheWarmup() {
+        assertFalse(PreloadPolicy.isSourcePage("https://localhost/", false));
+        assertFalse(PreloadPolicy.isSourcePage("about:blank", true));
+        assertFalse(PreloadPolicy.isSourcePage(null, true));
+        assertTrue(PreloadPolicy.isSourcePage("https://example.test/", true));
+    }
+
     @Test public void neverWarmedSourcesAreWarmed() {
         assertTrue(PreloadPolicy.shouldWarm(1_000_000_000L, 0, 5000));
     }

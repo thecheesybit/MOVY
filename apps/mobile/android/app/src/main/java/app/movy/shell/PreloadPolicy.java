@@ -13,7 +13,31 @@ final class PreloadPolicy {
     /** Fewer cached entries than this and a "recent" warm-up cannot be trusted (cache cleared by the user). */
     static final int MIN_CACHE_ENTRIES = 100;
 
+    /** Low-end TVs (32-bit, low RAM or few cores) wait this long after the active page finished. */
+    static final long LOW_END_START_DELAY_MS = 8000;
+    private static final int LOW_END_MAX_CORES = 4;
+
     private PreloadPolicy() {}
+
+    /** A TV that cannot afford hidden pages loading in parallel with the visible one. */
+    static boolean isLowEnd(boolean lowRamDevice, boolean is64Bit, int cores) {
+        return lowRamDevice || !is64Bit || cores <= LOW_END_MAX_CORES;
+    }
+
+    /** Delay before the warm-up starts once the active source's first page finished. */
+    static long startDelayMs(boolean lowEnd) {
+        return lowEnd ? LOW_END_START_DELAY_MS : START_DELAY_MS;
+    }
+
+    /** First run warms in parallel with the active source only on capable devices. */
+    static boolean warmInParallel(boolean firstRun, boolean lowEnd) {
+        return firstRun && !lowEnd;
+    }
+
+    /** Only a page of a real source counts as "the active page finished" (not the shell's own local start page). */
+    static boolean isSourcePage(String url, boolean belongsToSource) {
+        return belongsToSource && url != null && (url.startsWith("https://") || url.startsWith("http://"));
+    }
 
     /** @param warmedAt epoch ms of the last completed warm-up of the source, 0 when never. */
     static boolean shouldWarm(long now, long warmedAt, int cacheEntries) {

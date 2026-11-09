@@ -63,10 +63,25 @@ public class MainActivity extends BridgeActivity {
     private final java.util.Set<String> shellRefreshed = new java.util.HashSet<>();
     /** Top-level URL of the page, readable from WebView binder threads (TvBridge). */
     private volatile String pageUrl = "";
+    /** 32-bit, low-RAM or quad-core TVs: no hidden pages in parallel with the visible one, longer stall window. */
+    private boolean lowEnd;
+
+    private static boolean detectLowEnd(android.content.Context ctx) {
+        android.app.ActivityManager am = (android.app.ActivityManager) ctx.getSystemService(ACTIVITY_SERVICE);
+        boolean lowRam = am != null && am.isLowRamDevice();
+        return PreloadPolicy.isLowEnd(lowRam, android.os.Process.is64Bit(), Runtime.getRuntime().availableProcessors());
+    }
+
+    /** True for a page of one of the configured sources (never the shell's local start page). */
+    private boolean isSourcePage(String url) {
+        return PreloadPolicy.isSourcePage(url, url != null && repo.config().sourceForUrl(url) != null);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         cfg = ShellConfig.load(this);
+        lowEnd = cfg.tv && detectLowEnd(this);
+        if (cfg.tv) Log.i("MovySourcePreload", "device class: " + (lowEnd ? "low-end (serial warm-up)" : "standard"));
         if (cfg.tv) TvLifecycle.trimColdStart(this); // before the WebView exists: stream segments never pile up
         applyRestOrientation();
         stats = new BlockStats(cfg.debug);
@@ -179,8 +194,10 @@ public class MainActivity extends BridgeActivity {
         if (cfg.tv) {
             preloader = new SourcePreloader(this, repo, prefs, assetCache, shell, wv.getSettings().getUserAgentString(),
                     () -> runOnUiThread(() -> launch.onWarmupDone()));
-            launch.setFirstRunWarmup(assetCache != null && !prefs.everWarmed());
+            // A low-end TV never loads hidden pages in parallel with the visible one, so it has no first-run warm-up wait.
+            launch.setFirstRunWarmup(!lowEnd && assetCache != null && !prefs.everWarmed());
         }
+        if (cfg.tv) failover.setLowEnd(lowEnd);
         chrome.setFullscreenListener(on -> {
             island.onFullscreen(on);
             if (preloader == null) return;
@@ -201,11 +218,20 @@ public class MainActivity extends BridgeActivity {
             @Override public void onPageStarted(String url) {
                 if (url != null) pageUrl = url;
                 failover.onLoadStarted();
+                // A low-end TV gives the visible page the whole CPU and network while it loads.
+                if (lowEnd && preloader != null && isSourcePage(url)) preloader.pause();
             }
             @Override public void onPageCommitVisible(String url) { failover.onAlive(); }
             @Override public void onPageFinished(String url) {
                 failover.onAlive();
-                if (preloader != null) preloader.onActivePageFinished();
+                boolean sourcePage = isSourcePage(url);
+                // The shell's own local start page finishing is not the source loading: the warm-up waits for the real page.
+                if (preloader != null && sourcePage) {
+                    preloader.onActivePageFinished(lowEnd);
+                    if (lowEnd) preloader.resumeWhenIdle();
+                }
+                // A slow page that arrived after the watchdog fired: drop the stale "isn't responding" panel.
+                if (sourcePage && launch.errorPanel().isShowing()) launch.errorPanel().hide();
                 refreshActiveShell();
                 if (cfg.debug && assetCache != null) Log.i("MovyAssetCache", assetCache.statsLine());
                 if (tvIdle != null) {
@@ -232,7 +258,7 @@ public class MainActivity extends BridgeActivity {
         });
         if (cfg.debug) launch.setDebugHold(getIntent().getLongExtra("movy_hold_splash", 0));
         launch.start();
-        if (preloader != null && launch.isFirstRunWarmup()) preloader.startNow();
+        if (preloader != null && PreloadPolicy.warmInParallel(launch.isFirstRunWarmup(), lowEnd)) preloader.startNow();
         health.refreshNow(); // background; the dots fill in as results arrive
         handleDebugIntent(getIntent());
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
