@@ -167,7 +167,6 @@
 
   /** Profile `skip` matches the element itself (list descendants explicitly, e.g. "footer a"); a profile card always wins. */
   function isSkipped(el, PF) {
-    if (el.closest && el.closest('#__movy_tv_rail')) return true;
     if (PF.player && PF.player.never && (el.matches(PF.player.never) || el.closest(PF.player.never))) return true; // the element or anything inside one // text inputs, full-cover buttons, legacy hidden panels
     var aria = (el.getAttribute('aria-label') || '').toLowerCase();
     if (aria.indexOf('scroll ') === 0 || aria === 'scroll left' || aria === 'scroll right') return true;
@@ -420,7 +419,7 @@
     if (m !== cache.modal) {
       var was = cache.modal;
       cache.modal = m;
-      if (m && !was) { beforeModal = current; setTimeout(function () { if (cache.modal === m) focusFirst(m); }, 120); setTimeout(function () { if (cache.modal === m) recordModalRecent(m); }, 700); }
+      if (m && !was) { beforeModal = current; setTimeout(function () { if (cache.modal === m) focusFirst(m); }, 120); setTimeout(function () { if (cache.modal === m) TV.hooks.modalOpened && TV.hooks.modalOpened(m); }, 0); }
       else if (!m && was && beforeModal && beforeModal.isConnected) { var b = beforeModal; beforeModal = null; setCurrent(b, null); }
     }
   }
@@ -782,525 +781,11 @@
     });
   }
 
-  // ---------- Left Rail: persistent mini rail that expands into a drawer ----------
-  // Collapsed it is a slim, always-visible icon strip (discoverable). LEFT at the left edge of the page expands it
-  // instantly; BACK / RIGHT collapse it. Expanded it shows Search, the section nav, "Recent" and the other sources.
-
-  var railEl = null;
-  var scrimEl = null;
-  var railOpen = false;
-  var railIndex = 0;
-  var railItems = [];
-  var beforeRailFocus = null;
-  var railTimer = 0;
-
-  var RECENT_KEY = 'movy_tv_recent';
-  var RECENT_MAX = 8;
-  var RECENT_SHOWN = 3;
-
-  /** Movy's header account button (labelled Login when signed out). */
-  var MOVY_ACCOUNT = 'header button[aria-label="Login" i], header button[aria-label*="account" i], header button[aria-label*="profile" i]';
-
-  var SOURCE_THEMES = {
-    movy: {
-      brand: 'Movy', accent: '#e50914',
-      items: [
-        { id: 'search', label: 'Search', icon: 'search', action: 'search' },
-        { id: 'home', label: 'Home', icon: 'home', path: '/' },
-        { id: 'movies', label: 'Movies', icon: 'film', path: '/browse/movie' },
-        { id: 'shows', label: 'TV Shows', icon: 'tv', path: '/browse/tv' },
-        { id: 'anime', label: 'Anime', icon: 'sparkles', path: '/browse/anime' },
-        // The account button opens a menu (History, Watchlist, Watch Party, Login / Sign up); signed out, the first two ask to sign in.
-        { id: 'history', label: 'History', icon: 'history', action: 'pick', open: MOVY_ACCOUNT, item: '^history$' },
-        { id: 'watchlist', label: 'Watchlist', icon: 'bookmark', action: 'pick', open: MOVY_ACCOUNT, item: '^watchlist$' },
-        { id: 'party', label: 'Watch Party', icon: 'users', action: 'pick', open: MOVY_ACCOUNT, item: '^watch party$' },
-        { id: 'account', label: 'Account', icon: 'user', action: 'pick', open: MOVY_ACCOUNT, item: '^(log ?in|sign in|account|profile|log ?out|sign out)$' }
-      ]
-    },
-    cinejoy: {
-      brand: 'Cinejoy', accent: '#3b82f6',
-      items: [
-        { id: 'search', label: 'Search', icon: 'search', action: 'search' },
-        { id: 'home', label: 'Home', icon: 'home', path: '/' },
-        { id: 'movies', label: 'Movies', icon: 'film', path: '/movies' },
-        { id: 'shows', label: 'Series', icon: 'tv', path: '/series' },
-        { id: 'mylist', label: 'My List', icon: 'bookmark', path: '/lists' },
-        { id: 'history', label: 'Watch History', icon: 'history', path: '/continue-watching' },
-        { id: 'shorts', label: 'Shorts', icon: 'clip', path: '/shorts' },
-        { id: 'settings', label: 'Settings', icon: 'settings', path: '/settings' },
-        // The gear opens Login / Settings / Watch History / Shorts; Login is a sign-in box (16-digit account number).
-        { id: 'account', label: 'Account', icon: 'user', action: 'account' }
-      ]
-    },
-    '7movies': {
-      brand: '7Movies', accent: '#f59e0b',
-      items: [
-        { id: 'search', label: 'Search', icon: 'search', action: 'search' },
-        { id: 'home', label: 'Home', icon: 'home', path: '/' },
-        { id: 'movies', label: 'Movies', icon: 'film', path: '/movies' },
-        { id: 'shows', label: 'TV Shows', icon: 'tv', path: '/tv' },
-        { id: 'discover', label: 'Discover', icon: 'sparkles', path: '/discover' },
-        { id: 'mylist', label: 'My List', icon: 'bookmark', action: 'pick', open: 'header button, nav button', openText: '^my list$' },
-        { id: 'settings', label: 'Settings', icon: 'settings', path: '/settings' },
-        // The gear opens Sign in / Settings (Discord and Telegram there are never offered).
-        { id: 'account', label: 'Account', icon: 'user', action: 'pick', open: 'button[aria-label="Settings"]', item: '^(sign in|log ?in|account|profile|sign out|log ?out)$', itemSel: '.profile-menu-primary' }
-      ]
-    },
-    moonflix: {
-      brand: 'Moonflix', accent: '#06b6d4',
-      items: [
-        { id: 'search', label: 'Search', icon: 'search', action: 'search' },
-        { id: 'home', label: 'Home', icon: 'home', path: '/browse' },
-        { id: 'movies', label: 'Movies', icon: 'film', path: '/movies' },
-        { id: 'shows', label: 'TV Shows', icon: 'tv', path: '/tv-shows' },
-        { id: 'new', label: 'New & Popular', icon: 'flame', path: '/new-popular' },
-        { id: 'mylist', label: 'My List', icon: 'bookmark', path: '/my-list' }
-      ]
-    }
-  };
-
-  function svgIcon(inner, size) {
-    var s = size || 22;
-    return '<svg viewBox="0 0 24 24" width="' + s + '" height="' + s + '" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + inner + '</svg>';
-  }
-
-  var ICONS = {
-    search: svgIcon('<circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>'),
-    home: svgIcon('<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline>'),
-    film: svgIcon('<rect x="2" y="2" width="20" height="20" rx="3"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line>'),
-    tv: svgIcon('<rect x="2" y="7" width="20" height="15" rx="3"></rect><polyline points="17 2 12 7 7 2"></polyline>'),
-    sparkles: svgIcon('<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>'),
-    bookmark: svgIcon('<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>'),
-    settings: svgIcon('<circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>'),
-    user: svgIcon('<circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path>'),
-    users: svgIcon('<circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20a6.5 6.5 0 0 1 13 0"></path><path d="M16 4.5a3.5 3.5 0 0 1 0 7"></path><path d="M18 14a6.5 6.5 0 0 1 3.5 6"></path>'),
-    history: svgIcon('<path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><polyline points="3 3 3 8 8 8"></polyline><polyline points="12 7 12 12 15 14"></polyline>'),
-    clip: svgIcon('<rect x="6" y="2" width="12" height="20" rx="3"></rect><polygon points="10.5 9 14.5 12 10.5 15 10.5 9"></polygon>'),
-    flame: svgIcon('<path d="M12 22c4 0 7-2.7 7-6.8 0-3.9-3-6.2-4.4-9.2-.4 2.3-1.6 3.6-3 4.4C11 7.8 9.6 5 9.6 2 6.6 4.6 5 8.8 5 12.6 5 18.7 8 22 12 22z"></path>'),
-    play: svgIcon('<polygon points="6 4 20 12 6 20 6 4"></polygon>', 18),
-    chevron: svgIcon('<polyline points="9 6 15 12 9 18"></polyline>', 20)
-  };
-
-  /** One consistent rounded-square mark per website: same size, stroke and corner, own colour + glyph. */
-  var BRAND_GLYPH = {
-    movy: '<path d="M6.5 17V7.5l5.5 6 5.5-6V17" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>',
-    cinejoy: '<polygon points="9.5 7 17.5 12 9.5 17" fill="#fff"/>',
-    '7movies': '<path d="M7 7.5h10L11 17.5" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>',
-    moonflix: '<path d="M16 14.6A5.6 5.6 0 0 1 9.4 8a5.6 5.6 0 1 0 6.6 6.6z" fill="#fff"/>'
-  };
-
-  function brandMark(key, size) {
-    var th = SOURCE_THEMES[key] || SOURCE_THEMES.movy;
-    var px = size || 26;
-    return '<svg class="movy-rail-mark" viewBox="0 0 24 24" width="' + px + '" height="' + px + '" aria-hidden="true">' +
-      '<rect width="24" height="24" rx="7" fill="' + th.accent + '"/>' + (BRAND_GLYPH[key] || '') + '</svg>';
-  }
-
-  function hexToRgb(h) {
-    var m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(h || '');
-    return m ? parseInt(m[1], 16) + ',' + parseInt(m[2], 16) + ',' + parseInt(m[3], 16) : '255,255,255';
-  }
-
-  function activeSourceKey() {
-    var h = (root.location.hostname || '').toLowerCase();
-    if (h.indexOf('cinejoy') >= 0) return 'cinejoy';
-    if (h.indexOf('7movies') >= 0) return '7movies';
-    if (h.indexOf('moonflix') >= 0) return 'moonflix';
-    return 'movy';
-  }
-
-  function getTheme() {
-    return SOURCE_THEMES[activeSourceKey()] || SOURCE_THEMES.movy;
-  }
-
-  function esc(s) {
-    return String(s).replace(/[&<>"']/g, function (c) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
-    });
-  }
-
-  function pathIsActive(p) {
-    var cur = root.location.pathname || '/';
-    return p === '/' ? (cur === '/' || cur === '') : cur.indexOf(p) === 0;
-  }
-
-  // ----- recent (per source origin; localStorage is origin-scoped) -----
-
-  function readRecent() {
-    try {
-      var a = JSON.parse(root.localStorage.getItem(RECENT_KEY) || '[]');
-      if (!Array.isArray(a)) return [];
-      return a.filter(function (e) { return e && typeof e.t === 'string' && typeof e.p === 'string' && e.p.charAt(0) === '/'; });
-    } catch (e) { return []; }
-  }
-
-  function cleanTitle(t) {
-    t = String(t || '').replace(/^\s*watch\s+/i, '');
-    t = t.split(/\s+[-|–•·]\s+/)[0];
-    t = t.replace(/\s+(online|free|full movie|streaming).*$/i, '');
-    return t.trim().slice(0, 80);
-  }
-
-  var DETAIL_RE = /\/(movie|movies|tv|series|show|shows|anime|watch|title|details?)\/[^\/]+/i;
-
-  var recordedPath = null;
-
-  /** Sites whose detail view is a modal without its own URL (Moonflix): remember the title and re-open it from the home rows. */
-  function recordModalRecent(modal) {
-    if (inFrame || !modal || activeSourceKey() !== 'moonflix') return;
-    var h = modal.querySelector('h1,h2');
-    var title = cleanTitle(h && h.textContent);
-    if (!title || title.toLowerCase() === getTheme().brand.toLowerCase()) return;
-    var list = readRecent().filter(function (e) { return e.q !== title; });
-    list.unshift({ t: title, p: root.location.pathname || '/browse', q: title, ts: Date.now() });
-    try { root.localStorage.setItem(RECENT_KEY, JSON.stringify(list.slice(0, RECENT_MAX))); } catch (e) { /* storage blocked */ }
-  }
-
-  var OPEN_KEY = 'movy_tv_open_title';
-
-  /** After a "recent" that has no URL: find its card on the page and open its detail modal (best effort, a few seconds). */
-  function openRecentTitle() {
-    var q = '';
-    try { q = root.sessionStorage.getItem(OPEN_KEY) || ''; } catch (e) { return; }
-    if (!q) return;
-    var tries = 0;
-    (function look() {
-      var btns = doc.querySelectorAll('button[aria-label^="More info about"]');
-      for (var i = 0; i < btns.length; i++) {
-        if ((btns[i].getAttribute('aria-label') || '').toLowerCase().indexOf(q.toLowerCase()) < 0) continue;
-        try { root.sessionStorage.removeItem(OPEN_KEY); } catch (e) { /* ignore */ }
-        pressLike(btns[i]);
-        return;
-      }
-      if (++tries < 12) setTimeout(look, 700); else { try { root.sessionStorage.removeItem(OPEN_KEY); } catch (e) { /* ignore */ } }
-    })();
-  }
-
-  function recordRecent() {
-    if (inFrame) return;
-    var p = root.location.pathname || '/';
-    if (!DETAIL_RE.test(p)) return;
-    var title = cleanTitle(doc.title);
-    if (!title || title.toLowerCase() === getTheme().brand.toLowerCase()) return;
-    var list = readRecent().filter(function (e) { return e.p !== p; });
-    list.unshift({ t: title, p: p, ts: Date.now() });
-    try { root.localStorage.setItem(RECENT_KEY, JSON.stringify(list.slice(0, RECENT_MAX))); recordedPath = p; } catch (e) { /* storage blocked */ }
-  }
-
-  // ----- rail model + render -----
-
-  function buildRailItems() {
-    var theme = getTheme();
-    var key = activeSourceKey();
-    var cur = root.location.pathname || '/';
-    var items = theme.items.map(function (it) {
-      return {
-        kind: 'nav',
-        id: it.id,
-        label: it.label,
-        icon: it.icon,
-        action: it.action,
-        path: it.path,
-        open: it.open,
-        openText: it.openText,
-        item: it.item,
-        itemSel: it.itemSel,
-        active: !!(it.path && pathIsActive(it.path))
-      };
-    });
-    readRecent().filter(function (e) { return e.p !== cur || !!e.q; }).slice(0, RECENT_SHOWN).forEach(function (e) {
-      items.push({ kind: 'recent', label: e.t, icon: 'play', path: e.p, q: e.q });
-    });
-    Object.keys(SOURCE_THEMES).forEach(function (k) {
-      if (k === key) return;
-      items.push({ kind: 'source', id: k, label: SOURCE_THEMES[k].brand, accent: SOURCE_THEMES[k].accent });
-    });
-    return items;
-  }
-
-  function ensureRail() {
-    if (inFrame) return null;
-    var host = doc.body;
-    if (!host) return null;
-    if (!scrimEl) {
-      scrimEl = doc.createElement('div');
-      scrimEl.id = '__movy_tv_rail_scrim';
-      host.appendChild(scrimEl);
-      scrimEl.addEventListener('click', closeRail);
-    }
-    if (!railEl) {
-      railEl = doc.createElement('aside');
-      railEl.id = '__movy_tv_rail';
-      railEl.setAttribute('aria-hidden', 'true');
-      host.appendChild(railEl);
-    }
-    return railEl;
-  }
-
-  function renderRail() {
-    var el = ensureRail();
-    if (!el) return;
-    var theme = getTheme();
-    railItems = buildRailItems();
-    el.style.setProperty('--a', theme.accent);
-    el.style.setProperty('--a-rgb', hexToRgb(theme.accent));
-    var html = '<div class="movy-rail-brand">' + brandMark(activeSourceKey(), 28) + '<span class="movy-rail-label">' + esc(theme.brand) + '</span></div>';
-    var sec = '';
-    for (var i = 0; i < railItems.length; i++) {
-      var it = railItems[i];
-      if (it.kind !== sec) {
-        sec = it.kind;
-        if (sec === 'recent') html += '<div class="movy-rail-sec">Recently viewed</div>';
-        else if (sec === 'source') html += '<div class="movy-rail-sec">Sources</div><div class="movy-rail-sep"></div>';
-      }
-      var cls = 'movy-rail-item' + (it.kind === 'recent' ? ' movy-rail-x' : it.kind === 'source' ? ' movy-rail-src' : '') + (it.active ? ' is-active' : '') + (i === railIndex && railOpen ? ' is-focused' : '');
-      var lead = it.kind === 'source'
-        ? brandMark(it.id, 24)
-        : (ICONS[it.icon] || '');
-      html += '<button type="button" tabindex="-1" class="' + cls + '" data-index="' + i + '">' + lead +
-        '<span class="movy-rail-label">' + esc(it.label) + '</span></button>';
-    }
-    html += '<div class="movy-rail-foot"><span class="movy-rail-chev">' + ICONS.chevron + '</span>' +
-      '<span class="movy-rail-label">Back to close</span></div>';
-    el.innerHTML = html;
-  }
-
-  function updateRailFocus() {
-    if (!railEl) return;
-    var btns = railEl.querySelectorAll('.movy-rail-item');
-    for (var i = 0; i < btns.length; i++) {
-      var on = i === railIndex;
-      btns[i].classList.toggle('is-focused', on);
-      if (on && btns[i].scrollIntoView) { try { btns[i].scrollIntoView({ block: 'nearest' }); } catch (e) { /* ignore */ } }
-    }
-  }
-
-  /** The collapsed rail stays visible on browse pages and steps aside for players, fullscreen and modals. */
-  function syncRailVisibility() {
-    if (inFrame) return;
-    if (recordedPath !== root.location.pathname && DETAIL_RE.test(root.location.pathname || "")) recordRecent(); // title may land late on SPAs
-    if (!railEl) { if (ensureRail()) renderRail(); }
-    if (!railEl) return;
-    var hide = !railOpen && (!!doc.fullscreenElement || isPlayerActive(true) || !!cache.modal);
-    railEl.classList.toggle('movy-rail-hidden', hide);
-    if (TV.hooks.railVisible) TV.hooks.railVisible(!hide); // tvinset.js: content steps aside only while the rail is on screen
-  }
-
-  function startRail() {
-    if (inFrame || railTimer) return;
-    // Not setInterval: some sites sweep and clear every interval id (the rail then stayed on top of their player). A frame
-    // loop with a time check cannot be cancelled that way, and costs one comparison per frame.
-    railTimer = 1;
-    var lastSync = 0;
-    (function frame(ts) {
-      if (ts - lastSync >= 600) {
-        lastSync = ts;
-        try { syncRailVisibility(); } catch (e) { /* never end the loop */ }
-      }
-      root.requestAnimationFrame(frame);
-    })(0);
-    syncRailVisibility();
-    setTimeout(recordRecent, 1800); // the script is injected after load, so record the page we are already on
-  }
-
-  function openRail() {
-    if (inFrame || railOpen || doc.fullscreenElement || isPlayerActive(true) || cache.modal) return;
-    if (!ensureRail()) return;
-    railIndex = 1;
-    renderRail();
-    for (var i = 0; i < railItems.length; i++) {
-      if (railItems[i].kind === 'nav' && railItems[i].active) { railIndex = i; break; }
-    }
-    beforeRailFocus = activeEl() || current;
-    clearRing(current);
-    railOpen = true;
-    railEl.classList.remove('movy-rail-hidden');
-    if (TV.hooks.railVisible) TV.hooks.railVisible(true);
-    railEl.classList.add('movy-rail-open');
-    railEl.setAttribute('aria-hidden', 'false');
-    if (scrimEl) scrimEl.classList.add('movy-scrim-open');
-    updateRailFocus();
-  }
-
-  function closeRail(keepFocus) {
-    if (!railOpen) return;
-    railOpen = false;
-    if (railEl) { railEl.classList.remove('movy-rail-open'); railEl.setAttribute('aria-hidden', 'true'); }
-    if (scrimEl) scrimEl.classList.remove('movy-scrim-open');
-    if (keepFocus === false) return;
-    if (railEl) renderRail();
-    if (beforeRailFocus && beforeRailFocus.isConnected && renderableNow(beforeRailFocus)) {
-      setCurrent(beforeRailFocus, null);
-    } else {
-      focusFirst(null, true);
-    }
-  }
-
-  function openSiteSearch() {
-    var sBtn = doc.querySelector('button[aria-label="Search" i], button[aria-label="Open search" i], .nav-action[aria-label="Search" i], a[aria-label="Search" i]');
-    if (!sBtn) { root.location.href = '/search'; return; }
-    setTimeout(function () {
-      firePointerMouse(sBtn, 'down');
-      firePointerMouse(sBtn, 'up');
-      if (typeof sBtn.click === 'function') sBtn.click();
-      setTimeout(function () {
-        var inp = doc.querySelector('input[type="search" i], input[type="text" i], input:not([type="hidden"])');
-        if (inp) { inp.focus(); setCurrent(inp, null); }
-      }, 100);
-    }, 150);
-  }
-
-  function openCinejoySignIn() {
-    var tries = 0;
-    (function findSignIn() {
-      var btns = doc.querySelectorAll('button');
-      for (var i = 0; i < btns.length; i++) {
-        if ((btns[i].textContent || '').trim() === 'Sign In') {
-          pressLike(btns[i]);
-          return;
-        }
-      }
-      if (++tries < 15) setTimeout(findSignIn, 150);
-    })();
-  }
-
-  function activatePick(it) {
-    closeRail(false);
-    if (!it.open && !it.openText) return;
-    var openEl = null;
-    if (it.openText) {
-      var reg = new RegExp(it.openText, 'i');
-      var all = doc.querySelectorAll(it.open || 'button, a');
-      for (var i = 0; i < all.length; i++) {
-        if (reg.test((all[i].innerText || all[i].getAttribute('aria-label') || '').trim())) {
-          openEl = all[i];
-          break;
-        }
-      }
-    } else if (it.open) {
-      openEl = doc.querySelector(it.open);
-    }
-    if (!openEl) return;
-
-    var hidParent = openEl.closest('header, div.fixed.top-0.z-50, header.topbar, div.pref-pill-wrap, header.fixed');
-    if (hidParent) {
-      var prevDisp = hidParent.style.display;
-      hidParent.style.setProperty('display', 'block', 'important');
-      hidParent.style.setProperty('visibility', 'hidden', 'important');
-    }
-    firePointerMouse(openEl, 'down');
-    firePointerMouse(openEl, 'up');
-    if (typeof openEl.click === 'function') openEl.click();
-
-    var itemRe = it.item ? new RegExp(it.item, 'i') : null;
-    var tries = 0;
-    (function findItem() {
-      var candidates = doc.querySelectorAll(it.itemSel || '.profile-menu-primary, .profile-menu-actions button, .profile-menu-actions a, [role="menuitem"], [role="menu"] button, .profile-popover button, .player-surface button');
-      for (var j = 0; j < candidates.length; j++) {
-        var txt = (candidates[j].innerText || candidates[j].getAttribute('aria-label') || '').trim();
-        if (!itemRe || itemRe.test(txt)) {
-          if (hidParent) {
-            hidParent.style.display = prevDisp;
-            hidParent.style.removeProperty('visibility');
-          }
-          firePointerMouse(candidates[j], 'down');
-          firePointerMouse(candidates[j], 'up');
-          if (typeof candidates[j].click === 'function') candidates[j].click();
-          return;
-        }
-      }
-      if (++tries < 12) setTimeout(findItem, 100);
-      else if (hidParent) {
-        hidParent.style.display = prevDisp;
-        hidParent.style.removeProperty('visibility');
-      }
-    })();
-  }
-
-  function activateRailItem() {
-    var it = railItems[railIndex];
-    if (!it) return;
-    if (it.kind === 'source') {
-      closeRail(false);
-      try { if (root.MovyTvNative && root.MovyTvNative.switchSource) root.MovyTvNative.switchSource(it.id); } catch (e) { /* ignore */ }
-      return;
-    }
-    if (it.kind === 'recent') {
-      closeRail(false);
-      if (it.q) { // a modal title: reopen it from the cards of the page it was seen on
-        try { root.sessionStorage.setItem(OPEN_KEY, it.q); } catch (e) { /* ignore */ }
-        if (root.location.pathname === it.path) openRecentTitle(); else root.location.href = it.path;
-        return;
-      }
-      root.location.href = it.path;
-      return;
-    }
-    if (it.action === 'search') {
-      closeRail();
-      openSiteSearch();
-      return;
-    }
-    if (it.action === 'account') {
-      closeRail(false);
-      if (activeSourceKey() === 'cinejoy') {
-        if (root.location.pathname === '/settings') {
-          openCinejoySignIn();
-        } else {
-          try { root.sessionStorage.setItem('movy_tv_open_signin', '1'); } catch (e) {}
-          root.location.href = '/settings';
-        }
-      }
-      return;
-    }
-    if (it.action === 'pick') {
-      activatePick(it);
-      return;
-    }
-    if (it.path) {
-      if (root.location.pathname === it.path) closeRail();
-      else { closeRail(false); root.location.href = it.path; }
-    }
-  }
   function onKey(e) {
     if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return;
     var t0 = root.performance.now();
     var dir = dirOf(e);
     var a = activeEl();
-
-    if (railOpen) {
-      if (dir === 'up') {
-        e.preventDefault(); e.stopPropagation();
-        railIndex = railIndex > 0 ? railIndex - 1 : railItems.length - 1; // wrap to the last source
-        updateRailFocus();
-        return;
-      }
-      if (dir === 'down') {
-        e.preventDefault(); e.stopPropagation();
-        if (railIndex < railItems.length - 1) railIndex++;
-        else railIndex = 0; // wrap: Sources are one UP away from Search
-        updateRailFocus();
-        return;
-      }
-      if (dir === 'right') {
-        e.preventDefault(); e.stopPropagation();
-        closeRail();
-        return;
-      }
-      if (dir === 'left') {
-        e.preventDefault(); e.stopPropagation();
-        return;
-      }
-      if (e.keyCode === 13 || e.keyCode === 23) {
-        e.preventDefault(); e.stopPropagation();
-        activateRailItem();
-        return;
-      }
-      if (e.keyCode === 27) {
-        e.preventDefault(); e.stopPropagation();
-        closeRail();
-        return;
-      }
-    }
 
     if (TV.hooks.key && TV.hooks.key(e, dir, a)) return;
 
@@ -1325,7 +810,7 @@
       var prevRect = dir === 'left' ? currentRect() : null;
       var moved = move(dir);
       if (moved && prevRect) {
-        // A "move" that gains no ground to the left (sibling at the same x) means we are at the edge: hand over to the rail.
+        // A "move" that gains no ground to the left (sibling at the same x) means we are at the edge: hand over to the drawer.
         var nowRect = currentRect();
         if (nowRect && nowRect.l >= prevRect.l - 4) {
           if (prevEl && prevEl.isConnected && prevEl !== current) setCurrent(prevEl, null);
@@ -1337,10 +822,7 @@
         if (inFrame) exitUp(dir);
         else if (dir === 'up' || dir === 'down') scrollPage(dir);
         else if (dir === 'left' && !e.repeat && !inFrame && !doc.fullscreenElement && !isPlayerActive(true) && !cache.modal) {
-          openRail();
-        }
-        else if (dir === 'right' && !e.repeat) {
-          try { if (root.MovyTvNative) root.MovyTvNative.edgeRight(); } catch (x) { /* ignore */ }
+          if (TV.edgeLeft) TV.edgeLeft(); // the native drawer takes over (tvdrawer.js)
         }
       } else if (current && current.tagName === 'IFRAME' && TV.PF && isPlayerFrame(current, TV.PF)) {
         enterFrame(current, dir);
@@ -1444,17 +926,6 @@
     if (++firstFocusTries < 40) setTimeout(autoFirstFocus, 600);
   }
 
-  function checkOpenSignIn() {
-    if (activeSourceKey() === 'cinejoy' && root.location.pathname === '/settings') {
-      try {
-        if (root.sessionStorage.getItem('movy_tv_open_signin')) {
-          root.sessionStorage.removeItem('movy_tv_open_signin');
-          setTimeout(openCinejoySignIn, 500);
-        }
-      } catch (e) {}
-    }
-  }
-
   function onRoute() {
     lastHref = root.location.href;
     userMoved = false;
@@ -1464,12 +935,8 @@
     colX = null;
     cache.dirty = true;
     scheduleRebuild(250);
-    checkOpenSignIn();
     [350, 900, 1800, 3200].forEach(function (ms) { setTimeout(autoFirstFocus, ms); });
-    if (!inFrame) {
-      setTimeout(recordRecent, 1800);
-      setTimeout(function () { if (!railOpen && railEl) renderRail(); syncRailVisibility(); }, 400);
-    }
+    if (!inFrame && TV.hooks.route) TV.hooks.route();
   }
 
   function watch() {
@@ -1486,7 +953,7 @@
     }
     root.addEventListener('scroll', function () { cache.dirty = true; scheduleRebuild(450); }, { capture: true, passive: true });
     doc.addEventListener('DOMContentLoaded', function () { scheduleRebuild(100); setTimeout(autoFirstFocus, 400); });
-    root.addEventListener('load', function () { setTimeout(openRecentTitle, 900); scheduleRebuild(100); setTimeout(autoFirstFocus, 300); [900, 2000, 3500].forEach(function (ms) { setTimeout(autoFirstFocus, ms); }); });
+    root.addEventListener('load', function () { if (TV.hooks.loaded) TV.hooks.loaded(); scheduleRebuild(100); setTimeout(autoFirstFocus, 300); [900, 2000, 3500].forEach(function (ms) { setTimeout(autoFirstFocus, ms); }); });
   }
 
   // The ring follows real focus: it is removed as soon as the element loses it (fullscreen changes, re-renders).
@@ -1508,46 +975,6 @@
       '.movy-tvc{border-radius:9999px!important}' +
       '@media(prefers-reduced-motion:reduce){.movy-tvf,.movy-tvf:focus{transition:none!important;scale:1!important}}' +
       'html{scroll-behavior:smooth}' +
-      '#__movy_tv_rail_scrim{position:fixed!important;top:0!important;bottom:0!important;left:0!important;width:70%!important;background:linear-gradient(90deg,rgba(0,0,0,0.65) 0%,rgba(0,0,0,0.35) 55%,rgba(0,0,0,0) 100%)!important;opacity:0!important;pointer-events:none!important;transition:opacity .26s ease!important;z-index:2147483500!important}' +
-      '#__movy_tv_rail_scrim.movy-scrim-open{opacity:1!important;pointer-events:auto!important}' +
-      '#__movy_tv_rail{--a:#e50914;position:fixed!important;top:0!important;bottom:0!important;left:0!important;width:60px!important;box-sizing:border-box!important;padding:16px 8px!important;display:flex!important;flex-direction:column!important;overflow-x:hidden!important;overflow-y:auto!important;scrollbar-width:none!important;' +
-      'background:linear-gradient(90deg,rgba(8,9,13,0.7) 0%,rgba(8,9,13,0.4) 72%,rgba(8,9,13,0) 100%)!important;color:#fff!important;font-family:Roboto,-apple-system,"Segoe UI",sans-serif!important;' +
-      'transition:width .26s cubic-bezier(0.2,0.8,0.2,1),background .26s ease,opacity .2s ease,transform .24s ease!important;z-index:2147483600!important}' +
-      '#__movy_tv_rail::-webkit-scrollbar{display:none!important}' +
-      '#__movy_tv_rail.movy-rail-hidden{transform:translateX(-100%)!important;opacity:0!important;pointer-events:none!important}' +
-      '#__movy_tv_rail.movy-rail-open{width:310px!important;padding:16px 12px!important;opacity:1!important;background:linear-gradient(90deg,rgba(8,9,13,0.88) 0%,rgba(8,9,13,0.82) 80%,rgba(8,9,13,0.65) 100%)!important;backdrop-filter:blur(14px)!important;-webkit-backdrop-filter:blur(14px)!important}' +
-      '.movy-rail-brand{display:flex!important;align-items:center!important;gap:12px!important;height:44px!important;padding:0 14px!important;margin-bottom:10px!important;flex:none!important;font-size:18px!important;font-weight:800!important;letter-spacing:.5px!important;white-space:nowrap!important}' +
-      '.movy-rail-item{position:relative!important;display:flex!important;align-items:center!important;gap:16px!important;height:44px!important;padding:0 13px!important;margin:2px 0!important;flex:none!important;border-radius:10px!important;border:0!important;background:transparent!important;color:rgba(255,255,255,0.72)!important;font:600 15px/1 Roboto,-apple-system,"Segoe UI",sans-serif!important;white-space:nowrap!important;text-align:left!important;width:100%!important;box-sizing:border-box!important;transition:background 120ms ease,color 120ms ease!important}' +
-      '.movy-rail-item svg{flex:none!important}' +
-      '.movy-rail-label{opacity:0!important;overflow:hidden!important;text-overflow:ellipsis!important;transition:opacity .15s ease!important}' +
-      '.movy-rail-open .movy-rail-label{opacity:1!important;transition:opacity .2s ease .08s!important}' +
-      '.movy-rail-item.is-active{color:#fff!important}' +
-      '.movy-rail-item.is-active svg{color:var(--a)!important}' +
-      '.movy-rail-item.is-active::before{content:""!important;position:absolute!important;left:0!important;top:11px!important;bottom:11px!important;width:3px!important;border-radius:2px!important;background:var(--a)!important}' +
-      '.movy-rail-item.is-focused{background:linear-gradient(90deg,rgba(var(--a-rgb,255,255,255),0.34) 0%,rgba(var(--a-rgb,255,255,255),0.10) 100%)!important;color:#fff!important;box-shadow:inset 0 0 0 1px rgba(var(--a-rgb,255,255,255),0.55)!important}' +
-      '.movy-rail-item.is-focused::before{content:""!important;position:absolute!important;left:0!important;top:9px!important;bottom:9px!important;width:4px!important;border-radius:2px!important;background:var(--a)!important;box-shadow:0 0 12px var(--a)!important}' +
-      '.movy-rail-item.is-focused svg:not(.movy-rail-mark){color:#fff!important}' +
-      '.movy-rail-mark{flex:none!important;border-radius:7px!important}' +
-      '.movy-rail-brand .movy-rail-mark{margin-left:-2px!important}' +
-      '.movy-rail-x,.movy-rail-sec{display:none!important}' +
-      '.movy-rail-open .movy-rail-x{display:flex!important}' +
-      '.movy-rail-open .movy-rail-sec{display:block!important}' +
-      '.movy-rail-sep{height:1px!important;margin:10px 12px 8px!important;background:rgba(255,255,255,0.14)!important;flex:none!important}' +
-      '.movy-rail-open .movy-rail-sep{display:none!important}' +
-      '.movy-rail-sec{flex:none!important;padding:16px 14px 6px!important;font-size:11px!important;font-weight:700!important;letter-spacing:1.4px!important;text-transform:uppercase!important;color:rgba(255,255,255,0.45)!important}' +
-      '.movy-rail-x{height:40px!important}' +
-      '.movy-rail-foot{display:flex!important;align-items:center!important;gap:16px!important;margin-top:auto!important;padding:12px 13px 4px!important;flex:none!important;font-size:12px!important;color:rgba(255,255,255,0.45)!important;white-space:nowrap!important}' +
-      '.movy-rail-chev{display:inline-flex!important;flex:none!important;color:var(--a)!important;animation:movyChev 1.6s ease-in-out infinite!important}' +
-      '.movy-rail-open .movy-rail-chev{animation:none!important;transform:rotate(180deg)!important}' +
-      '@keyframes movyChev{0%,100%{transform:translateX(0);opacity:.5}50%{transform:translateX(5px);opacity:1}}' +
-      // Collapsed rail polish: icons centred in the 60 px column with even vertical air, a faint wash that never reaches the content.
-      '#__movy_tv_rail:not(.movy-rail-open){background:linear-gradient(90deg,rgba(8,9,13,0.6) 0%,rgba(8,9,13,0.32) 60%,rgba(8,9,13,0) 100%)!important}' +
-      '#__movy_tv_rail:not(.movy-rail-open) .movy-rail-item{justify-content:center!important;padding:0!important;gap:0!important;height:50px!important;margin:0!important}' +
-      '#__movy_tv_rail:not(.movy-rail-open) .movy-rail-brand{justify-content:center!important;padding:0!important;gap:0!important;height:50px!important}' +
-      '#__movy_tv_rail:not(.movy-rail-open) .movy-rail-brand .movy-rail-mark{margin-left:0!important}' +
-      '#__movy_tv_rail:not(.movy-rail-open) .movy-rail-label{max-width:0!important;margin:0!important}' +
-      '#__movy_tv_rail:not(.movy-rail-open) .movy-rail-foot{justify-content:center!important;padding:12px 0 4px!important;gap:0!important}' +
-      '#__movy_tv_rail.movy-rail-open .movy-rail-label{max-width:220px!important}' +
       // Blurred poster glow behind the rows (Cinejoy): the artwork belongs to the top banner only, rows sit on the flat page colour.
       '.ambient-blur,.ambient-bleed{display:none!important}' +
       'a[href*="discord" i],a[href*="telegram" i],a[href*="t.me" i]{display:none!important}' +
@@ -1569,18 +996,10 @@
     return true;
   };
   TV.setCurrent = setCurrent;
-  TV.recordRecent = recordRecent;
-  TV.railState = function () { return { open: railOpen, index: railIndex, count: railItems.length, label: railItems[railIndex] && railItems[railIndex].label, kinds: railItems.map(function (i) { return i.kind; }).join(',') }; };
-  TV.syncRail = syncRailVisibility;
-  TV.openDrawer = openRail;
-  TV.closeDrawer = closeRail;
-  TV.toggleDrawer = function () { if (railOpen) closeRail(); else openRail(); };
-  TV.isDrawerOpen = function () { return railOpen; };
+  TV.pressLike = pressLike;
+  TV.renderableNow = renderableNow;
+  TV.modalOpen = function () { return !!cache.modal; };
   TV.back = function () {
-    if (railOpen) {
-      closeRail();
-      return true;
-    }
     // Modals
     if (cache.modal) {
       var m = cache.modal;
@@ -1649,9 +1068,4 @@
 
   loadProfile();
   watch();
-  if (!inFrame) {
-    doc.addEventListener('DOMContentLoaded', startRail);
-    root.addEventListener('load', function () { startRail(); setTimeout(recordRecent, 1800); });
-    startRail();
-  }
 })(typeof window !== 'undefined' ? window : {});

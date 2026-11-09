@@ -717,10 +717,6 @@
   var prevBack = TV.back;
   TV.back = function () {
     if (inFrame) return false;
-    if (TV.isDrawerOpen && TV.isDrawerOpen()) {
-      TV.closeDrawer();
-      return true;
-    }
     if (prevBack && prevBack()) return true;
     var fs = fsElement();
     if (TV.menuNow()) {

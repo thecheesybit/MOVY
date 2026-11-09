@@ -338,6 +338,33 @@
     return best;
   }
 
+  // ---------- pure: recent titles (drawer "Continue watching") ----------
+
+  var DETAIL_RE = /\/(movie|movies|tv|series|show|shows|anime|watch|title|details?)\/[^\/]+/i;
+
+  /** A page title reduced to the film's name ("Watch X - Free Streaming" -> "X"). */
+  function cleanTitle(t) {
+    t = String(t || '').replace(/^\s*watch\s+/i, '');
+    t = t.split(/\s+[-|–•·]\s+/)[0];
+    t = t.replace(/\s+(online|free|full movie|streaming).*$/i, '');
+    return t.trim().slice(0, 80);
+  }
+
+  function isDetailPath(p) { return DETAIL_RE.test(p || ''); }
+
+  /** New list with `entry` ({t, p, q?, ts}) first; an older entry with the same path (or the same q for a modal title) is dropped. */
+  function addRecent(list, entry, max) {
+    var rest = (list || []).filter(function (e) { return entry.q ? e.q !== entry.q : e.p !== entry.p; });
+    return [entry].concat(rest).slice(0, max || 8);
+  }
+
+  /** Entries worth showing for the page at `curPath` (the title being watched is not its own "recent"), at most `n`. */
+  function recentShown(list, curPath, n) {
+    return (list || []).filter(function (e) {
+      return e && typeof e.t === 'string' && typeof e.p === 'string' && e.p.charAt(0) === '/' && (e.p !== curPath || !!e.q);
+    }).slice(0, n);
+  }
+
   // ---------- load-time and key-repeat throttles ----------
 
   var IGNORED_NODES = { SCRIPT: 1, STYLE: 1, LINK: 1, META: 1, NOSCRIPT: 1, TEMPLATE: 1 };
@@ -381,7 +408,8 @@
     pickVertical: pickVertical, pickHorizontal: pickHorizontal, nextColumn: nextColumn, rowScrollDelta: rowScrollDelta,
     pickEntry: pickEntry, insetContentStart: insetContentStart, insetNeed: insetNeed,
     menuIsDrill: menuIsDrill, menuIsUnusable: menuIsUnusable, menuGroups: menuGroups, menuInitial: menuInitial, menuStep: menuStep,
-    menuCloseOrder: menuCloseOrder
+    menuCloseOrder: menuCloseOrder,
+    cleanTitle: cleanTitle, isDetailPath: isDetailPath, addRecent: addRecent, recentShown: recentShown
   };
   if (typeof module === 'object' && module && module.exports) module.exports = api;
   else if (typeof window !== 'undefined') window.__movyTvPure = api;

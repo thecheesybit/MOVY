@@ -307,7 +307,6 @@
   var prevBack = TV.back;
   TV.back = function () {
     if (inFrame) return false;
-    if (TV.isDrawerOpen && TV.isDrawerOpen()) return prevBack ? prevBack() : false;
     if (TV.PF && TV.menuNow()) { closeMenu(); return true; }
     var agg = TV.childAgg;
     if (agg && (agg.menu || agg.ctl)) { TV.relayDown({ __movyTvBack: 1 }); return true; } // a menu or a control inside a player frame
