@@ -1,0 +1,65 @@
+# Movy TV — Round 5 progress log (resume from here)
+
+**Any new session: read this file first, then `ROUND5-REVAMP.md` (the plan), then only the section for the current
+level.** This log is updated by the orchestrator after every stage. Newest entries at the bottom of §4.
+
+---
+
+## 1. How to resume in a new chat
+Paste this into a new Claude Code session in `D:\Movy`:
+
+> Resume Movy TV Round 5. Read docs/tv-adapter/ROUND5-PROGRESS.md and docs/tv-adapter/ROUND5-REVAMP.md, check
+> `git log` and `git status`, then continue from "Next step" in §2. You are the orchestrator: run one emulator agent at a
+> time (Sonnet 5.5 medium, `model: "sonnet"`), max two agents at once, review and commit each level, and update this log
+> after every stage.
+
+## 2. Current status
+| | |
+|---|---|
+| Current level | **L0 — baseline + site inventory** (agent running; writing `R5-INVENTORY.md`) |
+| Next step | When `docs/tv-adapter/R5-INVENTORY.md` is complete: review it, commit it with its `r5-L0-*` screenshots, then launch the L1 agent (navigation, loading, start screen, no-resize) |
+| Last commit | `d87c092` |
+| Uncommitted, on purpose | `config/apps/movy.json` is git-ignored (`recommendedSource` changed to `cinejoy`) |
+
+## 3. Decisions (user-confirmed) — do not re-ask
+| Date | Decision |
+|---|---|
+| 2026-11-10 | Native shell owns the chrome (drawer, search, keyboard, dialogs, loading, brightness, exit); the web owns the content. We never edit the sites. |
+| 2026-11-10 | Orchestration: one agent drives the emulator at a time; max two agents at once; all agents Sonnet 5.5 medium. |
+| 2026-11-10 | Level order: L0 inventory → L1 navigation and loading → L2 drawer → L3 search and continue watching → L4 player panel → L5 system → L6 QA. |
+| 2026-11-10 | Default source = **Cinejoy**. |
+| 2026-11-10 | Visual reference = **JioHotstar TV** (`docs/design/ref-hotstar-*`): dark `#0f1014`, icon rail expanding over a gradient scrim, circular profile avatars. Copy the style, never the brand. |
+| 2026-11-10 | Start screen = the four sources as circular "profiles". A ring fills once around the focused source while it loads, then the site opens. LEFT/RIGHT changes source, OK opens now. |
+| 2026-11-10 | Drawer: LEFT at the edge opens it; a second LEFT jumps to the **top row of 4 source icons**; no double-RIGHT; CH± no longer switches source. |
+| 2026-11-10 | **Two mics.** (1) The remote mic/Assistant key = global search across all 4 sources (overlay stages: Listening → Searching → Results → Action; BACK from a detail page returns to the same results card). (2) An in-page mic beside each site's search box types speech into that box. |
+| 2026-11-10 | OK on any site search box **always opens the TV keyboard** (native EditText proxy mirrors keystrokes into the site input). |
+| 2026-11-10 | CH+/CH− = app brightness; VOL± = system volume (the first press unmutes a muted site video). |
+| 2026-11-10 | Exit: BACK at the root opens "Exit Movy?" (focus on Stay); a second BACK or OK on Exit exits. |
+| 2026-11-10 | Continue watching: Android home-screen Watch Next (TvProvider; Engage SDK needs Play) + an in-app row; resume via `movy://open` deep link. |
+| standing | Never write source URLs or hosts into files, logs, commits or UI. No movie media on disk. No second WebView during playback. TV-only changes; phone and Electron unchanged. |
+
+## 4. Stage log
+| Date | Stage | What happened | Commit |
+|---|---|---|---|
+| 2026-11-10 | Audit | Read the codebase: `tvnav.js` is 1668 lines and holds the JS rail drawer; native `IslandView` is a second source switcher; CH± switch source; search focuses the site input (IME trap); Round 4 timings: Cinejoy switch 10–21 s, cold Movy 5.1 s. | — |
+| 2026-11-10 | WIP commit | Committed pending rail work (History/Watchlist/Settings/Account items). Verify: 94/94 tests pass. | `8105c36` |
+| 2026-11-10 | Research | Google TV quality checklist, Watch Next vs Engage SDK, TV voice/search key behaviour. Summary in plan §0. | — |
+| 2026-11-10 | Plan | `ROUND5-REVAMP.md` levels 0–6 written. | `ae750ab` |
+| 2026-11-10 | L0 started | Inventory agent launched (timings, scripts per page, player settings matrix, search per site, drawer items, resize repro, spinners, lag causes). | — |
+| 2026-11-10 | Plan update | Start screen with source avatars and a progress ring; global mic search with 4 overlay stages; Hotstar-style drawer; Cinejoy default. Reference images saved in `docs/design/`. L0 agent also asked for each site's search JSON endpoint and mic keycodes (§9). | `b48b3b1` |
+| 2026-11-10 | Plan update | In-page search mic beside the site search box + the keyboard always opens on the search box. | `d87c092` |
+
+## 5. Level checklist
+- [ ] L0 baseline + inventory (`R5-INVENTORY.md`)
+- [ ] L1 navigation, loading, start screen, no-resize
+- [ ] L2 native drawer + sources row (Hotstar style)
+- [ ] L3 search: keyboard proxy, in-page mic, global mic search, continue watching
+- [ ] L4 unified player settings panel + subtitle size
+- [ ] L5 exit dialog, cache lifecycle, warm-up during playback, brightness
+- [ ] L6 full QA (emulator + Bravia), docs
+
+## 6. Where things are
+- Plan: `docs/tv-adapter/ROUND5-REVAMP.md`. Inventory: `docs/tv-adapter/R5-INVENTORY.md`. Results per level:
+  `docs/tv-adapter/REPORT.md` ("Round 5 — Level N"). Screenshots: `docs/tv-adapter/screenshots/r5-L<N>-*`.
+- Harness: `scripts/tv-test/` (`b.ps1` build+install, `t.sh` drive, `cdp.mjs` eval, `paint-wait.mjs` timings).
+- Site notes: `docs/site-dossiers/*.md`. Real config (git-ignored): `config/apps/movy.json`.
