@@ -53,6 +53,7 @@ Paste this into a new Claude Code session in `D:\Movy`:
 | 2026-11-10 | L1 started | Agent launched with L0 findings as priorities. | — |
 | 2026-11-10 | L1 done | Start screen (StartView/AvatarView/StartRing, Cinejoy default, 3 s ring), one spinner + caption (LoadingMode), tvgate.js (player scripts only in player frames), tvplayerfx.js (fullscreen at Play, hidden until stable), one BACK leaves player, idle key acts, held D-pad throttle, tvfocusmem.js, DohProxy warm connections, Moonflix analytics rules. Fresh-emulator medians (HEAD → L1): switch Cinejoy 5356→5121 ms, launch Cinejoy 10352→9803 ms; the others within noise (L0's numbers came from a degraded emulator). **Not met:** Cinejoy cold ≤ 8 s (site's own 6 s main-thread hydration). Open: player-spinner selectors for `loading.hide`, Moonflix player sampling, 7Movies embed is 960x540 from the start (stable but small), start screen shows initials not logos, idle-key/focus-restore only unit-tested. Tests: npm 106, Gradle 217, all pass. | `7a8b13c` |
 | 2026-11-10 | L2 started | Native drawer agent + L1 code-review agent (read-only) launched. | — |
+| 2026-11-10 | L1 review | 0 critical, 1 high (start ring can wait 15 s if the page painted during the splash), 6 medium, 5 low. Saved in `R5-L1-REVIEW.md`; **fix after L2 lands**. | (this commit) |
 
 
 ## 4b. L0 findings that change later levels
