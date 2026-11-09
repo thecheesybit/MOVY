@@ -69,6 +69,12 @@ state (`MovyTv` bridge).
 - Lean: no movie media on disk, no second WebView during playback, RAM released on background.
 - Native UI style: dark, minimal, one accent per source, 150–200 ms transform/opacity animations only (no blur,
   no backdrop-filter, no layout animation — the Bravia is ARMv7). Focus = scale 1.06 + accent ring.
+- **Visual reference: JioHotstar TV** (user-supplied, `docs/design/ref-hotstar-*.{png,webp}`). Take the language, not
+  the brand: near-black background (`#0f1014`), white bold for the focused/current item and soft grey for the rest,
+  thin outline icons, a left icon rail that expands to labels over a **left-to-right dark gradient scrim** (no
+  boxed panel), circular "profile" avatars centred on an empty dark screen for choosing, one gradient primary
+  action. Never copy Hotstar's logo, names or artwork.
+- **Default source is Cinejoy** (`recommendedSource: "cinejoy"` in `config/apps/movy.json`, set 2026-11-10).
 - Do not commit or push; the orchestrator reviews and commits each level. Write results into `REPORT.md` under
   "Round 5 — Level N" with screenshots `docs/tv-adapter/screenshots/r5-L<N>-*`.
 
@@ -107,6 +113,19 @@ Gate 0: inventory complete for all four sites; numbers recorded.
 4. Cinejoy switch (10–21 s): find the real cause from L0 (DoH, JS bundle, API calls) and fix it; target ≤ 5 s.
 5. Images: keep posters via `AssetCache` hits; on miss let Chromium fetch (already async). Confirm no intercept-thread blocking.
 
+**1B0 Start screen = sources as profiles** (replaces the TV chooser; ref `docs/design/ref-hotstar-profiles.png`)
+- After the splash: dark screen, small Movy mark top-left, title "What are we watching?" centred, the **four sources
+  as large circular avatars** in one centred row (source logo/initial on its accent colour, name below).
+- Focus starts on the default (Cinejoy, or the last used source). A **progress ring draws around the focused
+  avatar, one full circle** (~3 s). At the same moment the focused source starts loading in the (hidden) main
+  WebView. When the ring completes **and** the page has painted, the screen fades out (200 ms) into the site. If the
+  ring completes first, the ring turns into the same-style indeterminate spinner until the page paints (no second
+  loading UI). If the page is ready first, the ring still finishes (fast-forwards over the last 300 ms).
+- LEFT/RIGHT moves focus to another avatar: the ring and the load restart for that source. OK = choose now (ring
+  fast-forwards). BACK = exit dialog (Level 5). A Settings gear sits top-right (UP to reach it).
+- The same screen (no countdown) is what MENU/long-press shows from the drawer's "Switch source" when the user wants
+  the big picker; the drawer's sources row (Level 2) is the quick path.
+
 **1B One loading language**
 - One native `LoadingUi` component (centred red arc spinner, optional one-line caption "Opening Cinejoy…") used for:
   app start (after splash), source switch, page navigation > 400 ms, and **player buffering** (video `waiting` →
@@ -126,12 +145,17 @@ Gate 0: inventory complete for all four sites; numbers recorded.
   meta override) so fullscreen does not re-layout; force `object-fit: contain` and full-size video; keep the player
   hidden behind the loading spinner until its rect is stable for 2 frames after `playing`, then fade in (150 ms).
 
-Gate 1: L0 timings re-run, every number better (target: first poster cold ≤ 3.5 s, any switch ≤ 5 s, title→playing
+Gate 1: start screen shows four avatars with Cinejoy focused, the ring completes once and opens the site, LEFT/RIGHT
+restarts it on another source, OK skips the wait; L0 timings re-run, every number better (target: first poster cold ≤ 3.5 s, any switch ≤ 5 s, title→playing
 ≤ 6 s on emulator); no visible resize on any site (video rect constant from first visible frame); BACK table passes
 on all four sites; one spinner only.
 
 ### Level 2 — Native drawer v2 and source switching
 Replace the JS left rail **and** the TV Island with one native drawer (`TvDrawerView`, Android views over the WebView).
+- Look (ref `docs/design/ref-hotstar-home.webp`, `ref-hotstar-drawer-open.png`): collapsed = outline icons only,
+  vertically centred, current item white; open = labels slide in beside the icons over a full-height left gradient
+  scrim (black 90 % → transparent at ~45 % width) that dims the page; current/focused label white bold, others grey.
+  The sources row sits where Hotstar shows its logo (top-left); the account avatar sits last.
 - **Collapsed**: slim 64 dp icon strip on the left (keeps the existing `tvinset.js` content inset), hidden in playback.
 - **Open**: LEFT at the page's left edge → drawer opens with focus on the current section. **A second LEFT** (or MENU)
   moves focus to the **Sources row at the top: four source icons in one row**; LEFT/RIGHT picks a column, OK switches,
@@ -163,6 +187,37 @@ signed-out; drawer opens < 100 ms after the key; no JS rail left in `tvnav.js`.
   row focuses it, OK reopens the overlay pre-filled; BACK from results returns to where search started.
 - "Search all sources": a second row in the overlay to run the same query on another source (switch + search).
 
+**Remote mic button = global search across all four sources** (ref `docs/design/ref-remote-mic-keys.png`: the remote
+has a mic key or a Google Assistant key)
+- Key capture: handle `KEYCODE_SEARCH` (84), `KEYCODE_VOICE_ASSIST` (231) and `KEYCODE_ASSIST` (219) in
+  `dispatchKeyEvent`, and override `onSearchRequested()` (the TV framework routes the search key there when the app
+  has focus). First task: log on the emulator and the Bravia which code(s) the mic key actually delivers to the app
+  while it is in front; on firmware where the system Assistant swallows it, the drawer/search-screen mic is the path
+  (document it, don't fight the system).
+- Pressing it anywhere (catalog, drawer, not during playback — there it is ignored or pauses first) opens the
+  **global search overlay directly in Listening state**.
+- Results come from all four sources **without loading four WebViews**: per-source profile `search.api`
+  (`{ "path": "...{q}...", "items": "<json path>", "title": "...", "poster": "...", "year": "...", "type": "...",
+  "open": "/movie/{id}" }`) discovered in L0/L3 from each site's own search requests (most use a JSON search
+  endpoint); fetched natively in parallel through the existing DoH/HTTP stack with the site's cookies, 6 s timeout
+  each. A source without a usable endpoint shows a single "Search in <Source>" tile that opens its results page.
+- **Overlay stages** (one native view, states change in place, 150 ms cross-fades):
+  1. *Listening* — page dims (scrim 85 %), large accent mic circle centred with a soft pulse driven by the
+     recogniser's RMS level, live partial text under it, hint "Say a movie or show". BACK cancels.
+  2. *Searching* — the mic circle shrinks and moves into the top search bar (text = final query, mic button beside
+     it); below it four rows, one per source (source avatar + name), each filled with 6 skeleton poster cards and a
+     small ring while its request runs. Rows fill independently as answers arrive; failed row = "Couldn't reach
+     <Source> · Retry".
+  3. *Results* — focus lands on the first poster of the first non-empty row (row order: current source first, then
+     by result count). Card = poster, title, year, type badge. LEFT/RIGHT within a row, UP/DOWN between rows, UP
+     from the first row reaches the search bar (OK = type with keyboard, mic button = speak again). Mic key again =
+     new voice query in place.
+  4. *Action* — OK on a card: overlay keeps its state in memory and hides; if the card's source isn't current, the
+     source switches (loading ring on the avatar style), then its detail path opens. BACK from that detail page
+     (before navigating deeper) **returns to the results overlay as it was** (same row/card focused) — so the user
+     can try another source's result again and again. BACK on the overlay closes it.
+- Recent queries (8) are shown as chips in the empty state; typing uses the native field (TV keyboard).
+
 **Continue watching**
 - Record per watch: source, path, title, poster (og:image / player poster), position and duration (from the video,
   every 15 s and on pause/exit). Store natively (`SharedPreferences` JSON, max 20).
@@ -172,7 +227,9 @@ signed-out; drawer opens < 100 ms after the key; no JS rail left in `tvnav.js`.
   launcher and the Bravia; if Google TV hides it, record that (in-app row still works).
 - In-app: drawer "Continue watching" items and the first row of the drawer list.
 
-Gate 3: type and voice search work on all four (voice: on a device with Google app); results reachable; re-search from
+Gate 3: the mic key's delivered keycode is documented for emulator and Bravia; global search shows the four stages
+and results rows for every source with a search endpoint; OK → detail → BACK returns to the same results card 3
+times in a row across different sources; type and voice search work on all four (voice: on a device with Google app); results reachable; re-search from
 results works 3 times in a row; a watched title appears on the home screen (or the limitation is documented) and its
 deep link resumes.
 
