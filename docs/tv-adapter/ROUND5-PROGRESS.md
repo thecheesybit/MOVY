@@ -6,12 +6,7 @@ level.** This log is updated by the orchestrator after every stage. Newest entri
 ---
 
 ## 1. How to resume in a new chat
-Paste this into a new Claude Code session in `D:\Movy`:
-
-> Resume Movy TV Round 5. Read docs/tv-adapter/ROUND5-PROGRESS.md and docs/tv-adapter/ROUND5-REVAMP.md, check
-> `git log` and `git status`, then continue from "Next step" in §2. You are the orchestrator: run one emulator agent at a
-> time (Sonnet 5.5 medium, `model: "sonnet"`), max two agents at once, review and commit each level, and update this log
-> after every stage.
+Paste the prompt in `docs/tv-adapter/RESUME-PROMPT.md` into a new Claude Code session opened in `D:\Movy`. It contains the orchestrator workflow and how to brief each agent.
 
 ## 2. Current status
 | | |
