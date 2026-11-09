@@ -58,6 +58,9 @@ public class MainActivity extends BridgeActivity {
     private android.content.BroadcastReceiver volumeReceiver;
     private TvLifecycle lifecycle;
     private app.movy.shell.AssetCacheInterceptor assetCache;
+    private ShellInterceptor shell;
+    private String shellUpdatePending;
+    private final java.util.Set<String> shellRefreshed = new java.util.HashSet<>();
     /** Top-level URL of the page, readable from WebView binder threads (TvBridge). */
     private volatile String pageUrl = "";
 
@@ -111,6 +114,7 @@ public class MainActivity extends BridgeActivity {
     private void applyHosts(LiveConfig c) {
         rules.update(c.allAllowedHosts(), c.startHosts(), c.authHosts);
         DohRescue.setHosts(c.dohHosts);
+        if (cfg.tv) DohRescue.warm();
     }
 
     /** Source API for the Island (W5b). */
@@ -152,6 +156,11 @@ public class MainActivity extends BridgeActivity {
         client.setFallbackScript(fallbackScript);
         assetCache = AssetCacheInterceptor.create(this, cfg);
         client.setAssetCache(assetCache);
+        if (cfg.tv) {
+            shell = ShellInterceptor.create(this, repo, assetCache, cfg.debug, (id, url) -> runOnUiThread(() -> onShellUpdateReady(id)));
+            client.setShell(shell);
+            if (shell != null && assetCache != null) assetCache.setOnClear(shell::clear);
+        }
         bridge.setWebViewClient(client);
         wv.setBackgroundColor(Color.parseColor(cfg.backgroundColor));
         loadingUi = new LoadingUi(this);
@@ -167,10 +176,16 @@ public class MainActivity extends BridgeActivity {
                 getString(R.string.app_name), cfg.tv);
         island = new IslandController(this, repo, prefs, health, launch, cfg.tv, settings::show,
                 () -> bridge.getWebView().requestFocus());
-        if (cfg.tv) preloader = new SourcePreloader(this, repo, wv.getSettings().getUserAgentString());
+        if (cfg.tv) {
+            preloader = new SourcePreloader(this, repo, prefs, assetCache, shell, wv.getSettings().getUserAgentString(),
+                    () -> runOnUiThread(() -> launch.onWarmupDone()));
+            launch.setFirstRunWarmup(assetCache != null && !prefs.everWarmed());
+        }
         chrome.setFullscreenListener(on -> {
             island.onFullscreen(on);
-            if (on && preloader != null) preloader.stop(); // a player is starting: free the bandwidth and the hidden page
+            if (preloader == null) return;
+            if (on) preloader.pause(); // a player is starting: free the bandwidth and the hidden page
+            else preloader.resumeWhenIdle();
         });
         if (cfg.tv) setupTv();
         loadingUi.setProgressListener(p -> {
@@ -191,6 +206,8 @@ public class MainActivity extends BridgeActivity {
             @Override public void onPageFinished(String url) {
                 failover.onAlive();
                 if (preloader != null) preloader.onActivePageFinished();
+                refreshActiveShell();
+                if (cfg.debug && assetCache != null) Log.i("MovyAssetCache", assetCache.statsLine());
                 if (tvIdle != null) {
                     tvIdle.touch();
                     if (tvIdle.isIdle()) setPageIdle(true);
@@ -215,6 +232,7 @@ public class MainActivity extends BridgeActivity {
         });
         if (cfg.debug) launch.setDebugHold(getIntent().getLongExtra("movy_hold_splash", 0));
         launch.start();
+        if (preloader != null && launch.isFirstRunWarmup()) preloader.startNow();
         health.refreshNow(); // background; the dots fill in as results arrive
         handleDebugIntent(getIntent());
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -275,7 +293,44 @@ public class MainActivity extends BridgeActivity {
         bridge.getWebView().evaluateJavascript("window.__movyTv&&window.__movyTv.reloadProfile&&window.__movyTv.reloadProfile()", null);
     }
 
+    /** A new build of a source's site is stored locally with its assets: apply it when that cannot disturb anything. */
+    private void onShellUpdateReady(String sourceId) {
+        shellUpdatePending = sourceId;
+        applyShellUpdateIfSafe();
+    }
+
+    /** Safe = this source's shell page is up, idle, not in a player and not in fullscreen. Otherwise it applies at the next load. */
+    private void applyShellUpdateIfSafe() {
+        String id = shellUpdatePending;
+        Source active = repo.active();
+        WebView wv = bridge == null ? null : bridge.getWebView();
+        if (id == null || shell == null || wv == null || active == null || !id.equals(active.id)) return;
+        if (chrome != null && chrome.isFullscreen()) return;
+        if (!shell.isShellUrl(pageUrl) || tvIdle == null || !tvIdle.isIdle() || launch.isChooserShowing()) return;
+        wv.evaluateJavascript("(window.__movyTv&&window.__movyTv.isPlayerActive)?window.__movyTv.isPlayerActive(false):false", v -> {
+            if ("true".equals(v) || shellUpdatePending == null) return;
+            shellUpdatePending = null;
+            if (cfg.debug) Log.i(KillLog.TAG, "shell: applying new build of " + id + " (reload while idle)");
+            wv.reload();
+        });
+    }
+
+    /** Once per process and source: stores every shell route of the source the user is on (the others are done by the preloader). */
+    private void refreshActiveShell() {
+        Source a = repo.active();
+        if (shell == null || a == null || !shellRefreshed.add(a.id)) return;
+        shell.refreshSource(a);
+    }
+
+    /** tvshell.js reported how a page served from a local snapshot booted; a failed one is never served again and live loads. */
+    private void onShellBoot(boolean ok) {
+        if (shell == null || !shell.onBoot(ok)) return;
+        Log.i(KillLog.TAG, "shell: snapshot failed its boot check, reloading from the live site");
+        if (bridge != null && bridge.getWebView() != null) bridge.getWebView().reload();
+    }
+
     private void setPageIdle(boolean idle) {
+        if (idle) applyShellUpdateIfSafe();
         if (bridge == null || bridge.getWebView() == null) return;
         bridge.getWebView().evaluateJavascript("window.__movyTv&&window.__movyTv.idle&&window.__movyTv.idle(" + idle + ")", null);
     }
@@ -382,7 +437,7 @@ public class MainActivity extends BridgeActivity {
             }
             @Override public boolean deliver(KeyEvent ev) { return dispatchToPage(ev); }
         }, cursor, cfg.debug);
-        bridge.getWebView().addJavascriptInterface(new TvBridge(repo::config, repo::active, () -> pageUrl,
+        TvBridge tvBridge = new TvBridge(repo::config, repo::active, () -> pageUrl,
                 () -> runOnUiThread(() -> {
                     if (tvKeys == null || island.isExpanded() || launch.isChooserShowing()
                             || (settings != null && settings.isOpen()) || (chrome != null && chrome.isFullscreen())) return;
@@ -394,7 +449,9 @@ public class MainActivity extends BridgeActivity {
                 () -> SystemClock.elapsedRealtime() - lastUserFsExitMs < 3000,
                 () -> runOnUiThread(() -> launch.onAdapterReady()),
                 () -> runOnUiThread(launch::debugShowChooser),
-                sourceId -> runOnUiThread(() -> repo.openStart(sourceId))), TvBridge.NAME);
+                sourceId -> runOnUiThread(() -> repo.openStart(sourceId)));
+        tvBridge.setShellBoot(ok -> runOnUiThread(() -> onShellBoot(ok)));
+        bridge.getWebView().addJavascriptInterface(tvBridge, TvBridge.NAME);
         registerVolumeUnmute();
         lifecycle = new TvLifecycle(this, () -> bridge == null ? null : bridge.getWebView(), new TvLifecycle.Host() {
             @Override public void setBackgrounded(boolean bg) {
@@ -417,6 +474,8 @@ public class MainActivity extends BridgeActivity {
             }
             @Override public void releaseRam() {
                 if (assetCache != null) assetCache.releaseMemory();
+                if (shell != null) shell.releaseMemory();
+                DohRescue.releaseMemory();
             }
         });
         tvIdle = new TvIdle(new TvIdle.Host() {
@@ -528,6 +587,7 @@ public class MainActivity extends BridgeActivity {
         if (intent.getBooleanExtra("movy_force_chooser", false) && launch != null) {
             bridge.getWebView().postDelayed(launch::debugShowChooser, 1500);
         }
+        if (intent.hasExtra("movy_shell_offline")) ShellFetcher.Http.debugOffline = intent.getBooleanExtra("movy_shell_offline", false);
         String sourceId = intent.getStringExtra("movy_source");
         if (sourceId != null && repo != null) {
             bridge.getWebView().postDelayed(() -> repo.openStart(sourceId), 500);

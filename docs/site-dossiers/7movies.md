@@ -29,3 +29,10 @@ Studied live at 1920x1080, dpr 1, desktop UA (2026-11-08). No source URLs here b
 - Remote keys:
   - OK: clicks the center of the iframe to toggle playback, or activates `Servers & Mode` when focused.
   - Back: calls `history.back()` to return to the detail page.
+
+## Round 4 findings (player, menus, rail)
+- The watch page hosts a cross-origin embed iframe (`/embed2/play`); the injected scripts do run inside it (`window.__movyTv` is present, profile found through the ancestor origin). Frames of the page: a tiny trace frame and the player frame.
+- Top bar ids: `lbBack`, `lbQuality`, `lbServer`, `lbSubs`, `lbNext`; bottom: `playBtn`, `rewindBtn`, `forwardBtn`, `muteBtn`, `lockBtn`, `castBtn`, `pipBtn`, `episodesBtn`, `exitBtn`, `fullscreenBtn`. `centerToggle`/`centerBack`/`centerFwd` cover the video (never candidates).
+- Menus `.lb-menu.show` (`#lbSubsMenu`, `#lbQualityMenu`): two `.lb-col` columns, rows `.lb-opt` (selected = `.active`), footer drill rows `.lb-opt.lb-drill` (`Customize appearance`, `Sync to audio`). Escape closes. Legacy hidden panels (`.panel`, `#subtitleSearch`, `#subtitleUploadBtn`) stay in the DOM: never.
+- Content starts at x=58 (rails: `section.rail` has padding 57.6 and a negative margin), hero at 90, detail hero text `left: 51`, detail body `margin-left: 51`: all get `railInset`.
+- Server-rendered pages (about 240-270 KB, no build marker: the asset list is hashed), 6 h maximum age; Last-Modified present, no ETag.

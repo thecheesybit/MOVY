@@ -22,6 +22,7 @@ final class TvBridge {
     private final Runnable onReady;
     private final Runnable showChooser;
     private final Consumer<String> switchSource;
+    private volatile Consumer<Boolean> shellBoot;
 
     TvBridge(Supplier<LiveConfig> config, Supplier<Source> active, Supplier<String> pageUrl, Runnable edgeRight,
              Runnable gesture, Consumer<String> media, java.util.function.BooleanSupplier userLeftFullscreen,
@@ -80,6 +81,17 @@ final class TvBridge {
     @JavascriptInterface
     public void ready() {
         if (onReady != null) onReady.run();
+    }
+
+    /** tvshell.js: the page rendered (or did not) after it was served from a local snapshot. */
+    @JavascriptInterface
+    public void shellBoot(boolean ok, String why) {
+        java.util.function.Consumer<Boolean> c = shellBoot;
+        if (c != null) c.accept(ok);
+    }
+
+    void setShellBoot(java.util.function.Consumer<Boolean> c) {
+        this.shellBoot = c;
     }
 
     /** tvnav.js: opens the native source chooser dialog. */

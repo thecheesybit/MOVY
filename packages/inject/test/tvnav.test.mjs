@@ -159,3 +159,105 @@ test('pickEntry chooses the nearest side for the entry direction', () => {
   assert.equal(pickEntry(c, 'right').id, 'tl');
   assert.equal(pickEntry(c, 'left').id, 'tr');
 });
+
+test('rail inset: content that already clears the rail is left alone, the rest moves by exactly the missing pixels', () => {
+  const { insetNeed, insetContentStart } = createRequire(import.meta.url)('../tvnav-pure.js');
+  assert.equal(insetNeed(96, 88), 0);
+  assert.equal(insetNeed(88, 88), 0);
+  assert.equal(insetNeed(88.4, 88), 0);
+  assert.equal(insetNeed(64, 88), 24);
+  assert.equal(insetNeed(57.6, 88), 30);
+  assert.equal(insetNeed(0, 88), 88);
+  // padding shifts the content inside the box; margin-left and left shift the box itself
+  assert.equal(insetContentStart('padding-left', 0, 64), 64);
+  assert.equal(insetContentStart('padding-left', 71, 0), 71);
+  assert.equal(insetContentStart('margin-left', 58, 58), 58);
+  assert.equal(insetContentStart('left', 90, 89.6), 90);
+  assert.equal(insetNeed(insetContentStart('padding-left', 0, undefined), 88), 88);
+});
+
+// ---------- player menus ----------
+
+const menuPure = createRequire(import.meta.url)('../tvnav-pure.js');
+const I = (id, col, l, t, w = 150, h = 36, selected = false) => ({ id, col, rect: R(l, t, w, h), selected });
+
+// two columns (audio | subtitles) and a footer of two stacked rows, like the Movy popover
+const popover = () => [
+  I('a1', 0, 100, 100, 150), I('a2', 0, 100, 140, 150, 36, true),
+  I('s1', 1, 300, 100, 150), I('s2', 1, 300, 140, 150), I('s3', 1, 300, 180, 150, 36, true), I('s4', 1, 300, 220, 150),
+  I('f1', -1, 100, 300, 350), I('f2', -1, 100, 340, 350)
+];
+
+test('menuGroups: columns in DOM order, footer rows by line', () => {
+  const g = menuPure.menuGroups(popover());
+  assert.deepEqual(g.columns.map((c) => c.map((i) => i.id)), [['a1', 'a2'], ['s1', 's2', 's3', 's4']]);
+  assert.deepEqual(g.footer.map((r) => r.map((i) => i.id)), [['f1'], ['f2']]);
+  const speed = menuPure.menuGroups([I('x1', -1, 10, 500, 60), I('x2', -1, 80, 502, 60), I('x3', -1, 150, 500, 60), I('y', -1, 10, 560)]);
+  assert.deepEqual(speed.footer.map((r) => r.map((i) => i.id)), [['x1', 'x2', 'x3'], ['y']], 'a speed row is one footer row');
+});
+
+test('menuInitial: the selected item, else the first of the first column, else the footer', () => {
+  assert.equal(menuPure.menuInitial(menuPure.menuGroups(popover())).id, 'a2');
+  const none = popover().map((i) => ({ ...i, selected: false }));
+  assert.equal(menuPure.menuInitial(menuPure.menuGroups(none)).id, 'a1');
+  assert.equal(menuPure.menuInitial(menuPure.menuGroups([I('f', -1, 0, 0)])).id, 'f');
+  assert.equal(menuPure.menuInitial(menuPure.menuGroups([])), null);
+});
+
+test('menuStep: UP/DOWN walk a column and stop at its top; DOWN past the end enters the footer', () => {
+  const g = menuPure.menuGroups(popover());
+  assert.equal(menuPure.menuStep(g, 's1', 'down').id, 's2');
+  assert.equal(menuPure.menuStep(g, 's2', 'up').id, 's1');
+  assert.equal(menuPure.menuStep(g, 's1', 'up'), null, 'top of the list: stay');
+  assert.equal(menuPure.menuStep(g, 's4', 'down').id, 'f1');
+  assert.equal(menuPure.menuStep(g, 'a2', 'down').id, 'f1');
+  assert.equal(menuPure.menuStep(g, 'f1', 'down').id, 'f2');
+  assert.equal(menuPure.menuStep(g, 'f2', 'down'), null, 'bottom of the footer: stay');
+  assert.equal(menuPure.menuStep(g, 'f1', 'up').id, 's4', 'back to the nearest column, at its last item');
+});
+
+test('menuStep: LEFT/RIGHT jump to the neighbour column at the closest height and stop at the outer edge', () => {
+  const g = menuPure.menuGroups(popover());
+  assert.equal(menuPure.menuStep(g, 'a2', 'right').id, 's2');
+  assert.equal(menuPure.menuStep(g, 's4', 'left').id, 'a2', 'the audio column is shorter: its last item is the closest');
+  assert.equal(menuPure.menuStep(g, 'a1', 'left'), null);
+  assert.equal(menuPure.menuStep(g, 's3', 'right'), null);
+  assert.equal(menuPure.menuStep(g, 'f1', 'left'), null, 'a footer row of one item: stay');
+  const row = menuPure.menuGroups([I('x1', -1, 10, 500, 60), I('x2', -1, 80, 500, 60)]);
+  assert.equal(menuPure.menuStep(row, 'x1', 'right').id, 'x2');
+  assert.equal(menuPure.menuStep(row, 'x2', 'right'), null);
+  assert.equal(menuPure.menuStep(g, 'nope', 'down'), null);
+});
+
+test('menuStep: a single list (no columns) is a plain up/down list', () => {
+  const g = menuPure.menuGroups([I('r1', 0, 0, 0), I('r2', 0, 0, 40), I('r3', 0, 0, 80)]);
+  assert.equal(menuPure.menuStep(g, 'r1', 'down').id, 'r2');
+  assert.equal(menuPure.menuStep(g, 'r3', 'down'), null);
+  assert.equal(menuPure.menuStep(g, 'r2', 'left'), null);
+  assert.equal(menuPure.menuStep(g, 'r2', 'right'), null);
+});
+
+test('menuIsDrill / menuIsUnusable: language groups and settings rows open something, uploads are never focused', () => {
+  const { menuIsDrill, menuIsUnusable } = menuPure;
+  assert.equal(menuIsDrill('English 73', false), true);
+  assert.equal(menuIsDrill('English\n73', false), true);
+  assert.equal(menuIsDrill('Customize appearance', false), true);
+  assert.equal(menuIsDrill('Sync subtitle to audio', false), true);
+  assert.equal(menuIsDrill('Search on OpenSubtitles', false), true);
+  assert.equal(menuIsDrill('English', true), true, 'aria-expanded marks an accordion');
+  assert.equal(menuIsDrill('English', false), false);
+  assert.equal(menuIsDrill('1080p', false), false);
+  assert.equal(menuIsDrill('Off', false), false);
+  assert.equal(menuIsUnusable('Upload subtitle file'), true);
+  assert.equal(menuIsUnusable('Upload subtitles'), true);
+  assert.equal(menuIsUnusable('English'), false);
+});
+
+test('menuCloseOrder: the profile mode first, then the others that are possible, Escape always', () => {
+  const { menuCloseOrder } = menuPure;
+  assert.deepEqual(menuCloseOrder('escape', { toggle: true, click: false }), ['escape', 'toggle']);
+  assert.deepEqual(menuCloseOrder('toggle', { toggle: true, click: false }), ['toggle', 'escape']);
+  assert.deepEqual(menuCloseOrder('click', { toggle: true, click: true }), ['click', 'escape', 'toggle']);
+  assert.deepEqual(menuCloseOrder('click', { toggle: false, click: false }), ['escape'], 'no selector, no opener: Escape only');
+  assert.deepEqual(menuCloseOrder(undefined, { toggle: true, click: true }), ['escape', 'toggle', 'click']);
+});

@@ -90,7 +90,7 @@ public final class CosmeticBridge {
             loading = readAsset(ctx, "shell/loading.js");
             navguard = "(function(){" + readAsset(ctx, "shell/navguard.js") + "\n})();";
             scam = "(function(){" + readAsset(ctx, "shell/scamguard.js") + "\n})();";
-            if (tv) tvnav = readAsset(ctx, "shell/tvnav-pure.js") + "\n" + readAsset(ctx, "shell/tvnav.js") + "\n" + readAsset(ctx, "shell/tvfs.js"); // each file is its own IIFE
+            if (tv) tvnav = readAll(ctx, TV_SCRIPTS); // each file is its own IIFE
         } catch (Exception e) {
             Log.e(TAG, "cannot prepare cosmetic script", e);
             return null;
@@ -107,6 +107,15 @@ public final class CosmeticBridge {
         }
         Log.w(TAG, "DOCUMENT_START_SCRIPT unsupported: falling back to onPageStarted injection");
         return script + "\n" + loading;
+    }
+
+    /** The TV scripts, in load order (each needs window.__movyTv from the ones before it). Keep in step with TV_SCRIPTS in scripts/android/generate.mjs. */
+    private static final String[] TV_SCRIPTS = {"tvnav-pure.js", "tvnav.js", "tvfs.js", "tvinset.js", "tvmenu.js", "tvshell.js"};
+
+    private static String readAll(Context ctx, String[] files) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        for (String f : files) sb.append(readAsset(ctx, "shell/" + f)).append('\n');
+        return sb.toString();
     }
 
     private static String readAsset(Context ctx, String path) throws IOException {

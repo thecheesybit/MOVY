@@ -17,58 +17,73 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.LongSupplier;
 
 /**
- * Disk cache for images, fonts and versioned static files (TV). Entries are served instantly from disk, revalidated in
- * the background at most once per 24 h, deleted 30 days after they were first stored, and evicted LRU above the size
- * cap. Writes are atomic (temp file, then rename); a corrupt entry is dropped. Rules live in {@link CachePolicy}.
+ * Disk cache for images, fonts and versioned static files (TV). Hits are served instantly from disk. A miss is never
+ * fetched on the caller's (WebView intercept) thread: it returns null so Chromium loads the resource at full speed, and a
+ * bounded background pool fetches and stores it for next time. Entries are revalidated in the background at most once per
+ * 24 h, deleted 30 days after they were first stored, and evicted LRU above the size cap. Writes are atomic (temp file,
+ * then rename); a corrupt entry is dropped. Rules live in {@link CachePolicy}.
  */
 final class AssetCache {
-    /** A servable response. {@code deleteOnClose} marks a one-shot file (fetched but not cacheable). */
+    /** A servable response read from disk. */
     static final class Entry {
         final File body;
         final String mime;
         final Map<String, String> headers;
         final long size;
-        final boolean deleteOnClose;
 
-        Entry(File body, String mime, Map<String, String> headers, long size, boolean deleteOnClose) {
+        Entry(File body, String mime, Map<String, String> headers, long size) {
             this.body = body;
             this.mime = mime;
             this.headers = headers;
             this.size = size;
-            this.deleteOnClose = deleteOnClose;
         }
 
         InputStream open() throws IOException {
-            final FileInputStream in = new FileInputStream(body);
-            if (!deleteOnClose) return in;
-            return new java.io.FilterInputStream(in) {
-                @Override public void close() throws IOException {
-                    super.close();
-                    //noinspection ResultOfMethodCallIgnored
-                    body.delete();
-                }
-            };
+            return new FileInputStream(body);
         }
     }
 
     private static final String[] KEEP = {"Content-Type", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials",
         "Access-Control-Expose-Headers", "Timing-Allow-Origin", "Cross-Origin-Resource-Policy"};
     private static final long RETRY_AFTER_FAILURE_MS = 60L * 60 * 1000;
+    private static final int LOCK_STRIPES = 64;
+    private static final int FILL_THREADS = 2;
+    private static final int FILL_QUEUE = 512;
+    private static final int NEGATIVE_MAX = 2048;
 
     private final File dir;
     private final Fetcher fetcher;
     private final LongSupplier clock;
     private final long maxBytes;
     private final long ttlMs;
+    private final Executor fillExecutor;
     private final CacheIndex index = new CacheIndex();
-    private final ConcurrentHashMap<String, Object> locks = new ConcurrentHashMap<>();
+    private final Object[] stripes = new Object[LOCK_STRIPES];
     private final Set<String> revalidating = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private final Set<String> filling = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    /** Keys whose last fill failed or was not cacheable: not retried for an hour (bounded, oldest forgotten first). */
+    private final Map<String, Long> negative = new LinkedHashMap<String, Long>() {
+        @Override protected boolean removeEldestEntry(Map.Entry<String, Long> eldest) {
+            return size() > NEGATIVE_MAX;
+        }
+    };
+    private final AtomicLong hits = new AtomicLong();
+    private final AtomicLong misses = new AtomicLong();
+    private final AtomicLong fills = new AtomicLong();
+    private final AtomicLong fillBytes = new AtomicLong();
+    private final AtomicLong rejected = new AtomicLong();
     private final ExecutorService worker = Executors.newSingleThreadExecutor(r -> {
         Thread t = new Thread(r, "movy-asset-cache");
         t.setDaemon(true);
@@ -76,20 +91,104 @@ final class AssetCache {
     });
     private volatile long lastSweep;
     private volatile boolean indexDropped;
+    /** Keys of assets that a retained shell snapshot needs: exempt from expiry, LRU eviction and revalidation eviction. */
+    private volatile Set<String> pinned = Collections.emptySet();
 
     AssetCache(File dir, Fetcher fetcher, LongSupplier clock, long maxBytes, long ttlMs) {
+        this(dir, fetcher, clock, maxBytes, ttlMs, defaultFillExecutor());
+    }
+
+    AssetCache(File dir, Fetcher fetcher, LongSupplier clock, long maxBytes, long ttlMs, Executor fillExecutor) {
         this.dir = dir;
         this.fetcher = fetcher;
         this.clock = clock;
         this.maxBytes = maxBytes;
         this.ttlMs = ttlMs;
+        this.fillExecutor = fillExecutor;
+        for (int i = 0; i < LOCK_STRIPES; i++) stripes[i] = new Object();
         //noinspection ResultOfMethodCallIgnored
         dir.mkdirs();
+    }
+
+    /** Two low-priority threads that die when idle, with a bounded queue (a full queue drops new fills). */
+    private static Executor defaultFillExecutor() {
+        ThreadPoolExecutor pool = new ThreadPoolExecutor(FILL_THREADS, FILL_THREADS, 20, TimeUnit.SECONDS,
+                new ArrayBlockingQueue<>(FILL_QUEUE), r -> {
+                    Thread t = new Thread(r, "movy-asset-fill");
+                    t.setDaemon(true);
+                    t.setPriority(Thread.MIN_PRIORITY);
+                    return t;
+                });
+        pool.allowCoreThreadTimeOut(true);
+        return pool;
+    }
+
+    private Object lockFor(String key) {
+        return stripes[(key.hashCode() & 0x7fffffff) % LOCK_STRIPES];
+    }
+
+    /** Replaces the pinned set (URLs of the assets of every retained good shell snapshot). */
+    void setPinned(java.util.Collection<String> urls) {
+        Set<String> keys = new HashSet<>();
+        for (String u : urls) keys.add(keyOf(u));
+        pinned = Collections.unmodifiableSet(keys);
+    }
+
+    int pinnedCount() {
+        return pinned.size();
+    }
+
+    boolean isPinned(String url) {
+        return pinned.contains(keyOf(url));
+    }
+
+    boolean has(String url) {
+        return index.has(keyOf(url));
+    }
+
+    /**
+     * Fetches the given assets into the cache in the background (those that are cacheable and not stored yet) and runs
+     * {@code done} once every one of them has been tried. Skipped (uncacheable) URLs count as done.
+     */
+    void prefetch(java.util.Collection<String> urls, Map<String, String> requestHeaders, Runnable done) {
+        final Map<String, String> headers = new LinkedHashMap<>();
+        for (String k : new String[] {"User-Agent", "Accept-Language", "Referer"}) {
+            String v = CachePolicy.header(requestHeaders, k);
+            if (v != null) headers.put(k, v);
+        }
+        headers.put("Accept", "*/*");
+        final java.util.List<String[]> todo = new java.util.ArrayList<>();
+        for (String u : urls) {
+            if (CachePolicy.classifyRequest("GET", u, headers) != CachePolicy.Kind.NONE && !has(u)) todo.add(new String[] {u});
+        }
+        if (todo.isEmpty()) {
+            if (done != null) done.run();
+            return;
+        }
+        final java.util.concurrent.atomic.AtomicInteger left = new java.util.concurrent.atomic.AtomicInteger(todo.size());
+        for (String[] t : todo) {
+            final String url = t[0];
+            final CachePolicy.Kind kind = CachePolicy.classifyRequest("GET", url, headers);
+            try {
+                fillExecutor.execute(() -> {
+                    try {
+                        fill(kind, keyOf(url), url, headers);
+                    } finally {
+                        if (left.decrementAndGet() == 0 && done != null) done.run();
+                    }
+                });
+            } catch (RejectedExecutionException full) {
+                if (left.decrementAndGet() == 0 && done != null) done.run();
+            }
+        }
     }
 
     /** Low memory: forget the in-memory index; it is rebuilt from disk on the next use. */
     void releaseMemory() {
         index.clear();
+        synchronized (negative) {
+            negative.clear();
+        }
         indexDropped = true;
     }
 
@@ -101,9 +200,30 @@ final class AssetCache {
         return index.count();
     }
 
+    /** One line for logcat: hits, misses (cacheable requests not on disk), completed fills and bytes, current size. */
+    String statsLine() {
+        return "hits=" + hits.get() + " misses=" + misses.get() + " fills=" + fills.get() + " fillBytes=" + fillBytes.get()
+                + " rejected=" + rejected.get() + " entries=" + index.count() + " bytes=" + index.totalBytes();
+    }
+
+    long hitCount() {
+        return hits.get();
+    }
+
+    long missCount() {
+        return misses.get();
+    }
+
+    long fillCount() {
+        return fills.get();
+    }
+
     // ---------- serving ----------
 
-    /** The cached (or freshly fetched and stored) response, or null when the request is not for the cache. */
+    /**
+     * The cached response, or null (not cacheable, or not on disk yet). A cacheable miss schedules one background fill and
+     * returns at once, so the WebView is never slowed down by the cache.
+     */
     Entry serve(String method, String url, Map<String, String> reqHeaders) {
         CachePolicy.Kind kind = CachePolicy.classifyRequest(method, url, reqHeaders);
         if (kind == CachePolicy.Kind.NONE) return null;
@@ -113,17 +233,20 @@ final class AssetCache {
         }
         String key = keyOf(url);
         long now = clock.getAsLong();
-        Object lock = locks.computeIfAbsent(key, k -> new Object());
         Entry e;
-        synchronized (lock) {
+        synchronized (lockFor(key)) {
             e = readEntry(key, now);
-            if (e == null) e = fetchAndStore(kind, key, url, reqHeaders, now);
-            else {
+            if (e != null) {
                 index.touch(key, now);
                 if (CachePolicy.needsRevalidate(validatedAt(key), now)) scheduleRevalidate(kind, key, url, reqHeaders);
             }
         }
-        if (e == null) return null;
+        if (e == null) {
+            misses.incrementAndGet();
+            scheduleFill(kind, key, url, reqHeaders, now);
+            return null;
+        }
+        hits.incrementAndGet();
         return withCors(e, reqHeaders);
     }
 
@@ -134,12 +257,19 @@ final class AssetCache {
         Map<String, String> h = new LinkedHashMap<>(e.headers);
         h.put("Access-Control-Allow-Origin", origin);
         h.put("Vary", "Origin");
-        return new Entry(e.body, e.mime, h, e.size, e.deleteOnClose);
+        return new Entry(e.body, e.mime, h, e.size);
     }
 
+    /** Index first (no disk read for the meta); the meta file is parsed only when the index does not hold the entry. */
     private Entry readEntry(String key, long now) {
-        File meta = metaFile(key);
+        CacheIndex.Info known = index.get(key);
         File body = bodyFile(key);
+        if (known != null && known.hasMeta()) {
+            if (body.length() != known.size) { drop(key); return null; }
+            if (CachePolicy.isExpired(known.storedAt, now, ttlMs) && !pinned.contains(key)) { drop(key); return null; }
+            return new Entry(body, known.mime, known.headers, known.size);
+        }
+        File meta = metaFile(key);
         if (!meta.isFile() || !body.isFile()) {
             if (meta.exists() || body.exists()) drop(key);
             return null;
@@ -149,7 +279,7 @@ final class AssetCache {
             long storedAt = m.getLong("storedAt");
             long size = m.getLong("size");
             if (body.length() != size) { drop(key); return null; }
-            if (CachePolicy.isExpired(storedAt, now, ttlMs)) { drop(key); return null; }
+            if (CachePolicy.isExpired(storedAt, now, ttlMs) && !pinned.contains(key)) { drop(key); return null; }
             Map<String, String> headers = new LinkedHashMap<>();
             JSONObject hs = m.optJSONObject("headers");
             if (hs != null) {
@@ -159,8 +289,9 @@ final class AssetCache {
                     headers.put(k, hs.getString(k));
                 }
             }
-            if (!index.has(key)) index.put(key, size, storedAt, now);
-            return new Entry(body, mimeOf(headers), headers, size, false);
+            String mime = mimeOf(headers);
+            index.put(key, size, storedAt, m.optLong("validatedAt", 0), now, mime, headers);
+            return new Entry(body, mime, index.get(key).headers, size);
         } catch (JSONException | IOException ex) {
             drop(key); // corrupt entry
             return null;
@@ -168,6 +299,8 @@ final class AssetCache {
     }
 
     private long validatedAt(String key) {
+        CacheIndex.Info i = index.get(key);
+        if (i != null) return i.validatedAt;
         try {
             return new JSONObject(readAll(metaFile(key))).optLong("validatedAt", 0);
         } catch (JSONException | IOException e) {
@@ -175,31 +308,69 @@ final class AssetCache {
         }
     }
 
-    // ---------- storing ----------
+    // ---------- storing (background fill) ----------
 
-    private Entry fetchAndStore(CachePolicy.Kind kind, String key, String url, Map<String, String> req, long now) {
+    private void scheduleFill(CachePolicy.Kind kind, String key, String url, Map<String, String> req, long now) {
+        if (isNegative(key, now) || !filling.add(key)) return;
+        final Map<String, String> headers = new LinkedHashMap<>(req);
+        try {
+            fillExecutor.execute(() -> {
+                try {
+                    fill(kind, key, url, headers);
+                } finally {
+                    filling.remove(key);
+                }
+            });
+        } catch (RejectedExecutionException full) {
+            filling.remove(key); // queue full: the next miss tries again
+        }
+    }
+
+    private boolean isNegative(String key, long now) {
+        synchronized (negative) {
+            Long until = negative.get(key);
+            if (until == null) return false;
+            if (now >= until) {
+                negative.remove(key);
+                return false;
+            }
+            return true;
+        }
+    }
+
+    private void markNegative(String key) {
+        rejected.incrementAndGet();
+        synchronized (negative) {
+            negative.put(key, clock.getAsLong() + RETRY_AFTER_FAILURE_MS);
+        }
+    }
+
+    /** Fetches and stores one resource (runs on the fill pool). A failed or uncacheable response is remembered and skipped. */
+    void fill(CachePolicy.Kind kind, String key, String url, Map<String, String> req) {
+        synchronized (lockFor(key)) {
+            if (index.has(key)) return; // another fill or a scan got there first
+        }
         Fetcher.Result r = null;
         //noinspection ResultOfMethodCallIgnored
         dir.mkdirs(); // Settings, Clear Cache may have removed the directory
         File tmp = new File(dir, key + ".t" + Long.toHexString(System.nanoTime()));
         try {
             r = fetcher.fetch(url, req, null, null);
-            if (r.status != 200 || r.body == null) return null;
+            if (r.status != 200 || r.body == null) { markNegative(key); return; }
             long size = copyLimited(r.body, tmp);
-            if (size < 0) { delete(tmp); return null; } // too large: let the WebView load it itself
-            Map<String, String> kept = keep(r.headers);
-            if (!CachePolicy.cacheableResponse(kind, r.status, r.headers, size)) {
-                return new Entry(tmp, mimeOf(kept), kept, size, true); // served once, deleted when read
+            if (size < 0 || !CachePolicy.cacheableResponse(kind, r.status, r.headers, size)) { markNegative(key); return; }
+            long now = clock.getAsLong();
+            synchronized (lockFor(key)) {
+                commit(key, url, tmp, size, r.headers, keep(r.headers), now, now);
             }
-            commit(key, url, tmp, size, r.headers, kept, now, now);
-            tmp = null;
+            fills.incrementAndGet();
+            fillBytes.addAndGet(size);
             enforceCap();
-            return new Entry(bodyFile(key), mimeOf(kept), kept, size, false);
         } catch (IOException | RuntimeException e) {
-            delete(tmp);
-            return null;
+            markNegative(key);
         } finally {
             if (r != null) r.close();
+            delete(tmp); // already gone after a successful rename
         }
     }
 
@@ -231,7 +402,7 @@ final class AssetCache {
             drop(key);
             throw new IOException(e);
         }
-        index.put(key, size, storedAt, clock.getAsLong());
+        index.put(key, size, storedAt, validatedAt, clock.getAsLong(), mimeOf(kept), kept);
     }
 
     private static Map<String, String> keep(Map<String, String> all) {
@@ -297,18 +468,19 @@ final class AssetCache {
                     updateValidated(key, meta, now);
                     break;
                 case EVICT:
-                    synchronized (locks.computeIfAbsent(key, k -> new Object())) { drop(key); }
+                    if (!pinned.contains(key)) { // an old snapshot still needs it even though the site removed it
+                        synchronized (lockFor(key)) { drop(key); }
+                    }
                     break;
                 case REPLACE: {
                     long size = r.body == null ? -1 : copyLimited(r.body, tmp);
                     if (size > 0 && CachePolicy.cacheableResponse(kind, r.status, r.headers, size)) {
-                        synchronized (locks.computeIfAbsent(key, k -> new Object())) {
+                        synchronized (lockFor(key)) {
                             commit(key, url, tmp, size, r.headers, keep(r.headers), meta.optLong("storedAt", now), now);
-                            tmp = null;
                         }
                         enforceCap();
                     } else {
-                        synchronized (locks.computeIfAbsent(key, k -> new Object())) { drop(key); }
+                        synchronized (lockFor(key)) { drop(key); }
                     }
                     break;
                 }
@@ -333,6 +505,7 @@ final class AssetCache {
             delete(m);
             //noinspection ResultOfMethodCallIgnored
             mt.renameTo(m);
+            index.setValidated(key, when);
         } catch (JSONException | IOException ignored) {
             // the next serve revalidates again
         }
@@ -357,7 +530,9 @@ final class AssetCache {
             String n = f.getName();
             if (n.endsWith(".b") && !metas.contains(n.substring(0, n.length() - 2))) delete(f);
         }
-        for (String key : metas) readEntry(key, now);
+        for (String key : metas) {
+            synchronized (lockFor(key)) { readEntry(key, now); }
+        }
         sweep();
     }
 
@@ -365,7 +540,7 @@ final class AssetCache {
     void sweep() {
         long now = clock.getAsLong();
         lastSweep = now;
-        for (String k : index.expired(now, ttlMs)) drop(k);
+        for (String k : index.expired(now, ttlMs, pinned)) drop(k);
         enforceCap();
     }
 
@@ -378,13 +553,16 @@ final class AssetCache {
     }
 
     private void enforceCap() {
-        List<String> victims = index.overflow(maxBytes);
+        List<String> victims = index.overflow(maxBytes, pinned);
         for (String k : victims) drop(k);
     }
 
     /** Removes everything (Settings, Clear Cache). */
     void clear() {
         index.clear();
+        synchronized (negative) {
+            negative.clear();
+        }
         File[] files = dir.listFiles();
         if (files != null) for (File f : files) delete(f);
     }

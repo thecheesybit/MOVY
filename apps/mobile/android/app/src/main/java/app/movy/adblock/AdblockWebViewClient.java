@@ -40,6 +40,9 @@ public class AdblockWebViewClient extends BridgeWebViewClient {
     private volatile String fallbackScript;
     private volatile PageEvents events;
     private volatile app.movy.shell.AssetCacheInterceptor assetCache;
+    private volatile app.movy.shell.ShellInterceptor shell;
+    /** Debug builds only: hosts that were allowed through the filter on the current page, with request counts. */
+    private final java.util.concurrent.ConcurrentHashMap<String, Integer> allowedHosts = new java.util.concurrent.ConcurrentHashMap<>();
 
     public AdblockWebViewClient(Bridge bridge, ShellConfig cfg, NavRules rules, BlockStats stats) {
         super(bridge);
@@ -66,12 +69,21 @@ public class AdblockWebViewClient extends BridgeWebViewClient {
                 }
             }
         }
+        app.movy.shell.ShellInterceptor sh = shell;
+        if (sh != null && request.isForMainFrame()) {
+            WebResourceResponse local = sh.intercept(request); // local-first shell route; null = load live
+            if (local != null) return local;
+        }
         app.movy.shell.AssetCacheInterceptor ac = assetCache;
         if (ac != null && !request.isForMainFrame()) {
             WebResourceResponse cached = ac.intercept(request);
             if (cached != null) return cached;
         }
         return super.shouldInterceptRequest(view, request);
+    }
+
+    public void setShell(app.movy.shell.ShellInterceptor shell) {
+        this.shell = shell;
     }
 
     public void setAssetCache(app.movy.shell.AssetCacheInterceptor cache) {
@@ -85,7 +97,10 @@ public class AdblockWebViewClient extends BridgeWebViewClient {
         stats.onChecked();
         for (String type : RequestTypes.candidates(request, u.getPath())) {
             BlockResult r = AdblockEngine.check(url, source, type);
-            if (r.isAllowed()) continue;
+            if (r.isAllowed()) {
+                if (cfg.debug && u.getHost() != null) allowedHosts.merge(u.getHost(), 1, Integer::sum);
+                continue;
+            }
             boolean redirect = r.kind == BlockResult.Kind.REDIRECT;
             stats.onBlocked(url, type, redirect);
             if (redirect) {
@@ -176,6 +191,10 @@ public class AdblockWebViewClient extends BridgeWebViewClient {
     @Override
     public void onPageFinished(WebView view, String url) {
         if (AdblockSwitch.isOn()) stats.logSummary(url);
+        if (cfg.debug && !allowedHosts.isEmpty()) {
+            android.util.Log.i("MovyAllowed", allowedHosts.toString());
+            allowedHosts.clear();
+        }
         super.onPageFinished(view, url);
         if (events != null) events.onPageFinished(url);
     }

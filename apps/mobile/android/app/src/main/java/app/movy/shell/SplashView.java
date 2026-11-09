@@ -23,6 +23,7 @@ public final class SplashView extends FrameLayout {
 
     private final Handler main = new Handler(Looper.getMainLooper());
     private final SpinnerView spinner;
+    private final TextView status;
     private boolean dismissed;
 
     public SplashView(Context ctx, String appName, LiveConfig cfg, String versionName, int build, boolean showCfg) {
@@ -66,6 +67,12 @@ public final class SplashView extends FrameLayout {
         sp.topMargin = Ui.dp(ctx, shortWindow ? 16 : 28);
         center.addView(spinner, sp);
 
+        status = text(ctx, "", 13, 0xFF8E8E93, false);
+        status.setVisibility(View.GONE);
+        LinearLayout.LayoutParams stp = new LinearLayout.LayoutParams(-2, -2);
+        stp.topMargin = Ui.dp(ctx, 12);
+        center.addView(status, stp);
+
         LinearLayout foot = new LinearLayout(ctx);
         foot.setOrientation(LinearLayout.VERTICAL);
         foot.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -92,6 +99,13 @@ public final class SplashView extends FrameLayout {
         t.setTypeface(bold ? Typeface.create("sans-serif-medium", Typeface.BOLD) : Typeface.create("sans-serif", Typeface.NORMAL));
         t.setLetterSpacing(bold ? 0.02f : 0f);
         return t;
+    }
+
+    /** A subtle line under the spinner (first-run warm-up); an empty text hides it. */
+    public void setStatus(String text) {
+        if (dismissed) return;
+        status.setText(text);
+        status.setVisibility(text == null || text.isEmpty() ? View.GONE : View.VISIBLE);
     }
 
     /** Fades out and removes itself from its parent; {@code after} runs once gone. */

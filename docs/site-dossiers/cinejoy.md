@@ -43,3 +43,12 @@ SvelteKit app (`/_app/immutable/...`), Svelte 5 components, Tailwind classes.
   - Left / Right: seeks 10s or moves between control buttons.
   - Up: wakes and focuses controls.
   - Back: closes sub-menus (Servers, Subtitles) if open, or exits player via `button[aria-label="Back"]`.
+
+## Round 4 findings (player, menus, rail)
+- Player: same-origin `.player-root`; bar buttons are named by `aria-label` (Back, Pause, Rewind 10s, Forward 10s, Mute, Picture in Picture, Servers, Subtitles, Settings, Fullscreen). The time label is also a `button[aria-label]` (excluded from controls).
+- One popover `.settings-popover[role=dialog]`, mounted when open and removed when closed. Escape does not close it, an outside click does not close it; only its own toggle does (`menuClose: toggle`).
+- Subtitles page: `Customize`, `Off`, `Upload subtitle file` (file picker: never), `Sync subtitle to audio` (drill), a text `Search` input (never), then language groups with a track count (`English 73`), which are drill rows that open a sub-list; `Ae EXTERNAL` style rows carry a translate trigger (never).
+- Content starts at x=64 (hero text, row titles and the card rows' own padding): wrappers get `railInset`.
+- The HTML is a 6.5 KB SvelteKit shell, identical for every route; it sets a cookie, which the shell fetch hands to the WebView. Stream and some titles can fail on the emulator.
+- Every metadata call goes through the DoH rescue (about 90 calls per home page): connections are now kept alive and replies cached in memory.
+- Continue Watching cards: a poster link with a progress bar. Activating one opens a body-level preview (`div.fixed[role=group]`, z 1000) with an inner `a[aria-label="Play"]` pointing at the watch route, an `Add to list` button and a `More info` link; the card's own link click is swallowed. Profile `cardActivate` presses the inner Play after the preview mounts, so OK resumes at once (verified, resumed at the saved position).

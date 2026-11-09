@@ -36,6 +36,41 @@
     return out.join(',');
   }
 
+  /** Valid {card, target} selector pairs only. */
+  function compileCardActivate(list) {
+    var out = [];
+    for (var i = 0; list && i < list.length; i++) {
+      var e = list[i];
+      if (e && typeof e.card === 'string' && typeof e.target === 'string' && okSel(e.card) && okSel(e.target)) out.push({ card: e.card, target: e.target });
+    }
+    return out;
+  }
+
+  /** The pair whose card contains `el`, if any. */
+  function cardActivateFor(el) {
+    var list = (TV.PF || compile(null)).cardActivate;
+    for (var i = 0; i < list.length; i++) {
+      try { if (el.matches(list[i].card) || el.closest(list[i].card)) return list[i]; } catch (e) { /* bad selector */ }
+    }
+    return null;
+  }
+  TV.cardActivateFor = cardActivateFor;
+
+  /** After a card press opened a preview, presses the target inside it; falls back to the card's own link. */
+  function pressCardTarget(el, pair) {
+    var tries = 0;
+    var link = el.tagName === 'A' ? el : el.closest('a[href]');
+    var tick = function () {
+      var t = null, all = [];
+      try { all = doc.querySelectorAll(pair.target); } catch (e) { /* ignore */ }
+      for (var i = 0; i < all.length; i++) if (renderableNow(all[i])) { t = all[i]; break; }
+      if (t) { pressLike(t); return; }
+      if (++tries < 12) { root.setTimeout(tick, 120); return; }
+      if (link && link.isConnected) { try { link.click(); } catch (e) { /* ignore */ } }
+    };
+    root.setTimeout(tick, 120);
+  }
+
   /** Normalises the raw profile into joined selector strings (empty string = none). */
   function compile(raw) {
     raw = raw || {};
@@ -47,7 +82,8 @@
       killOnTv: raw.killOnTv || [], viewportWidth: raw.viewportWidth || 1280,
       player: { frame: pl.frame || '', video: pl.video || '', root: pl.root || '', fullscreenTarget: pl.fullscreenTarget || '',
         fullscreenButton: joinSel(pl.fullscreenButton), controls: joinSel(pl.controls), overlayKill: joinSel(pl.overlayKill),
-        menu: joinSel(pl.menu), hide: joinSel(pl.hide), depth: pl.depth || 0 },
+        menu: joinSel(pl.menu), hide: joinSel(pl.hide), never: joinSel(pl.never), seekBar: joinSel(pl.seekBar), subtitles: joinSel(pl.subtitles), depth: pl.depth || 0 },
+      cardActivate: compileCardActivate(raw.cardActivate),
       servers: sv, episodes: ep
     };
   }
@@ -132,6 +168,7 @@
   /** Profile `skip` matches the element itself (list descendants explicitly, e.g. "footer a"); a profile card always wins. */
   function isSkipped(el, PF) {
     if (el.closest && el.closest('#__movy_tv_rail')) return true;
+    if (PF.player && PF.player.never && (el.matches(PF.player.never) || el.closest(PF.player.never))) return true; // the element or anything inside one // text inputs, full-cover buttons, legacy hidden panels
     var aria = (el.getAttribute('aria-label') || '').toLowerCase();
     if (aria.indexOf('scroll ') === 0 || aria === 'scroll left' || aria === 'scroll right') return true;
     if (aria === 'edit list') return true;
@@ -366,7 +403,10 @@
   function detectModal(PF) {
     var vw = root.innerWidth, vh = root.innerHeight, m = openPlayerMenu(PF);
     TV.menuEl = m;
+    // An open player menu is owned by tvmenu.js (focus, steps, BACK, return focus): it is not a "modal" here, or this code
+    // would also pull focus into it on open and push focus back to a stale element on close.
     var t = m ? null : doc.elementFromPoint(vw / 2, vh / 2);
+    m = null;
     var p = t, n = 0;
     while (p && p !== doc.body && p !== doc.documentElement && n++ < 12) {
       var cs = root.getComputedStyle(p);
@@ -381,7 +421,7 @@
     if (m !== cache.modal) {
       var was = cache.modal;
       cache.modal = m;
-      if (m && !was) { beforeModal = current; setTimeout(function () { if (cache.modal === m) focusFirst(m); }, 120); }
+      if (m && !was) { beforeModal = current; setTimeout(function () { if (cache.modal === m) focusFirst(m); }, 120); setTimeout(function () { if (cache.modal === m) recordModalRecent(m); }, 700); }
       else if (!m && was && beforeModal && beforeModal.isConnected) { var b = beforeModal; beforeModal = null; setCurrent(b, null); }
     }
   }
@@ -697,6 +737,9 @@
       fire(el, 'click');
     }
 
+    var pair = cardActivateFor(el);
+    if (pair) { pressCardTarget(el, pair); if (TV.hooks.afterActivate) TV.hooks.afterActivate(el); return true; }
+
     // Anchor link fallback for router links
     var link = el.tagName === 'A' ? el : el.closest('a[href]');
     if (link && link.href && link.href.indexOf('javascript:') !== 0) {
@@ -710,6 +753,13 @@
 
     if (TV.hooks.afterActivate) TV.hooks.afterActivate(el);
     return true;
+  }
+
+  /** Pointer sequence + click that also works on SVG elements (they have no click() method). */
+  function pressLike(el) {
+    firePointerMouse(el, 'down');
+    firePointerMouse(el, 'up');
+    if (typeof el.click === 'function') el.click(); else fire(el, 'click');
   }
 
   function enterFrame(el, dir) {
@@ -872,6 +922,37 @@
 
   var recordedPath = null;
 
+  /** Sites whose detail view is a modal without its own URL (Moonflix): remember the title and re-open it from the home rows. */
+  function recordModalRecent(modal) {
+    if (inFrame || !modal || activeSourceKey() !== 'moonflix') return;
+    var h = modal.querySelector('h1,h2');
+    var title = cleanTitle(h && h.textContent);
+    if (!title || title.toLowerCase() === getTheme().brand.toLowerCase()) return;
+    var list = readRecent().filter(function (e) { return e.q !== title; });
+    list.unshift({ t: title, p: root.location.pathname || '/browse', q: title, ts: Date.now() });
+    try { root.localStorage.setItem(RECENT_KEY, JSON.stringify(list.slice(0, RECENT_MAX))); } catch (e) { /* storage blocked */ }
+  }
+
+  var OPEN_KEY = 'movy_tv_open_title';
+
+  /** After a "recent" that has no URL: find its card on the page and open its detail modal (best effort, a few seconds). */
+  function openRecentTitle() {
+    var q = '';
+    try { q = root.sessionStorage.getItem(OPEN_KEY) || ''; } catch (e) { return; }
+    if (!q) return;
+    var tries = 0;
+    (function look() {
+      var btns = doc.querySelectorAll('button[aria-label^="More info about"]');
+      for (var i = 0; i < btns.length; i++) {
+        if ((btns[i].getAttribute('aria-label') || '').toLowerCase().indexOf(q.toLowerCase()) < 0) continue;
+        try { root.sessionStorage.removeItem(OPEN_KEY); } catch (e) { /* ignore */ }
+        pressLike(btns[i]);
+        return;
+      }
+      if (++tries < 12) setTimeout(look, 700); else { try { root.sessionStorage.removeItem(OPEN_KEY); } catch (e) { /* ignore */ } }
+    })();
+  }
+
   function recordRecent() {
     if (inFrame) return;
     var p = root.location.pathname || '/';
@@ -892,8 +973,8 @@
     var items = theme.items.map(function (it) {
       return { kind: 'nav', id: it.id, label: it.label, icon: it.icon, action: it.action, path: it.path, active: !!(it.path && pathIsActive(it.path)) };
     });
-    readRecent().filter(function (e) { return e.p !== cur; }).slice(0, RECENT_SHOWN).forEach(function (e) {
-      items.push({ kind: 'recent', label: e.t, icon: 'play', path: e.p });
+    readRecent().filter(function (e) { return e.p !== cur || !!e.q; }).slice(0, RECENT_SHOWN).forEach(function (e) {
+      items.push({ kind: 'recent', label: e.t, icon: 'play', path: e.p, q: e.q });
     });
     Object.keys(SOURCE_THEMES).forEach(function (k) {
       if (k === key) return;
@@ -967,11 +1048,22 @@
     if (!railEl) return;
     var hide = !railOpen && (!!doc.fullscreenElement || isPlayerActive(true) || !!cache.modal);
     railEl.classList.toggle('movy-rail-hidden', hide);
+    if (TV.hooks.railVisible) TV.hooks.railVisible(!hide); // tvinset.js: content steps aside only while the rail is on screen
   }
 
   function startRail() {
     if (inFrame || railTimer) return;
-    railTimer = setInterval(syncRailVisibility, 600);
+    // Not setInterval: some sites sweep and clear every interval id (the rail then stayed on top of their player). A frame
+    // loop with a time check cannot be cancelled that way, and costs one comparison per frame.
+    railTimer = 1;
+    var lastSync = 0;
+    (function frame(ts) {
+      if (ts - lastSync >= 600) {
+        lastSync = ts;
+        try { syncRailVisibility(); } catch (e) { /* never end the loop */ }
+      }
+      root.requestAnimationFrame(frame);
+    })(0);
     syncRailVisibility();
     setTimeout(recordRecent, 1800); // the script is injected after load, so record the page we are already on
   }
@@ -988,6 +1080,7 @@
     clearRing(current);
     railOpen = true;
     railEl.classList.remove('movy-rail-hidden');
+    if (TV.hooks.railVisible) TV.hooks.railVisible(true);
     railEl.classList.add('movy-rail-open');
     railEl.setAttribute('aria-hidden', 'false');
     if (scrimEl) scrimEl.classList.add('movy-scrim-open');
@@ -1032,6 +1125,11 @@
     }
     if (it.kind === 'recent') {
       closeRail(false);
+      if (it.q) { // a modal title: reopen it from the cards of the page it was seen on
+        try { root.sessionStorage.setItem(OPEN_KEY, it.q); } catch (e) { /* ignore */ }
+        if (root.location.pathname === it.path) openRecentTitle(); else root.location.href = it.path;
+        return;
+      }
       root.location.href = it.path;
       return;
     }
@@ -1249,7 +1347,7 @@
     }
     root.addEventListener('scroll', function () { cache.dirty = true; scheduleRebuild(450); }, { capture: true, passive: true });
     doc.addEventListener('DOMContentLoaded', function () { scheduleRebuild(100); setTimeout(autoFirstFocus, 400); });
-    root.addEventListener('load', function () { scheduleRebuild(100); setTimeout(autoFirstFocus, 300); [900, 2000, 3500].forEach(function (ms) { setTimeout(autoFirstFocus, ms); }); });
+    root.addEventListener('load', function () { setTimeout(openRecentTitle, 900); scheduleRebuild(100); setTimeout(autoFirstFocus, 300); [900, 2000, 3500].forEach(function (ms) { setTimeout(autoFirstFocus, ms); }); });
   }
 
   // The ring follows real focus: it is removed as soon as the element loses it (fullscreen changes, re-renders).
@@ -1303,6 +1401,14 @@
       '.movy-rail-chev{display:inline-flex!important;flex:none!important;color:var(--a)!important;animation:movyChev 1.6s ease-in-out infinite!important}' +
       '.movy-rail-open .movy-rail-chev{animation:none!important;transform:rotate(180deg)!important}' +
       '@keyframes movyChev{0%,100%{transform:translateX(0);opacity:.5}50%{transform:translateX(5px);opacity:1}}' +
+      // Collapsed rail polish: icons centred in the 60 px column with even vertical air, a faint wash that never reaches the content.
+      '#__movy_tv_rail:not(.movy-rail-open){background:linear-gradient(90deg,rgba(8,9,13,0.6) 0%,rgba(8,9,13,0.32) 60%,rgba(8,9,13,0) 100%)!important}' +
+      '#__movy_tv_rail:not(.movy-rail-open) .movy-rail-item{justify-content:center!important;padding:0!important;gap:0!important;height:50px!important;margin:0!important}' +
+      '#__movy_tv_rail:not(.movy-rail-open) .movy-rail-brand{justify-content:center!important;padding:0!important;gap:0!important;height:50px!important}' +
+      '#__movy_tv_rail:not(.movy-rail-open) .movy-rail-brand .movy-rail-mark{margin-left:0!important}' +
+      '#__movy_tv_rail:not(.movy-rail-open) .movy-rail-label{max-width:0!important;margin:0!important}' +
+      '#__movy_tv_rail:not(.movy-rail-open) .movy-rail-foot{justify-content:center!important;padding:12px 0 4px!important;gap:0!important}' +
+      '#__movy_tv_rail.movy-rail-open .movy-rail-label{max-width:220px!important}' +
       // Blurred poster glow behind the rows (Cinejoy): the artwork belongs to the top banner only, rows sit on the flat page colour.
       '.ambient-blur,.ambient-bleed{display:none!important}' +
       'header,div.fixed.top-0.z-50,header.topbar,div.pref-pill-wrap,header.fixed{display:none!important}';
@@ -1325,6 +1431,7 @@
   TV.setCurrent = setCurrent;
   TV.recordRecent = recordRecent;
   TV.railState = function () { return { open: railOpen, index: railIndex, count: railItems.length, label: railItems[railIndex] && railItems[railIndex].label, kinds: railItems.map(function (i) { return i.kind; }).join(',') }; };
+  TV.syncRail = syncRailVisibility;
   TV.openDrawer = openRail;
   TV.closeDrawer = closeRail;
   TV.toggleDrawer = function () { if (railOpen) closeRail(); else openRail(); };
@@ -1338,12 +1445,12 @@
     if (cache.modal) {
       var m = cache.modal;
       var cBtn = m.querySelector('button[aria-label*="close" i], button.absolute.top-4.right-4, button.close-btn');
-      if (cBtn) { cBtn.click(); cache.modal = null; return true; }
+      if (cBtn) { pressLike(cBtn); cache.modal = null; return true; }
     }
     var mfModal = doc.querySelector('.fixed.z-\\[300\\]:not(.bg-black\\/80)');
-    if (mfModal) {
+    if (mfModal && !isPlayerActive(true)) { // the player overlay is handled below: first BACK hides the controls, second leaves
       var mfClose = mfModal.querySelector('button[class*="top-4"][class*="right-4"], button.rounded-sm');
-      if (mfClose) { mfClose.click(); return true; }
+      if (mfClose) { pressLike(mfClose); return true; }
     }
     // Player sub-menus (Quality, Servers, Subtitles)
     if (TV.menuNow && TV.menuNow()) {
@@ -1365,12 +1472,13 @@
         return true;
       }
       // Second back: exit player
+      if (TV.userExitFs) TV.userExitFs(); // the user is leaving the player: it must not pull the next video back into fullscreen
       var cjBack = doc.querySelector('.player-root button[aria-label="Back"]');
-      if (cjBack) { cjBack.click(); return true; }
+      if (cjBack) { pressLike(cjBack); return true; }
       var movyBack = doc.querySelector('#vp-shell svg.cursor-pointer');
-      if (movyBack) { movyBack.click(); return true; }
+      if (movyBack) { pressLike(movyBack); return true; } // an <svg> has no click(): same pointer sequence as OK
       var mfPlayerClose = doc.querySelector('button.absolute.top-4.right-4.z-50');
-      if (mfPlayerClose) { mfPlayerClose.click(); return true; }
+      if (mfPlayerClose) { pressLike(mfPlayerClose); return true; }
       if (root.location.pathname.indexOf('/watch') >= 0) {
         root.history.back();
         return true;

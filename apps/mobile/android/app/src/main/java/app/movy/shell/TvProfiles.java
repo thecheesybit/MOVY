@@ -20,8 +20,14 @@ public final class TvProfiles {
     private static final String[] LISTS = {"header", "bottomBar", "rows", "cards", "focusables", "skip", "firstFocus", "playButtons", "killOnTv"};
     private static final String[] SERVERS = {"toggle", "list", "item", "active", "failed", "frame"};
     private static final String[] EPISODES = {"list", "item", "next"};
-    private static final String[] PLAYER_TEXT = {"frame", "video", "root", "fullscreenTarget"};
-    private static final String[] PLAYER_LISTS = {"fullscreenButton", "controls", "overlayKill", "menu", "hide"};
+    private static final String[] PLAYER_TEXT = {"frame", "video", "root", "fullscreenTarget", "menuConfirm"};
+    private static final String[] PLAYER_LISTS = {"fullscreenButton", "controls", "overlayKill", "menu", "hide", "toggles",
+        "menuItems", "menuColumns", "menuSelected", "never", "subtitles", "seekBar"};
+    private static final String[] CLOSE_MODES = {"escape", "toggle", "click"};
+    private static final String[] INSET_PROPS = {"padding-left", "margin-left", "left"};
+    private static final int MAX_INSET = 20;
+    private static final int MAX_ROUTES = 12;
+    private static final int MAX_CARD_ACTIVATE = 8;
     private static final int MAX_SELECTOR = 400;
     private static final int MAX_LIST = 40;
 
@@ -57,10 +63,77 @@ public final class TvProfiles {
             JSONObject pl = texts(src, PLAYER_TEXT);
             for (String k : PLAYER_LISTS) if (src.has(k)) pl.put(k, list(src, k));
             if (src.has("depth")) pl.put("depth", range(src, "depth", 0, 4));
+            if (src.has("menuClose")) pl.put("menuClose", menuClose(src.getJSONObject("menuClose")));
             o.put("player", pl);
         }
+        if (p.has("railInset")) o.put("railInset", railInset(p.getJSONArray("railInset")));
+        if (p.has("cardActivate")) o.put("cardActivate", cardActivate(p.getJSONArray("cardActivate")));
+        if (p.has("shell")) o.put("shell", shell(p.getJSONObject("shell")));
         if (p.has("viewportWidth")) o.put("viewportWidth", range(p, "viewportWidth", 320, 3840));
         return o;
+    }
+
+    /** How a player menu is closed: Escape, a click on the toggle that opened it, or a click on the given selector. */
+    private static JSONObject menuClose(JSONObject c) throws JSONException {
+        JSONObject out = new JSONObject();
+        Object mode = c.get("mode");
+        if (!(mode instanceof String) || !oneOf((String) mode, CLOSE_MODES)) throw new IllegalArgumentException("menuClose.mode");
+        out.put("mode", mode);
+        if (c.has("selector")) out.put("selector", selector(c.get("selector"), "menuClose.selector"));
+        return out;
+    }
+
+    /** Page wrappers that get extra left padding while the mini rail is visible. */
+    private static JSONArray railInset(JSONArray a) throws JSONException {
+        if (a.length() > MAX_INSET) throw new IllegalArgumentException("railInset too long");
+        JSONArray out = new JSONArray();
+        for (int i = 0; i < a.length(); i++) {
+            JSONObject e = a.getJSONObject(i);
+            Object prop = e.get("prop");
+            if (!(prop instanceof String) || !oneOf((String) prop, INSET_PROPS)) throw new IllegalArgumentException("railInset.prop");
+            out.put(new JSONObject().put("selector", selector(e.get("selector"), "railInset.selector")).put("prop", prop));
+        }
+        return out;
+    }
+
+    /** Cards whose OK press must go on to a target (the inner Play of an expanded preview): selector pairs. */
+    private static JSONArray cardActivate(JSONArray a) throws JSONException {
+        if (a.length() > MAX_CARD_ACTIVATE) throw new IllegalArgumentException("cardActivate too long");
+        JSONArray out = new JSONArray();
+        for (int i = 0; i < a.length(); i++) {
+            JSONObject e = a.getJSONObject(i);
+            out.put(new JSONObject().put("card", selector(e.get("card"), "cardActivate.card"))
+                .put("target", selector(e.get("target"), "cardActivate.target")));
+        }
+        return out;
+    }
+
+    /** Local site shell: the routes to snapshot and how to judge, race and age them. */
+    private static JSONObject shell(JSONObject s) throws JSONException {
+        JSONObject out = new JSONObject();
+        JSONArray routes = s.getJSONArray("routes");
+        if (routes.length() > MAX_ROUTES) throw new IllegalArgumentException("shell.routes too long");
+        JSONArray rs = new JSONArray();
+        for (int i = 0; i < routes.length(); i++) {
+            Object r = routes.get(i);
+            if (!(r instanceof String) || !((String) r).startsWith("/") || ((String) r).indexOf('?') >= 0 || ((String) r).length() > 120) {
+                throw new IllegalArgumentException("shell.routes must be paths without a query");
+            }
+            rs.put(r);
+        }
+        out.put("routes", rs);
+        if (s.has("volatile")) out.put("volatile", list(s, "volatile"));
+        if (s.has("root")) out.put("root", list(s, "root"));
+        if (s.has("html")) out.put("html", list(s, "html"));
+        if (s.has("raceMs")) out.put("raceMs", range(s, "raceMs", 100, 3000));
+        if (s.has("maxAgeHours")) out.put("maxAgeHours", range(s, "maxAgeHours", 1, 72));
+        if (s.has("keepVersions")) out.put("keepVersions", range(s, "keepVersions", 1, 5));
+        return out;
+    }
+
+    private static boolean oneOf(String v, String[] allowed) {
+        for (String s : allowed) if (s.equals(v)) return true;
+        return false;
     }
 
     private static JSONArray list(JSONObject o, String key) throws JSONException {

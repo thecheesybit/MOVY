@@ -9,6 +9,7 @@
     <string name="movy_update_title">Update available</string>
     <string name="movy_update_default">A newer version is available.</string>
     <string name="movy_ok">OK</string>
+    <string name="movy_preparing_sources">Preparing your sources…</string>
     <string name="movy_press_back_again">Press back again to exit</string>
     <string name="movy_island_tab">Sources</string>
     <string name="movy_settings">Settings</string>

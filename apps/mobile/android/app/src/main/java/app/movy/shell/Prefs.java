@@ -119,6 +119,20 @@ public final class Prefs {
         sp.edit().remove("tvResumeId").remove("tvResumeUrl").apply();
     }
 
+    /** TV: epoch ms of the last completed warm-up of a source (0 when never). */
+    public long warmedAt(String sourceId) {
+        return sp.getLong("warmedAt_" + sourceId, 0L);
+    }
+
+    public void setWarmedAt(String sourceId, long when) {
+        sp.edit().putLong("warmedAt_" + sourceId, when).putBoolean("everWarmed", true).apply();
+    }
+
+    /** TV: any source was ever warmed (false on the very first run). */
+    public boolean everWarmed() {
+        return sp.getBoolean("everWarmed", false);
+    }
+
     public boolean tvHintShown() {
         return sp.getBoolean("tvHintShown", false);
     }

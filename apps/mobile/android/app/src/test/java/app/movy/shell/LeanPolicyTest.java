@@ -13,6 +13,14 @@ public class LeanPolicyTest {
         assertTrue(LeanPolicy.shouldTrimHttpCache(100L * 1024 * 1024 + 1));
     }
 
+    @Test public void coldStartKeepsTheCacheUpToTwoHundredFiftyMegabytes() {
+        assertFalse(LeanPolicy.shouldTrimHttpCacheOnColdStart(0));
+        assertFalse("a normal day of browsing is not wiped at launch", LeanPolicy.shouldTrimHttpCacheOnColdStart(120L * 1024 * 1024));
+        assertFalse(LeanPolicy.shouldTrimHttpCacheOnColdStart(250L * 1024 * 1024));
+        assertTrue(LeanPolicy.shouldTrimHttpCacheOnColdStart(250L * 1024 * 1024 + 1));
+        assertTrue("after playback the stricter limit still applies", LeanPolicy.shouldTrimHttpCache(120L * 1024 * 1024));
+    }
+
     @Test public void backgroundDestroysAfterSixtySeconds() {
         assertFalse(LeanPolicy.backgroundTimeoutReached(1000, 60_999));
         assertTrue(LeanPolicy.backgroundTimeoutReached(1000, 61_000));

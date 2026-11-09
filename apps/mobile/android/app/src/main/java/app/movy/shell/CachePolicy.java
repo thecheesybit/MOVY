@@ -21,6 +21,8 @@ final class CachePolicy {
     private static final Pattern HASHED = Pattern.compile("[.\\-_][A-Za-z0-9_-]{8,}\\.(js|mjs|css)$", Pattern.CASE_INSENSITIVE);
     private static final Pattern VERSIONED_QUERY = Pattern.compile("(^|&)(v|ver|version|hash|h)=[^&]+", Pattern.CASE_INSENSITIVE);
     private static final Pattern SIGNED_QUERY = Pattern.compile("(^|&)(token|sig|signature|expires|x-amz-[a-z-]+|policy|key-pair-id)=", Pattern.CASE_INSENSITIVE);
+    /** Build output directories that hold only versioned bundles (Next.js, SvelteKit, Vite, CRA): any script or style in them is static. */
+    private static final String[] IMMUTABLE_DIRS = {"/_next/static/", "/_app/immutable/", "/assets/", "/static/js/", "/static/css/"};
     private static final String IMAGE_EXT = "png jpg jpeg gif webp avif svg ico bmp";
     private static final String FONT_EXT = "woff woff2 ttf otf eot";
     private static final String MEDIA_EXT = "m3u8 ts m4s mp4 webm mkv mp3 aac m4a mpd flv key vtt srt";
@@ -53,8 +55,13 @@ final class CachePolicy {
         String accept = header(headers, "accept");
         if (accept != null && accept.toLowerCase(Locale.ROOT).startsWith("image/")) return Kind.IMAGE;
         if (("js".equals(ext) || "mjs".equals(ext) || "css".equals(ext))
-                && (HASHED.matcher(path).find() || VERSIONED_QUERY.matcher(query).find())) return Kind.STATIC;
+                && (inImmutableDir(path) || HASHED.matcher(path).find() || VERSIONED_QUERY.matcher(query).find())) return Kind.STATIC;
         return Kind.NONE;
+    }
+
+    private static boolean inImmutableDir(String path) {
+        for (String d : IMMUTABLE_DIRS) if (path.contains(d)) return true;
+        return false;
     }
 
     /** Response-side decision: status, headers and body size. */

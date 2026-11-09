@@ -15,7 +15,6 @@ import android.widget.FrameLayout;
  */
 final class LaunchController implements SourceRepository.Listener, ChooserView.Listener {
     private static final long SPLASH_HARD_CAP_MS = 1500;
-    private static final long TV_SPLASH_HARD_CAP_MS = 6000;
     private static final int READY_PROGRESS = 70;
 
     private final Activity activity;
@@ -32,6 +31,10 @@ final class LaunchController implements SourceRepository.Listener, ChooserView.L
     private ChooserView chooser;
     private long splashShownAt;
     private boolean launching;
+    /** TV, very first run: the splash also waits (at most 5 s) for the hidden source warm-up. */
+    private boolean firstRunWarmup;
+    private boolean adapterReady;
+    private boolean warmupDone;
     /** Debug builds only: extra time the splash stays up (screenshots). */
     private long holdMs;
 
@@ -60,6 +63,15 @@ final class LaunchController implements SourceRepository.Listener, ChooserView.L
         return chooser != null;
     }
 
+    /** TV: enables the first-run warm-up wait (call before {@link #start}). */
+    void setFirstRunWarmup(boolean on) {
+        firstRunWarmup = on;
+    }
+
+    boolean isFirstRunWarmup() {
+        return firstRunWarmup;
+    }
+
     void setDebugHold(long ms) {
         holdMs = Math.max(0, Math.min(ms, 10_000));
     }
@@ -74,13 +86,14 @@ final class LaunchController implements SourceRepository.Listener, ChooserView.L
         Log.i(KillLog.TAG, "launch flow: " + (launch != null ? "saved source " + launch.id : "chooser"));
         if (launch != null) {
             launching = true;
+            if (firstRunWarmup) splash.setStatus(activity.getString(R.string.movy_preparing_sources));
             repo.switchTo(launch.id);
-            long cap = isTv ? TV_SPLASH_HARD_CAP_MS : SPLASH_HARD_CAP_MS;
+            long cap = isTv ? SplashPolicy.capMs(firstRunWarmup) : SPLASH_HARD_CAP_MS;
             main.postDelayed(this::dismissSplash, cap + holdMs);
         } else {
             main.postDelayed(this::showChooser, cfg.splashMinMs + holdMs);
         }
-        main.postDelayed(() -> checkUpdate(repo.config()), (isTv ? TV_SPLASH_HARD_CAP_MS : SPLASH_HARD_CAP_MS) + 300);
+        main.postDelayed(() -> checkUpdate(repo.config()), (isTv ? SplashPolicy.NORMAL_CAP_MS : SPLASH_HARD_CAP_MS) + 300);
     }
 
     /** Page progress (UI thread); lets the splash go once the site has started to paint. */
@@ -94,7 +107,19 @@ final class LaunchController implements SourceRepository.Listener, ChooserView.L
     /** Called when the page signals MovyTvNative.ready() (TV only). */
     void onAdapterReady() {
         if (!launching || splash == null) return;
-        Log.i(KillLog.TAG, "adapter ready received; dismissing TV splash");
+        adapterReady = true;
+        dismissWhenAllowed();
+    }
+
+    /** The hidden warm-up of the other sources has run through (TV first run). */
+    void onWarmupDone() {
+        warmupDone = true;
+        dismissWhenAllowed();
+    }
+
+    private void dismissWhenAllowed() {
+        if (!launching || splash == null || !SplashPolicy.mayDismiss(firstRunWarmup, adapterReady, warmupDone)) return;
+        Log.i(KillLog.TAG, "adapter ready" + (firstRunWarmup ? " and sources warm" : "") + "; dismissing TV splash");
         long left = repo.config().splashMinMs + holdMs - (SystemClock.elapsedRealtime() - splashShownAt);
         main.postDelayed(this::dismissSplash, Math.max(0, left));
     }

@@ -44,6 +44,43 @@ public class CachePolicyTest {
         assertEquals(CachePolicy.Kind.NONE, classify("https://a.example.com/style.css"));
     }
 
+    @Test public void bundlesInImmutableBuildDirectoriesAreStaticWithoutAHashDelimiter() {
+        // real bundle naming of the four sites' frameworks (hosts replaced by a test domain)
+        assertEquals(CachePolicy.Kind.STATIC, classify("https://example.test/_next/static/chunks/1f1lweywc0f8c.js"));
+        assertEquals(CachePolicy.Kind.STATIC, classify("https://example.test/_next/static/chunks/0l86xu2682u-8.js"));
+        assertEquals(CachePolicy.Kind.STATIC, classify("https://example.test/_next/static/css/0a1b2c.css"));
+        assertEquals(CachePolicy.Kind.STATIC, classify("https://example.test/_app/immutable/chunks/Dr38vCwT.js"));
+        assertEquals(CachePolicy.Kind.STATIC, classify("https://example.test/_app/immutable/entry/start.CsYk1x.mjs"));
+        assertEquals(CachePolicy.Kind.STATIC, classify("https://example.test/assets/index-C_jkdOQv.js"));
+        assertEquals(CachePolicy.Kind.STATIC, classify("https://example.test/assets/app.js"));
+        assertEquals(CachePolicy.Kind.STATIC, classify("https://example.test/static/js/main.chunk.js"));
+        assertEquals(CachePolicy.Kind.STATIC, classify("https://example.test/static/css/app.css"));
+        // the older delimiter-hash rule still works elsewhere
+        assertEquals(CachePolicy.Kind.STATIC, classify("https://example.test/chunks/2619-38012e79151e370a.js"));
+        // not a script or style, or outside the build directories
+        assertEquals(CachePolicy.Kind.NONE, classify("https://example.test/_next/static/chunks/data.json"));
+        assertEquals(CachePolicy.Kind.NONE, classify("https://example.test/scripts/app.js"));
+        assertEquals(CachePolicy.Kind.NONE, classify("https://example.test/_next/data/build/page.json"));
+    }
+
+    @Test public void proxiedPostersAndTmdbSizesAreImages() {
+        assertEquals(CachePolicy.Kind.IMAGE, classify("https://example.test/img/w500/12345.png/q50.webp"));
+        assertEquals(CachePolicy.Kind.IMAGE, classify("https://image.example.test/t/p/w300/abcdef.jpg"));
+        assertEquals(CachePolicy.Kind.IMAGE, classify("https://image.example.test/t/p/w1280/abcdef.jpg"));
+    }
+
+    @Test public void mediaSegmentsSubtitlesAndKeysAreNeverCacheable() {
+        assertEquals(CachePolicy.Kind.NONE, classify("https://example.test/s/00001.m4s"));
+        assertEquals(CachePolicy.Kind.NONE, classify("https://example.test/s/00001.ts"));
+        assertEquals(CachePolicy.Kind.NONE, classify("https://example.test/s/en.vtt"));
+        assertEquals(CachePolicy.Kind.NONE, classify("https://example.test/s/key.key"));
+        assertEquals(CachePolicy.Kind.NONE, classify("https://example.test/assets/clip.mp4"));
+        Map<String, String> ts = h("Content-Type", "video/mp2t", "Cache-Control", "public, max-age=31536000");
+        assertFalse(CachePolicy.cacheableResponse(CachePolicy.Kind.IMAGE, 200, ts, 1000));
+        assertFalse(CachePolicy.cacheableResponse(CachePolicy.Kind.STATIC, 200, ts, 1000));
+        assertFalse(CachePolicy.cacheableResponse(CachePolicy.Kind.FONT, 200, ts, 1000));
+    }
+
     @Test public void neverCachedKindsOfRequest() {
         assertEquals(CachePolicy.Kind.NONE, CachePolicy.classifyRequest("POST", "https://a.example.com/x.png", NONE));
         assertEquals(CachePolicy.Kind.NONE, CachePolicy.classifyRequest("GET", "https://a.example.com/x.png", h("Range", "bytes=0-")));

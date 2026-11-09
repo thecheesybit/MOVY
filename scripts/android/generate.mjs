@@ -5,7 +5,7 @@ import { MOBILE_DIR, ROOT } from '../paths.mjs';
 import { generateIcons } from './icons.mjs';
 import { buildDefaults } from './defaults.mjs';
 
-export const TV_SCRIPTS = ['tvnav-pure.js', 'tvnav.js', 'tvfs.js'];
+export const TV_SCRIPTS = ['tvnav-pure.js', 'tvnav.js', 'tvfs.js', 'tvinset.js', 'tvmenu.js', 'tvshell.js'];
 export const ANDROID = path.join(MOBILE_DIR, 'android');
 export const APP = path.join(ANDROID, 'app');
 export const MAIN = path.join(APP, 'src', 'main');

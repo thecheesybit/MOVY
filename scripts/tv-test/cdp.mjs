@@ -11,7 +11,10 @@ const adb = (c) => execSync(`"${ADB}" -s ${SERIAL} ${c}`, { encoding: 'utf8' }).
 const pid = adb('shell pidof com.ayushkumar.movy.tv').split(/\s+/)[0];
 adb(`forward tcp:${PORT} localabstract:webview_devtools_remote_${pid}`);
 const list = await (await fetch(`http://127.0.0.1:${PORT}/json/list`)).json();
-const page = list.find((p) => p.type === 'page');
+// Hidden preload WebViews are page targets too: prefer the one the user sees (attached + visible), then any page.
+const visibleOf = (p) => { try { const d = JSON.parse(p.description || '{}'); return !!(d.visible && d.attached); } catch { return false; } };
+const pages = list.filter((p) => p.type === 'page');
+const page = pages.find(visibleOf) ?? pages[0];
 if (!page) throw new Error('no page');
 const args = process.argv.slice(2);
 const expr = args[0] === '-f' ? fs.readFileSync(args[1], 'utf8') : args.join(' ');

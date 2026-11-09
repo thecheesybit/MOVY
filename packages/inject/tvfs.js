@@ -20,6 +20,17 @@
   var lastKeyAt = 0;
   var wantFs = false;
   var userExitAt = 0;
+  var WANTFS_KEY = '__movy_tv_wantfs';
+  var WANTFS_TTL_MS = 90000;
+
+  /** Fullscreen is wanted across document loads: a server switch or an embed reload replaces the page and used to drop it. */
+  function rememberWantFs(on) {
+    try { if (on) root.sessionStorage.setItem(WANTFS_KEY, String(Date.now())); else root.sessionStorage.removeItem(WANTFS_KEY); } catch (e) { /* storage blocked */ }
+  }
+  function recallWantFs() {
+    try { var t = parseInt(root.sessionStorage.getItem(WANTFS_KEY) || '0', 10); return t > 0 && Date.now() - t < WANTFS_TTL_MS; } catch (e) { return false; }
+  }
+  if (!inFrame && recallWantFs()) wantFs = true; // the next `playing` re-enters fullscreen (a user BACK clears this)
   var fsTries = 0;
   var fsTimer = 0;
   var idleOn = false;
@@ -51,6 +62,8 @@
     // Page chrome fades with the shell's 5 s idle; the player's own controls have a separate 5 s timer (see armControlsHide).
     css += fadeWith('movy-idle', [PF.header, PF.bottomBar]) + FADE;
     css += fadeWith('movy-pctl-off', [PF.player.controls, PF.player.hide, GENERIC_CONTROLS]) + FADE;
+    // Subtitle boxes sit above the bar while it is up; when the bar fades they drop back to the bottom of the picture.
+    if (PF.player.subtitles) css += 'html.movy-pctl-off ' + PF.player.subtitles.split(',').join(',html.movy-pctl-off ') + '{bottom:6%!important;transition:bottom .25s ease-out}';
     css += 'html.movy-idle,html.movy-idle *{cursor:none!important}';
     css += 'html.movy-idle .movy-tvf,html.movy-idle :focus{outline-color:transparent!important;box-shadow:none!important;scale:1!important}';
     css += 'html.movy-idle #__movy_tv_bubble{opacity:0!important}';
@@ -67,38 +80,62 @@
 
   var wakeTimer = 0, lastWakeAt = 0;
 
+  /** A player is up: fullscreen, or (not fullscreen) a player iframe covering the page, whose controls live in a frame. */
+  function playerUp() {
+    return !!fsElement() || !!(TV.PF && TV.bigIframe && TV.bigIframe());
+  }
+
+  /** The video of this document, or the status of the one inside a player frame. */
+  function videoPlaying() {
+    var v = findVideo();
+    if (v && isMainVideo(v)) return !v.paused;
+    return !!(TV.lastStatus && !TV.lastStatus.paused); // the real video is inside a player frame
+  }
+
+  function setPctlOff(off) {
+    var h = doc.documentElement;
+    if (h) h.classList.toggle('movy-pctl-off', off);
+    TV.relayDown({ __movyTvPctl: off ? 1 : 0 }); // the player frames fade and wake with the page chrome: one idle state
+  }
+
   function showControls() {
     clearTimeout(controlsTimer);
     clearInterval(wakeTimer);
     wakeTimer = 0;
     var h = doc.documentElement;
-    if (h && h.classList.contains('movy-pctl-off')) h.classList.remove('movy-pctl-off');
+    if (h && h.classList.contains('movy-pctl-off')) setPctlOff(false);
+  }
+
+  function menuUp() {
+    return !!TV.menuNow() || !!(TV.childAgg && TV.childAgg.menu);
   }
 
   function hideControls() {
-    var v = findVideo();
-    if (inFrame || !v || v.paused || !fsElement() || TV.menuNow()) return; // paused or a menu is open: leave them up
+    if (inFrame || !playerUp() || !videoPlaying() || menuUp()) return; // paused or a menu is open: leave them up
     TV.releaseFocus();
-    var h = doc.documentElement;
-    if (h) h.classList.add('movy-pctl-off');
+    setPctlOff(true);
     hideBubble();
   }
 
   /** (Re)starts the countdown; called on every key, on playback start and when a menu closes. */
   function armControlsHide() {
     clearTimeout(controlsTimer);
-    if (inFrame || !fsElement()) return;
+    if (inFrame || !playerUp()) return;
     controlsTimer = setTimeout(function () {
       clearInterval(wakeTimer);
       wakeTimer = 0;
-      if (TV.menuNow()) armControlsHide(); else hideControls();
+      if (menuUp()) armControlsHide(); else hideControls();
     }, CONTROLS_HIDE_MS);
     if (!wakeTimer) {
       // The site's own bar hides (and closes its menus) on mouse inactivity, usually sooner than 5 s: keep it up until ours fires.
       wakeTimer = setInterval(function () { var v = findVideo(); if (v && fsElement()) wakeControls(v); }, 1500);
     }
   }
-  TV.showControls = function () { showControls(); armControlsHide(); };
+  TV.showControls = function () {
+    showControls();
+    armControlsHide();
+    if (!inFrame && TV.PF && TV.bigIframe && TV.bigIframe()) TV.relayDown({ __movyTvWake: 1 }); // the player frame wakes its own bar too
+  };
 
   TV.idle = function (on) {
     idleOn = !!on;
@@ -374,16 +411,40 @@
     bubble(play ? 'Play' : 'Pause', play ? 'play' : 'pause');
   }
 
+  /**
+   * Wakes the site's control bar with a synthetic mouse move. The point is a neutral spot of the picture (centre, about 38 % down),
+   * away from the top and bottom bars: near the progress bar the site read it as a hover and showed a seek preview for the bar's
+   * middle. The target is never a bar control, and the seek bar is told the pointer left, so any hover preview closes.
+   */
   function wakeControls(v) {
     var host = fsElement() || (v && v.parentElement) || doc.body;
     var r = (v || host).getBoundingClientRect();
-    var x = r.left + r.width / 2, y = r.top + r.height * 0.7;
-    var tgt = doc.elementFromPoint(x, y) || host;
+    var x = r.left + r.width / 2, y = r.top + r.height * 0.38;
+    var PF = TV.PF;
+    var bars = PF ? [PF.player.controls, PF.player.seekBar].filter(Boolean).join(',') : '';
+    var tgt = doc.elementFromPoint(x, y);
+    if (!tgt || (bars && (tgt.matches(bars) || tgt.closest(bars)))) tgt = v || host;
     var seq = ['mouseover', 'mousemove', 'pointermove'];
     for (var i = 0; i < seq.length; i++) {
       try { tgt.dispatchEvent(new MouseEvent(seq[i], { bubbles: true, clientX: x + (i % 2), clientY: y, view: root })); } catch (e) { /* ignore */ }
     }
+    clearSeekHover();
   }
+
+  /** Tells the seek bar the pointer is not on it (profile player.seekBar), so a hover thumbnail / time preview is removed. */
+  function clearSeekHover() {
+    var PF = TV.PF;
+    if (!PF || !PF.player.seekBar) return;
+    var bars = doc.querySelectorAll(PF.player.seekBar);
+    var types = [['pointerout', true], ['mouseout', true], ['pointerleave', false], ['mouseleave', false]];
+    for (var i = 0; i < bars.length; i++) {
+      for (var t = 0; t < types.length; t++) {
+        var Ctor = types[t][0].indexOf('pointer') === 0 && typeof PointerEvent === 'function' ? PointerEvent : MouseEvent;
+        try { bars[i].dispatchEvent(new Ctor(types[t][0], { bubbles: types[t][1], cancelable: true, view: root, clientX: -1, clientY: -1 })); } catch (e) { /* ignore */ }
+      }
+    }
+  }
+  TV.wakeControls = function () { wakeControls(findVideo()); };
 
   /** Transport keys from the native shell: playpause | play | pause | seek (seconds). Relayed into iframes when this frame has no video. */
   /** Unmutes every visible playing-or-ready video (hero banners start muted). Prefers the site's own Unmute button so its UI stays in step. */
@@ -503,7 +564,7 @@
       if (fsTries++ < 8) fsTimer = setTimeout(function () { ensureFs(why); }, 500);
       return;
     }
-    requestFs(el).then(function () { fsTries = 0; }, function () {
+    requestFs(el).then(function () { fsTries = 0; rememberWantFs(true); }, function () {
       if (fsTries++ >= 4) return;
       requestGesture(); // a synthetic key from native grants the transient user activation
       fsTimer = setTimeout(function () { ensureFs('retry'); }, 220);
@@ -514,6 +575,7 @@
   TV.userExitFs = function () {
     userExitAt = Date.now();
     wantFs = false;
+    rememberWantFs(false);
     TV.relayDown({ __movyTvUserExit: 1 });
   };
   TV.wantsFullscreen = function () { return wantFs; };
@@ -549,6 +611,7 @@
   }
 
   function onChildPlaying() {
+    armControlsHide(); // a player frame started playing: the page chrome over it fades after 5 s without a key
     var recent = Date.now() - lastKeyAt < 25000;
     if (userJustLeft() || (!wantFs && !recent)) return;
     wantFs = true;
@@ -566,7 +629,7 @@
     if (TV.PF) applyViewport(TV.PF);
     if (fsElement()) { fsTries = 0; if (findVideo()) { TV.releaseFocus(); armControlsHide(); } return; } // playback starts "free": OK pauses, arrows seek
     showControls();
-    if (Date.now() - userExitAt < 2500 || nativeUserExit()) { wantFs = false; return; }
+    if (Date.now() - userExitAt < 2500 || nativeUserExit()) { wantFs = false; rememberWantFs(false); return; }
     if (wantFs) setTimeout(function () { if (wantFs && !fsElement() && !nativeUserExit()) ensureFs('lost'); }, 250); // swapped by the site: re-enter
   });
 
@@ -599,8 +662,10 @@
 
   // ---------- keys inside video ----------
 
+  var lastAliveUp = 0;
   TV.hooks.key = function (e, dir, a) {
     lastKeyAt = Date.now();
+    if (inFrame && lastKeyAt - lastAliveUp > 300) { lastAliveUp = lastKeyAt; up({ __movyTvAlive: 1 }); } // keys inside a player frame restart the page's 5 s fade too
     if (!inFrame && wantFs && !fsElement() && findVideoPlaying()) ensureFs('key');
     if (idleOn) TV.idle(false);
     TV.showControls(); // any key brings the controls back and restarts the 5 s countdown
@@ -697,6 +762,21 @@
     if (!d || typeof d !== 'object') return;
     if (d.__movyTvMedia && e.source === root.parent) { TV.media(d.__movyTvMedia[0], d.__movyTvMedia[1]); return; }
     if (d.__movyTvIdle !== undefined && e.source === root.parent) { TV.idle(d.__movyTvIdle); return; }
+    if (d.__movyTvAlive && e.source !== root) {
+      if (inFrame) up(d); else TV.showControls();
+      return;
+    }
+    if (d.__movyTvWake && e.source === root.parent) {
+      var wv = findVideo();
+      if (wv) wakeControls(wv);
+      TV.relayDown(d);
+      return;
+    }
+    if (d.__movyTvPctl !== undefined && e.source === root.parent) {
+      if (doc.documentElement) doc.documentElement.classList.toggle('movy-pctl-off', !!d.__movyTvPctl);
+      TV.relayDown(d);
+      return;
+    }
     if (d.__movyTvUserExit && e.source === root.parent) { userExitAt = Date.now(); wantFs = false; TV.relayDown(d); return; }
     if (d.__movyTvPlaying) { if (inFrame) up(d); else onChildPlaying(); return; }
     if (d.__movyTvFs) { if (inFrame) up(d); else ensureFs('child'); return; }

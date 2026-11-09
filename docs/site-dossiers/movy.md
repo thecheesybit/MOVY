@@ -39,3 +39,10 @@ React SPA with hashed SCSS module class names.
   - Left / Right: seeks 10s or navigates between controls.
   - Up: opens quality/server controls.
   - Back: closes quality/server menu if open, or clicks `svg.cursor-pointer` to exit player.
+
+## Round 4 findings (player, menus, rail)
+- Player: same-origin `#vp-shell`, `<video>` blob/MSE. Top bar: back arrow (an `<svg>`, no `click()` method: press it with a pointer sequence), `Quality`, `Audio & Subtitles` (`button.tabbable`).
+- Menus are mounted all the time and hidden with `opacity-0 pointer-events-none` on a wrapper: "open" means `.player-surface` is visible. Audio and Subtitles are two `.custom-vertical-scroll` columns; footer rows `Search on OpenSubtitles` / `Customize appearance`; `Upload subtitles` is a label over `input[type=file]` (never focus). Selected row = `bg-white/[0.14]`.
+- Escape closes a menu. The quality popover lists servers with a `Favorite server` star (skipped).
+- Content starts at x=96 on the home page, so it clears the 60 px rail without an inset.
+- HTML is server-rendered (Next.js, buildId in the document, 100-390 KB per shell route), so the local shell snapshot uses a 6 h maximum age.

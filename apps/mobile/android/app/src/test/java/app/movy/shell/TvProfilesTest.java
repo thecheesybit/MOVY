@@ -67,6 +67,67 @@ public class TvProfilesTest {
         rejects("{\"a\":{\"skip\":" + big + "]}}");
     }
 
+    @Test public void playerMenuKeysAndRailInsetSurviveSanitising() throws Exception {
+        String extra = ",\"tvProfiles\":{\"a\":{\"railInset\":[{\"selector\":\".wrap\",\"prop\":\"padding-left\"}],\"player\":{"
+                + "\"toggles\":[\".t\"],\"menuSelected\":[\".sel\"],\"seekBar\":[\".bar\"],\"menu\":[\".m\"],\"hide\":[\".h\"],\"menuItems\":[\"li\"],\"menuColumns\":[\".col\"],\"never\":[\"input\"],\"subtitles\":[\".cue\"],"
+                + "\"menuConfirm\":\"#apply\",\"menuClose\":{\"mode\":\"click\",\"selector\":\"#cancel\"},\"bogus\":[\"x\"]}}}";
+        JSONObject a = new JSONObject(LiveConfig.parseDefaults(defaults(extra), OBF).tvProfileFor("a"));
+        JSONObject pl = a.getJSONObject("player");
+        assertEquals(".t", pl.getJSONArray("toggles").getString(0));
+        assertEquals("#apply", pl.getString("menuConfirm"));
+        assertEquals(".sel", pl.getJSONArray("menuSelected").getString(0));
+        assertEquals(".bar", pl.getJSONArray("seekBar").getString(0));
+        assertEquals(".m", pl.getJSONArray("menu").getString(0));
+        assertEquals(".h", pl.getJSONArray("hide").getString(0));
+        assertEquals("click", pl.getJSONObject("menuClose").getString("mode"));
+        assertEquals("#cancel", pl.getJSONObject("menuClose").getString("selector"));
+        assertFalse("unknown player keys are dropped", pl.has("bogus"));
+        assertEquals("padding-left", a.getJSONArray("railInset").getJSONObject(0).getString("prop"));
+    }
+
+    @Test public void cardActivateSurvivesAndIsValidated() throws Exception {
+        String extra = ",\"tvProfiles\":{\"a\":{\"cardActivate\":[{\"card\":\".card\",\"target\":\".play\",\"bogus\":1}]}}";
+        JSONObject e = new JSONObject(LiveConfig.parseDefaults(defaults(extra), OBF).tvProfileFor("a")).getJSONArray("cardActivate").getJSONObject(0);
+        assertEquals(".card", e.getString("card"));
+        assertEquals(".play", e.getString("target"));
+        assertFalse("unknown pair keys are dropped", e.has("bogus"));
+        rejects("{\"a\":{\"cardActivate\":[{\"card\":\".c\"}]}}");
+        rejects("{\"a\":{\"cardActivate\":[{\"card\":\".c\",\"target\":5}]}}");
+        StringBuilder many = new StringBuilder("[");
+        for (int i = 0; i < 9; i++) many.append(i == 0 ? "" : ",").append("{\"card\":\".c\",\"target\":\".t\"}");
+        rejects("{\"a\":{\"cardActivate\":" + many + "]}}");
+    }
+
+    @Test public void shellBlockSurvivesAndIsValidated() throws Exception {
+        String extra = ",\"tvProfiles\":{\"a\":{\"shell\":{\"routes\":[\"/\",\"/movies\"],\"root\":[\"#root\"],\"html\":[\"#root\"],"
+                + "\"volatile\":[\"x+\"],\"raceMs\":500,\"maxAgeHours\":6,\"keepVersions\":3,\"bogus\":1}}}}";
+        JSONObject sh = new JSONObject(LiveConfig.parseDefaults(defaults(extra), OBF).tvProfileFor("a")).getJSONObject("shell");
+        assertEquals("/movies", sh.getJSONArray("routes").getString(1));
+        assertEquals(6, sh.getInt("maxAgeHours"));
+        assertFalse(sh.has("bogus"));
+        ShellSpec spec = ShellSpec.parse("{\"shell\":{\"routes\":[\"/\"],\"html\":[\"#root\"],\"maxAgeHours\":6,\"volatile\":[\"(\",\"ok\"]}}");
+        assertEquals(6 * 60 * 60 * 1000L, spec.maxAgeMs);
+        assertEquals("a broken regex is skipped, the good one kept", 1, spec.volatilePatterns.size());
+        assertEquals(ShellSpec.DEFAULT_RACE_MS, spec.raceMs);
+        assertEquals(null, ShellSpec.parse("{}"));
+        assertEquals(null, ShellSpec.parse("{\"shell\":{\"routes\":[]}}"));
+    }
+
+    @Test public void invalidShellBlocksAreRejected() {
+        rejects("{\"a\":{\"shell\":{\"routes\":[\"/x?page=2\"]}}}");
+        rejects("{\"a\":{\"shell\":{\"routes\":[\"movies\"]}}}");
+        rejects("{\"a\":{\"shell\":{\"routes\":[\"/\"],\"raceMs\":10}}}");
+        rejects("{\"a\":{\"shell\":{\"routes\":[\"/\"],\"keepVersions\":9}}}");
+        rejects("{\"a\":{\"shell\":{\"routes\":[\"/\"],\"maxAgeHours\":0}}}");
+    }
+
+    @Test public void invalidMenuCloseAndRailInsetAreRejected() {
+        rejects("{\"a\":{\"player\":{\"menuClose\":{\"mode\":\"explode\"}}}}");
+        rejects("{\"a\":{\"player\":{\"menuClose\":{\"mode\":\"click\",\"selector\":7}}}}");
+        rejects("{\"a\":{\"railInset\":[{\"selector\":\".w\",\"prop\":\"top\"}]}}");
+        rejects("{\"a\":{\"railInset\":[{\"prop\":\"left\"}]}}");
+    }
+
     @Test public void profileFollowsTheTopLevelUrlThenTheActiveSource() {
         LiveConfig c = LiveConfig.parseDefaults(defaults(PROFILES), OBF);
         Source b = c.find("b");

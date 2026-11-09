@@ -269,3 +269,76 @@ Automated test suite [`scripts/tv-test/test-stage3-preload-gate.mjs`](file:///d:
 - **Drawer reachability fix**: DOWN/UP were still capped at the 5 nav items, so Recent and Sources could not be focused. Navigation now spans every row and wraps (UP from Search lands on the last source). Sources show as icon-only brand marks even in the collapsed rail. Verified on the emulator (focus Movy → Cinejoy → 7Movies, OK switches source).
 - **Volume unmute (final)**: Android TV swallows remote volume keys in the system, so the shell also listens for `android.media.VOLUME_CHANGED_ACTION` and calls `__movyTv.media('unmute')`. Verified with a muted playing video on the emulator.
 - **Icons**: the play/pause/seek popup uses a built-in solid rounded SVG set instead of emoji glyphs (⏪ ⏩ ▶ ⏸); drawer and source marks use the same style.
+
+---
+
+## Round 4: speed, caching, local shell, rail spacing, one player model
+
+Test bed: Google TV emulator (x86, fast host network), TV debug build. The Bravia (ARMv7) was **not reachable** (adb connect timed out): nothing here was verified on the real TV and no APK was installed there. No site URLs appear in code, logs, docs or this report.
+
+### Phase A: speed and caching
+- `AssetCache`: a miss returns null at once; one deduplicated fill per URL runs on a 2-thread low-priority pool (queue of 512; failed or uncacheable answers remembered 1 h); meta (mime, headers, validatedAt) lives in `CacheIndex` (identical header maps shared), so a hit no longer re-reads the meta file; striped locks; hit/miss/fill/rejected counters (`MovyAssetCache` debug line per page).
+- `CachePolicy`: scripts and styles under `/_next/static/`, `/_app/immutable/`, `/assets/`, `/static/js/`, `/static/css/` are STATIC without a delimiter-hash; media and `video/*` answers never stored (tests). `LeanPolicy`: cold-start trim of the Chromium cache only above 250 MB (100 MB after playback unchanged).
+- Preloader: hidden WebView goes through the same ad filter and asset cache, pausable/resumable (10 s idle after a player closes), starts 1.5 s after the first page, skips a source warmed under 12 h ago with at least 100 cached entries (`PreloadPolicy`), scroll warm-up, `warmedAt` in `Prefs`, log `MovySourcePreload warmed <id> in <ms>, fills=<n>`. First-run splash (`SplashPolicy`, `LaunchController`): "Preparing your sources..." for at most 5 s; later launches never wait.
+- Found while measuring (not in the plan): Cinejoy's 14-20 s first poster was the DoH rescue of its metadata API (about 90 calls per home page, each a new TCP+TLS connection, about 580 ms). `DohProxy` now keeps connections alive (about 190 ms), `DohResolver` single-flights lookups and remembers a failed host for 5 min, `DohReplyCache` keeps max-age replies in memory (4 MB, 30 min), the host is resolved in the background at launch.
+- 2.5: a debug-only `MovyAllowed` log lists hosts that passed the filter. None of the analytics/session-replay hosts was allowed on the four home pages; two rotating ad hosts still got a request through (a rule needs an engine rebuild, **not added**). Optional pre-connect (2.4.6) not done.
+
+Measurements (emulator; `scripts/tv-test/paint-wait.mjs`: ms from the start command to the first poster / 90 % of posters in view). Noisy; the first visit of a site in a session is slower.
+
+| Case | Before | After |
+|---|---|---|
+| Cold launch, Movy | 4386 / 8645 | 5108 / 11110 (also the first-run warm-up) |
+| Second launch, Movy | 3475 / 6706 | 4143 / 8636, 3498 / 7458 |
+| Switch to Cinejoy | 22436, 15929, 16616 | 21026, 20499 (before DoH work); 14078, 10203 (keep-alive + reply cache) |
+| Switch to 7Movies | 3017 / 4043, 2340, 2307 | 1950 / 2982, 2168, 3093 |
+| Switch to Moonflix | 7895, 4888, 5224 | 4581, 6742, 7040 |
+| Switch to Movy | 11894, 1385, 1794 | 12059, 1563, 11681 |
+
+- Gate A "switch at least 40 % faster": **not met** on the emulator (page JS and site APIs dominate; the host network makes static assets cheap). Improved: Cinejoy 16-22 s to 10-14 s; one session hit 582 / missed 216 with every miss filled.
+- Watch, background, return: HOME for 20 s then back: `movy-assets` unchanged (839 entries, 54 MB), `hits=125 misses=0`. The CDP `transferSize===0` check cannot tell cache from network (intercepted responses report 0); the native counters are the evidence.
+
+### Phase A2: versioned local site shell
+`ShellSpec`, `ShellPolicy` (pure), `ShellStore` (atomic disk ring, 3 versions per route), `ShellEngine` (local-first answer, background conditional fetch, store, prefetch + pin, update-ready, mark bad), `ShellFetcher`, `ShellInterceptor` (main frames in `AdblockWebViewClient`), `tvshell.js` (boot check), `AssetCache.setPinned/prefetch`. Clear Cache also clears the shell. Deviations: a changed live page is loaded by the WebView itself (our fetch only stores it, no cookie replay); `raceMs` 300 instead of 700; the boot check judges at the end of its 4 s window (Next.js requests chunks 1-3 s after the document); a new build is applied by reload only when the shown page came from an older snapshot and the app is idle on a shell page, not fullscreen, not in a player.
+Gate A2 (emulator, Movy): document time to first byte 3-7 ms vs 618-670 ms, DOMContentLoaded 1.76-1.88 s vs 2.18-2.61 s; posters not measurably earlier (4.3-4.7 s vs 4.1-4.5 s). Deploy simulation (edited stored build id/hash): stored as new build, assets prefetched, applied by reload while idle. Broken snapshot (all chunk references renamed): boot check marked it bad after about 3 s, live loaded, v3 stored, never served again. Offline: the emulator network cannot be cut from adb, so a debug flag (`--ez movy_shell_offline true`) fails every live check: a 37 h old snapshot (past the 6 h limit) was still served. Not done: dynamic chunks outside the HTML are not pinned; `shell.volatile` is supported but empty.
+
+### Phase B: rail spacing
+`railInset` profile key, `tvinset.js` (measures wrappers with the rule off, one CSS rule under `html.movy-rail-mini`, two identical measurements before tagging, ignores mid-animation nodes, untags reused nodes, `scroll-padding-left` for snapping rows), pure `insetNeed`/`insetContentStart` (tested); rail polish (icons centred, 50 px rows, fainter wash). Also fixed: the rail visibility check ran on `setInterval`, which Movy's player page cleared; it now uses a frame loop.
+Gate B (content start x, CSS px at 1280, rail 60): Movy 91-96; Cinejoy home 88 (was 64); 7Movies home 88 (was 58), detail 88 (was 51); Moonflix 88 (was 60). Screenshots `r4-b-*`. Moonflix's decorative row arrows still sit under the rail.
+
+### Phase C: one player model
+`tvmenu.js` plus pure `menuGroups/menuInitial/menuStep/menuIsDrill/menuIsUnusable/menuCloseOrder` (tested). New profile keys `player.toggles, menuItems, menuColumns, menuSelected, menuClose, menuConfirm, never, subtitles, seekBar` (plus `menu`, `hide`, `railInset`, `shell`) are in `TvProfiles.java`, all four `tvProfiles` blocks of `config/schema.json` and `TvProfilesTest`. Frames report `{menu, ctl}` upward so BACK and keys are relayed down; an open menu is no longer a "modal" for `tvnav.js`; `TV.back` threw on Movy's `<svg>` back arrow and now presses it like OK.
+Bugs reported during the round, fixed:
+- Seek-bar hover preview: `wakeControls()` aimed at centre x / 70 % height, beside the progress bar. It now uses the picture's centre at 38 % height, never a bar control, and sends pointerout/mouseout/pointerleave/mouseleave to `player.seekBar`; `tvmenu` uses the same wake in frames. No preview after UP/DOWN/OK/idle wakes on Movy, 7Movies and Moonflix (`r4-c-seek-movy-*`, `r4-c-7m-pill-wake`, `r4-c-mf-wake3b`); Cinejoy not separately screenshotted.
+- Outer chrome over a player iframe (7Movies pill, Moonflix close/header/flag): one mechanism. The top document arms the 5 s fade when a player iframe covers the page even if not fullscreen, mirrors `movy-pctl-off` into every frame (`__movyTvPctl`), wakes the frame's bar on every key (`__movyTvWake`), never fades while a menu is open anywhere. Profile `hide` lists got the pill, Moonflix's close button, `.server-frame-header`, `#report-button`; `.server-frame-choose` is a Moonflix control (reachable); the 7Movies server dropdown is a `player.menu`. Screenshots `r4-c-7m-pill-idle/-wake`, `r4-c-mf-chrome-before` (reproduced), `-idle2`, `-wake3b`. "Choose servers" is a plain header button, not a tooltip.
+- 7Movies not fullscreen: a server switch or embed reload drops fullscreen and the page forgot it wanted it. It is remembered for 90 s in `sessionStorage` (cleared by BACK/user exit); after `location.reload()` fullscreen came back about 7 s later (`r4-c-7m-after-reload`). A page opened by URL with no key press still cannot go fullscreen (no gesture), as before.
+
+Gate C (emulator, real key events; n/t = not tested). BACK semantics: with the controls awake the first BACK hides them and drops focus, the second leaves the player. The harness `K` sends Shift first (a wake), so the BACK chain is driven with `KB` (no wake), as a remote does.
+
+| Check | Movy | Cinejoy | 7Movies | Moonflix |
+|---|---|---|---|---|
+| 1 only video + subtitles after 5 s | pass | pass | pass | pass |
+| 2 UP top bar, DOWN bottom bar | UP pass; no focusable bottom bar on this site (n/a) | pass (UP then DOWN reaches Mute) | pass (DOWN from Back reaches Play/Pause; fixed: hidden legacy panel buttons were candidates, `never` now also matches ancestors) | control walk pass (Back, Subtitles, Speed, Servers, Fit by LEFT/RIGHT from the parent, relayed into the frame) |
+| BACK releases, BACK again exits | pass (fixed: left the detail page in fullscreen, `userExitFs` now runs on exit; re-verified, `fs=false`) | pass | pass (earlier run, ends on detail page) | first BACK already leaves (the overlay's close button is pressed): open, see below |
+| 3 subtitles menu: opens on the selected row, UP/DOWN, LEFT/RIGHT, pick closes and refocuses the toggle | pass (quality/server columns, footer speed row) | pass (fixed: first focus is now `Off`/the selected track; the menu had no `menuColumns`, so every row was a footer row) | pass (Off, DOWN English, OK closes and refocuses) | pass with a 2-subtitle-track title: opens on the selected audio row, RIGHT to the subtitle column on `Off`, DOWN, OK picks `English [CC]`, menu closes, focus back on the toggle |
+| English cues appear after picking | n/t | pass (cue text found in the DOM after a seek) | inconclusive (tracks `hidden`, screenshot at a quiet moment showed no cue) | inconclusive (track went `hidden`, screenshot at a quiet moment showed no cue) |
+| 4 quality/server/speed menus by keys | pass (Quality: 1080p selected on open, Server column, speed row, pick sets rate 0.75) | settings page pass, Servers n/t | pass (Quality: DOWN, RIGHT to server column, OK closes, label updates) | speed/server menus not exercised (server list empty while the stream stalled, speed pick not confirmed) |
+| 5 no text/file input focused | pass | pass | pass | pass |
+| No seek preview after wakes | pass | pass (DOM scan: no preview element; no screenshot of a hover state) | pass | pass |
+| Frame key-alive | - | - | fixed: keys inside the frame never restarted the top document's fade timer, so controls vanished 5 s after the first key (`__movyTvAlive`) | same mechanism |
+
+Cinejoy Continue Watching: OK on a card used to expand a preview (poster, round Play, +, info, episode label, progress) and stop there. New profile key `cardActivate: [{card, target}]` (in `TvProfiles.java`, all four `tvProfiles` schema blocks, `tvprofile.mjs` and `TvProfilesTest`): OK on a matching card presses it and then presses the first visible `target` (the preview's inner Play, polled for 1.4 s; falls back to the card's own link). Verified on the emulator: after playing an episode for about 90 s and seeking, home shows the row, OK on the card went straight to the player and resumed at 10:41 of 43:30, fullscreen (`r4-cj-cw-focus`, `r4-cj-cw-ok` before, `r4-cj-cw-resume` after). The expanded preview is no longer reached by the D-pad flow; the +/info buttons stay reachable by pointer/hover only.
+
+Moonflix arrows: the decorative row arrows (`Scroll left/right`) are hidden on TV through `killOnTv`, so nothing sits under the rail and they are never focus candidates (all 22 buttons `display:none`).
+
+Ads: the two rotating ad hosts are blocked by two generic third-party TLD rules added to `adblock.customRules` in config (kept out of code); the engine was rebuilt locally with cargo (`scripts/tv-test/rebuild-engine.mjs`, 14 custom rules, engine copied into the app assets).
+
+First OK / popunders (4.6): `navguard.js` already stubs off-site `window.open`; no lost first OK on Movy, 7Movies or Moonflix; Cinejoy: the Continue Watching OK and the player start had no stray window, but a dedicated first-OK popunder run was not done; no change.
+
+### Phase D
+Island: MENU opens it, LEFT/RIGHT move the ring, OK switches (Cinejoy confirmed). Moonflix recents: the modal title is recorded and reopened by pressing its `More info about <title>` card (verified; a title not on the page cannot be reopened). Drawer: closing restores focus to the card focused when it opened (verified).
+
+### Phase E
+Dossiers updated (`docs/site-dossiers/*.md`). Bravia install and screenshots: **not done**. Harness additions: `timing.sh`, `paint-wait.mjs`, `cdpf.mjs`, `lib.sh`, `ps.sh`, `pstate.js`, `left-edge.js`, `menu-dump.js`, `shell-probe.mjs`, `patch-profiles.mjs`; `cdp.mjs` prefers the visible page.
+
+### Tests
+`npm test`: 29 + 24 + 41 = 94 passed. Gradle `testTvDebugUnitTest` 199 (new `cardActivate` test), 0 failures; the phone flavour was last run at 198 before that key and not re-run.

@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 /**
  * TV only: keeps the app lean. Background = media paused, timers stopped, RAM caches dropped; after 60 s the WebView is
  * destroyed and the process ends (the last page is reopened on return). BACK-exit ends the process. The WebView HTTP
- * cache (where Chromium may keep stream segments) is trimmed over 100 MB at cold start and after playback; cookies,
+ * cache (where Chromium may keep stream segments) is trimmed over 250 MB at cold start and over 100 MB after playback; cookies,
  * localStorage and IndexedDB are never touched.
  */
 final class TvLifecycle {
@@ -57,7 +57,7 @@ final class TvLifecycle {
     static boolean trimColdStart(Context ctx) {
         File dir = httpCacheDir(ctx);
         long size = sizeOf(dir);
-        if (!LeanPolicy.shouldTrimHttpCache(size)) return false;
+        if (!LeanPolicy.shouldTrimHttpCacheOnColdStart(size)) return false;
         deleteRecursive(dir);
         Log.i(TAG, "cold start: HTTP cache " + (size >> 20) + " MB over the limit, cleared");
         return true;

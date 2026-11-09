@@ -210,6 +210,123 @@
     return 0;
   }
 
+  // ---------- pure: player menus ----------
+
+  /** A row that opens a sub-list or page instead of choosing a value (stays in the menu after OK). */
+  function menuIsDrill(text, expandable) {
+    var t = String(text || '').trim();
+    if (expandable) return true;
+    if (/(^|\s)\d{1,4}$/.test(t)) return true; // a language group with its track count ("English 73")
+    return /\b(customi[sz]e|appearance|sync|search on|search subtitles|settings|more options)\b/i.test(t);
+  }
+
+  /** Rows that open a file picker or a translation tool: never focused with a remote. */
+  function menuIsUnusable(text) {
+    return /\b(upload|translate|download)\b/i.test(String(text || ''));
+  }
+
+  function itemCy(it) { return (it.rect.t + it.rect.b) / 2; }
+  function itemCx(it) { return (it.rect.l + it.rect.r) / 2; }
+
+  /**
+   * Splits menu items [{id, rect, col, selected}] (DOM order; col = column index, or -1 when outside every column) into
+   * columns and footer rows. Footer items on one visual line form a row, rows go top to bottom.
+   */
+  function menuGroups(items) {
+    var cols = [], foot = [], i, it, c;
+    for (i = 0; i < items.length; i++) {
+      it = items[i];
+      if (it.col >= 0) {
+        c = cols[it.col];
+        if (!c) { c = []; cols[it.col] = c; }
+        c.push(it);
+      } else foot.push(it);
+    }
+    var columns = [];
+    for (i = 0; i < cols.length; i++) if (cols[i] && cols[i].length) columns.push(cols[i]);
+    var rows = [];
+    foot.sort(function (a, b) { return itemCy(a) - itemCy(b) || itemCx(a) - itemCx(b); });
+    for (i = 0; i < foot.length; i++) {
+      var last = rows[rows.length - 1];
+      if (last && Math.abs(itemCy(last[0]) - itemCy(foot[i])) < 10) last.push(foot[i]); else rows.push([foot[i]]);
+    }
+    for (i = 0; i < rows.length; i++) rows[i].sort(function (a, b) { return itemCx(a) - itemCx(b); });
+    return { columns: columns, footer: rows };
+  }
+
+  /** The item that gets focus when a menu opens: the selected one (leftmost column first), else the first of the first column. */
+  function menuInitial(g) {
+    var i, j;
+    for (i = 0; i < g.columns.length; i++) for (j = 0; j < g.columns[i].length; j++) if (g.columns[i][j].selected) return g.columns[i][j];
+    if (g.columns.length) return g.columns[0][0];
+    return g.footer.length ? g.footer[0][0] : null;
+  }
+
+  function locate(g, id) {
+    var i, j;
+    for (i = 0; i < g.columns.length; i++) for (j = 0; j < g.columns[i].length; j++) if (g.columns[i][j].id === id) return { kind: 'col', c: i, i: j };
+    for (i = 0; i < g.footer.length; i++) for (j = 0; j < g.footer[i].length; j++) if (g.footer[i][j].id === id) return { kind: 'foot', r: i, i: j };
+    return null;
+  }
+
+  function closestBy(list, key) {
+    var best = null, bd = Infinity;
+    for (var i = 0; i < list.length; i++) { var d = Math.abs(key(list[i])); if (d <= bd) { best = list[i]; bd = d; } }
+    return best;
+  }
+
+  /**
+   * The item to move to from `id`, or null to stay put (the menu edge). UP/DOWN walk a column in DOM order; DOWN past its
+   * end enters the footer, UP from the footer returns to the nearest column. LEFT/RIGHT jump to the column on that side at
+   * the closest height (inside a footer row they step along the row).
+   */
+  function menuStep(g, id, dir) {
+    var at = locate(g, id), cur;
+    if (!at) return null;
+    var vertical = dir === 'up' || dir === 'down', step = dir === 'down' || dir === 'right' ? 1 : -1, j;
+    if (at.kind === 'col') {
+      cur = g.columns[at.c][at.i];
+      if (vertical) {
+        var next = g.columns[at.c][at.i + step];
+        if (next) return next;
+        return dir === 'down' && g.footer.length ? closestBy(g.footer[0], function (x) { return itemCx(x) - itemCx(cur); }) : null;
+      }
+      j = at.c + step;
+      if (j < 0 || j >= g.columns.length) return null;
+      return closestBy(g.columns[j], function (x) { return itemCy(x) - itemCy(cur); });
+    }
+    cur = g.footer[at.r][at.i];
+    if (!vertical) return g.footer[at.r][at.i + step] || null;
+    var row = g.footer[at.r + step];
+    if (row) return closestBy(row, function (x) { return itemCx(x) - itemCx(cur); });
+    if (dir === 'up' && g.columns.length) {
+      var col = closestBy(g.columns, function (c) { return itemCx(c[0]) - itemCx(cur); });
+      return col[col.length - 1];
+    }
+    return null;
+  }
+
+  /** Order of the ways to close a menu: the profile's own first, then the rest that are possible. */
+  function menuCloseOrder(mode, available) {
+    var all = ['escape', 'toggle', 'click'], out = [];
+    if (all.indexOf(mode) >= 0) out.push(mode);
+    for (var i = 0; i < all.length; i++) if (out.indexOf(all[i]) < 0) out.push(all[i]);
+    return out.filter(function (m) { return m === 'escape' || !!(available && available[m]); });
+  }
+
+  // ---------- pure: rail inset ----------
+
+  /** x where an element's content starts when `prop` is the property being adjusted (padding shifts content, margin/left shift the box). */
+  function insetContentStart(prop, rectLeft, base) {
+    return prop === 'padding-left' ? rectLeft + (base || 0) : rectLeft;
+  }
+
+  /** Extra whole pixels to add so content starts at `target`; 0 when it already does (never negative). */
+  function insetNeed(contentStart, target) {
+    var n = target - contentStart;
+    return n > 0.5 ? Math.round(n) : 0;
+  }
+
   /** Entry candidate when focus enters a frame from direction `dir`. */
   function pickEntry(cands, dir) {
     var best = null, bk = Infinity;
@@ -225,7 +342,9 @@
     score: score, pick: pick, pickInitial: pickInitial, seekTarget: seekTarget, fmt: fmt,
     renderable: renderable, buildLines: buildLines, lineOf: lineOf, nearestInColumn: nearestInColumn,
     pickVertical: pickVertical, pickHorizontal: pickHorizontal, nextColumn: nextColumn, rowScrollDelta: rowScrollDelta,
-    pickEntry: pickEntry
+    pickEntry: pickEntry, insetContentStart: insetContentStart, insetNeed: insetNeed,
+    menuIsDrill: menuIsDrill, menuIsUnusable: menuIsUnusable, menuGroups: menuGroups, menuInitial: menuInitial, menuStep: menuStep,
+    menuCloseOrder: menuCloseOrder
   };
   if (typeof module === 'object' && module && module.exports) module.exports = api;
   else if (typeof window !== 'undefined') window.__movyTvPure = api;

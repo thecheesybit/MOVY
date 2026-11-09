@@ -33,3 +33,10 @@ React / Next.js SPA with Tailwind CSS.
 - Remote keys:
   - OK: clicks the center of the iframe to toggle playback.
   - Back: clicks the overlay close button or calls `history.back()` to exit the player and return to `/browse`.
+
+## Round 4 findings (player, menus, rail)
+- The detail view is a modal without a URL (a top-level detail path is a 404). The recently viewed list stores the modal title and re-opens it by pressing the matching `More info about <title>` card on the page it was seen on (best effort: the card must be on screen).
+- Play opens nested documents: the page, a wrapper iframe, and the player embed. The wrapper frame carries the interactive UI (`back-button`, `audio-subtitle-toggle`, `speed-button`, `servers-button`, `fit-button`); frame numbering differs per run. `#top-overlay` is a full-size click catcher (never).
+- Menus `#audio-subtitle-menu`, `#speed-quality-menu`, `#server-picker-menu` use the `hidden` class. The track lists are two `ul` columns of `li.track-selector` (tabindex -1; selected = `font-bold`, not `aria-*`). `Cancel` / `Apply` exist but are zero-size here: a choice applies at once. Escape does not close a menu; its toggle does.
+- Subtitles are native text tracks. Rows sit on x=60 (`lg:px-[60px]` wrappers and the row scroller's own padding): `railInset` also needs `scroll-padding-left`, because the rows snap and re-snap their first card under the rail.
+- About a dozen analytics and session-replay hosts are all blocked by the ad engine already.

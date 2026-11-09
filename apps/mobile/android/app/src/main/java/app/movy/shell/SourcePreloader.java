@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.util.Log;
+import android.view.View;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
@@ -19,55 +21,109 @@ import java.util.ArrayDeque;
 import java.util.List;
 
 /**
- * Warms the other sources' home pages in the background, one at a time, once the active source's first page has
- * finished: a detached WebView loads each start URL so its scripts, styles, images and API responses land in the shared
- * HTTP cache (and the site cookies/DNS/TLS are ready), which makes the later source switch nearly instant. It never
- * touches the visible WebView, stays on the source's own hosts, applies the ad filter, never autoplays media, and is
- * torn down after each source (or after a hard timeout) so only one hidden page exists at a time.
+ * Warms the other sources' home pages in the background, one at a time: a detached WebView loads each start URL through
+ * the same ad filter and asset cache as the visible page, so its images, fonts, scripts and styles land in the durable
+ * asset cache and a later source switch is nearly instant. It never touches the visible WebView, stays on the source's own
+ * hosts, never autoplays media, and is torn down after each source (or a hard timeout) so only one hidden page exists.
+ * It pauses while a player is up (bandwidth) and resumes after the user has been idle on a browse page; a source warmed
+ * recently (and still cached) is skipped.
  */
 final class SourcePreloader {
+    /** Tells the launch flow when the first-run warm-up has run through. */
+    interface Listener {
+        void onWarmupDone();
+    }
+
     private static final String TAG = "MovySourcePreload";
-    private static final long START_DELAY_MS = 3500;
-    private static final long SETTLE_AFTER_FINISH_MS = 5000;
+    private static final long SETTLE_AFTER_FINISH_MS = 3000;
     private static final long HARD_TIMEOUT_MS = 20000;
+    private static final int LAYOUT_W = 1280;
+    private static final int LAYOUT_H = 720;
+    /** Scrolls to the bottom in three steps so lazy rows request their posters. Never clicks anything. */
+    private static final String SCROLL_JS = "(function(){var i=0,t=setInterval(function(){i++;try{var h=document.documentElement,"
+            + "b=document.body,H=Math.max(h.scrollHeight,b?b.scrollHeight:0);window.scrollTo(0,H*i/3)}catch(e){}"
+            + "if(i>=3)clearInterval(t)},300)})()";
 
     private final Activity activity;
     private final SourceRepository repo;
+    private final Prefs prefs;
+    private final AssetCacheInterceptor cache;
+    private final ShellInterceptor shell;
     private final String userAgent;
+    private final Listener listener;
     private final Handler main = new Handler(Looper.getMainLooper());
     private final ArrayDeque<Source> queue = new ArrayDeque<>();
     private final Runnable advance = this::next;
+    private final Runnable resume = this::resumeNow;
     private WebView hidden;
+    private Source current;
+    private long currentStartedAt;
+    private long fillsAtStart;
+    private boolean currentWarmed;
     private boolean started;
-    private boolean stopped;
+    private boolean queueBuilt;
+    private boolean paused;
+    private boolean doneReported;
 
-    SourcePreloader(Activity activity, SourceRepository repo, String userAgent) {
+    SourcePreloader(Activity activity, SourceRepository repo, Prefs prefs, AssetCacheInterceptor cache, ShellInterceptor shell,
+                    String userAgent, Listener listener) {
         this.activity = activity;
         this.repo = repo;
+        this.prefs = prefs;
+        this.cache = cache;
+        this.shell = shell;
         this.userAgent = userAgent;
+        this.listener = listener;
     }
 
     /** Call when the visible source finished loading a page; only the first call per process starts the warm-up. */
     void onActivePageFinished() {
-        if (started || stopped) return;
+        if (started) return;
         started = true;
-        main.postDelayed(this::begin, START_DELAY_MS);
+        main.postDelayed(this::begin, PreloadPolicy.START_DELAY_MS);
     }
 
-    /** Pauses the warm-up while the user is in a player (bandwidth) and frees the hidden page. */
-    void stop() {
-        stopped = true;
+    /** First run: starts right away, in parallel with the active source. */
+    void startNow() {
+        if (started) return;
+        started = true;
+        main.postDelayed(this::begin, PreloadPolicy.FIRST_RUN_START_MS);
+    }
+
+    /** A player is starting: frees the bandwidth and the hidden page, keeping the queue (the source in flight goes first). */
+    void pause() {
+        paused = true;
         main.removeCallbacks(advance);
+        main.removeCallbacks(resume);
+        if (current != null) {
+            queue.addFirst(current);
+            current = null;
+        }
         destroyHidden();
-        queue.clear();
+    }
+
+    /** The player closed: warm-up continues once the user has been idle on a browse page for a while. */
+    void resumeWhenIdle() {
+        main.removeCallbacks(resume);
+        main.postDelayed(resume, PreloadPolicy.RESUME_IDLE_MS);
+    }
+
+    private void resumeNow() {
+        if (!paused) return;
+        paused = false;
+        if (!started) return;
+        if (!queueBuilt) begin(); else next();
     }
 
     private void begin() {
-        if (stopped) return;
+        if (paused || queueBuilt) return;
+        queueBuilt = true;
         Source active = repo.active();
+        long now = System.currentTimeMillis();
+        int cached = cache == null ? 0 : cache.entryCount();
         for (Source s : repo.config().enabledSources()) {
             if (active != null && s.id.equals(active.id)) continue;
-            queue.add(s);
+            if (PreloadPolicy.shouldWarm(now, prefs.warmedAt(s.id), cached)) queue.add(s);
         }
         next();
     }
@@ -75,10 +131,18 @@ final class SourcePreloader {
     private void next() {
         main.removeCallbacks(advance);
         destroyHidden();
-        if (stopped || activity.isFinishing() || activity.isDestroyed()) return;
+        current = null;
+        if (paused || activity.isFinishing() || activity.isDestroyed()) return;
         Source s = queue.poll();
-        if (s == null) return;
+        if (s == null) {
+            reportDone();
+            return;
+        }
         try {
+            current = s;
+            currentStartedAt = SystemClock.elapsedRealtime();
+            currentWarmed = false;
+            fillsAtStart = cache == null ? 0 : cache.fillCount();
             hidden = create(s);
             Log.i(TAG, "warming " + s.id);
             hidden.loadUrl(s.url);
@@ -86,8 +150,15 @@ final class SourcePreloader {
         } catch (RuntimeException e) {
             Log.w(TAG, "preload failed for " + s.id + ": " + e);
             hidden = null;
+            current = null;
             main.postDelayed(advance, 500);
         }
+    }
+
+    private void reportDone() {
+        if (doneReported) return;
+        doneReported = true;
+        if (listener != null) listener.onWarmupDone();
     }
 
     private WebView create(Source s) {
@@ -99,6 +170,10 @@ final class SourcePreloader {
         ws.setAllowFileAccess(false);
         if (userAgent != null) ws.setUserAgentString(userAgent);
         wv.setWillNotDraw(true);
+        // A detached WebView has no size, so lazy rows (IntersectionObserver) would never load: give it a TV-sized layout.
+        wv.measure(View.MeasureSpec.makeMeasureSpec(LAYOUT_W, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(LAYOUT_H, View.MeasureSpec.EXACTLY));
+        wv.layout(0, 0, LAYOUT_W, LAYOUT_H);
         wv.setWebViewClient(new Client(s));
         return wv;
     }
@@ -115,6 +190,14 @@ final class SourcePreloader {
         } catch (RuntimeException e) {
             Log.w(TAG, "destroy failed: " + e);
         }
+    }
+
+    private void onSourceWarmed(Source s) {
+        long ms = SystemClock.elapsedRealtime() - currentStartedAt;
+        long fills = cache == null ? 0 : cache.fillCount() - fillsAtStart;
+        prefs.setWarmedAt(s.id, System.currentTimeMillis());
+        if (shell != null) shell.refreshSource(s); // its shell routes are local-first from now on
+        Log.i(TAG, "warmed " + s.id + " in " + ms + " ms, fills=" + fills);
     }
 
     private final class Client extends WebViewClient {
@@ -153,12 +236,18 @@ final class SourcePreloader {
             if (AdblockSwitch.isOn() && !AdblockEngine.check(u.toString(), topUrl, typeOf(u)).isAllowed()) {
                 return new WebResourceResponse("text/plain", "utf-8", 200, "OK", null, new ByteArrayInputStream(new byte[0]));
             }
-            return null;
+            // Same durable cache as the visible page: hits are served from disk, a miss starts a background fill.
+            return cache == null ? null : cache.intercept(request);
         }
 
         @Override
         public void onPageFinished(WebView view, String url) {
-            if (view != hidden) return;
+            if (view != hidden || current == null) return;
+            view.evaluateJavascript(SCROLL_JS, null);
+            if (!currentWarmed) {
+                currentWarmed = true;
+                onSourceWarmed(current);
+            }
             main.removeCallbacks(advance);
             main.postDelayed(advance, SETTLE_AFTER_FINISH_MS);
         }

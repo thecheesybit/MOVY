@@ -21,13 +21,41 @@ public final class DohRescue {
     private static final String TAG = "MovyDoh";
     private static volatile List<String> hosts = Collections.emptyList();
     private static final DohProxy PROXY = new DohProxy();
+    private static final DohReplyCache REPLIES = new DohReplyCache();
 
     private DohRescue() {}
+
+    /** Background / low memory: close idle connections and drop the cached replies. */
+    public static void releaseMemory() {
+        PROXY.closeIdle();
+        REPLIES.clear();
+    }
 
     public static void setHosts(List<String> patterns) {
         List<String> lower = new ArrayList<>();
         for (String p : patterns) lower.add(p.toLowerCase(Locale.ROOT));
         hosts = Collections.unmodifiableList(lower);
+    }
+
+    /**
+     * Resolves the configured exact hosts in the background (daemon thread) so the first page of a site that depends on one
+     * does not wait for the lookup, or for its timeouts when DNS-over-HTTPS is unreachable on this network.
+     */
+    public static void warm() {
+        final List<String> exact = new ArrayList<>();
+        for (String p : hosts) if (!p.startsWith("*.")) exact.add(p);
+        if (exact.isEmpty()) return;
+        Thread t = new Thread(() -> {
+            for (String h : exact) {
+                try {
+                    PROXY.resolve(h);
+                } catch (IOException e) {
+                    Log.i(TAG, "warm-up lookup failed; the WebView resolves this host itself");
+                }
+            }
+        }, "movy-doh-warm");
+        t.setDaemon(true);
+        t.start();
     }
 
     /** Exact host, or a {@code *.suffix} pattern. */
@@ -51,8 +79,15 @@ public final class DohRescue {
         if (!"GET".equals(method) && !"HEAD".equals(method) && !"OPTIONS".equals(method)) return null;
         String path = u.getEncodedPath() == null || u.getEncodedPath().isEmpty() ? "/" : u.getEncodedPath();
         if (u.getEncodedQuery() != null) path += "?" + u.getEncodedQuery();
+        long t0 = System.nanoTime();
+        boolean cacheable = "GET".equals(method) && r.getRequestHeaders().get("Authorization") == null;
+        String key = u.getHost() + path;
         try {
-            DohProxy.Reply reply = PROXY.fetch(method, u.getHost(), path, r.getRequestHeaders());
+            DohProxy.Reply reply = cacheable ? REPLIES.get(key, System.currentTimeMillis()) : null;
+            if (reply != null) return toResponse(reply, r.getRequestHeaders().get("Origin"));
+            reply = PROXY.fetch(method, u.getHost(), path, r.getRequestHeaders());
+            if (cacheable) REPLIES.put(key, reply, System.currentTimeMillis());
+            if (debug) Log.i(TAG, "rescued in " + (System.nanoTime() - t0) / 1_000_000 + " ms on " + Thread.currentThread().getName());
             if (reply.status < 200 || reply.status > 599 || (reply.status >= 300 && reply.status < 400)) return null;
             return toResponse(reply, r.getRequestHeaders().get("Origin"));
         } catch (IOException e) {

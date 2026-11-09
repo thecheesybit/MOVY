@@ -14,6 +14,7 @@ public final class AssetCacheInterceptor {
     private static final String DIR = "movy-assets";
 
     private final AssetCache cache;
+    private volatile Runnable onClear;
 
     private AssetCacheInterceptor(AssetCache cache) {
         this.cache = cache;
@@ -46,6 +47,16 @@ public final class AssetCacheInterceptor {
         }
     }
 
+    /** Assets of retained shell snapshots: never evicted or expired. */
+    public void setPinned(java.util.Collection<String> urls) {
+        cache.setPinned(urls);
+    }
+
+    /** Fetches the assets into the cache in the background; {@code done} runs when all were tried. */
+    public void prefetch(java.util.List<String> urls, Map<String, String> requestHeaders, Runnable done) {
+        cache.prefetch(urls, requestHeaders, done);
+    }
+
     /** Bytes currently held (approximate until the startup scan has finished). */
     public long sizeBytes() {
         return cache.sizeBytes();
@@ -53,6 +64,16 @@ public final class AssetCacheInterceptor {
 
     public int entryCount() {
         return cache.entryCount();
+    }
+
+    /** Resources stored by background fills since the process started. */
+    public long fillCount() {
+        return cache.fillCount();
+    }
+
+    /** "hits=.. misses=.. fills=.. fillBytes=.. entries=.. bytes=.." for the debug log. */
+    public String statsLine() {
+        return cache.statsLine();
     }
 
     /** onTrimMemory / background: drops the in-memory index. */
@@ -63,5 +84,12 @@ public final class AssetCacheInterceptor {
     /** Settings, Clear Cache. */
     public void clear() {
         cache.clear();
+        Runnable r = onClear;
+        if (r != null) r.run();
+    }
+
+    /** Also run when the cache is cleared (the shell snapshots go with it). */
+    public void setOnClear(Runnable r) {
+        this.onClear = r;
     }
 }

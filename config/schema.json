@@ -468,7 +468,127 @@
                 }
               },
               "controls": {
-                "description": "Player control bars hidden on idle.",
+                "description": "Focusable player bar controls.",
+                "maxItems": 40,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 400
+                }
+              },
+              "menu": {
+                "description": "The open player menu/popover container (visible = open).",
+                "maxItems": 40,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 400
+                }
+              },
+              "hide": {
+                "description": "Player bars faded after 5 s idle.",
+                "maxItems": 40,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 400
+                }
+              },
+              "toggles": {
+                "description": "Buttons that open a player menu (quality, subtitles, servers, speed).",
+                "maxItems": 40,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 400
+                }
+              },
+              "menuSelected": {
+                "description": "The currently selected row of an open menu (focus lands here when it opens).",
+                "maxItems": 40,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 400
+                }
+              },
+              "seekBar": {
+                "description": "The progress / seek bar: told the pointer left after a wake, so no hover preview stays up.",
+                "maxItems": 40,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 400
+                }
+              },
+              "menuItems": {
+                "description": "Selectable rows inside an open menu (default: buttons and role=option items).",
+                "maxItems": 40,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 400
+                }
+              },
+              "menuColumns": {
+                "description": "Column containers of a menu: LEFT/RIGHT jump between them.",
+                "maxItems": 40,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 400
+                }
+              },
+              "menuClose": {
+                "description": "How an open menu is closed.",
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "escape",
+                      "toggle",
+                      "click"
+                    ],
+                    "description": "escape: Escape key; toggle: click the opener again; click: click `selector`."
+                  },
+                  "selector": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 400
+                  }
+                },
+                "required": [
+                  "mode"
+                ],
+                "additionalProperties": false
+              },
+              "menuConfirm": {
+                "description": "Apply button pressed after an item was chosen (menus that need it).",
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              },
+              "never": {
+                "description": "Never focusable inside the player (text inputs, full-cover buttons, hidden legacy panels).",
+                "maxItems": 40,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 400
+                }
+              },
+              "subtitles": {
+                "description": "Subtitle overlay kept visible when the bars hide.",
                 "maxItems": 40,
                 "type": "array",
                 "items": {
@@ -494,6 +614,128 @@
                 "maximum": 4
               }
             },
+            "additionalProperties": false
+          },
+          "railInset": {
+            "description": "Page wrappers pushed right while the TV mini rail is visible, so no content sits under it.",
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "selector": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 400
+                },
+                "prop": {
+                  "type": "string",
+                  "enum": [
+                    "padding-left",
+                    "margin-left",
+                    "left"
+                  ]
+                }
+              },
+              "required": [
+                "selector",
+                "prop"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "cardActivate": {
+            "description": "OK on a matching card opens it, then presses the target (e.g. the inner Play of an expanded preview) instead of stopping at the preview.",
+            "maxItems": 8,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "card": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 400
+                },
+                "target": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 400
+                }
+              },
+              "required": [
+                "card",
+                "target"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "shell": {
+            "description": "Versioned local copy of the shell routes, checked against the live site in the background.",
+            "type": "object",
+            "properties": {
+              "routes": {
+                "minItems": 1,
+                "maxItems": 12,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 120,
+                  "pattern": "^\\/[^?]*$"
+                },
+                "description": "Shell routes (paths, no query): home and the top navigation sections. Served from the local snapshot first."
+              },
+              "volatile": {
+                "description": "Regexes removed from the HTML before hashing (data that changes on every request).",
+                "maxItems": 40,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 400
+                }
+              },
+              "root": {
+                "description": "Selectors of the app root; the boot check needs one of them to hold content within 4 s.",
+                "maxItems": 40,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 400
+                }
+              },
+              "html": {
+                "description": "Markers (\"#id\", \".class\" or a tag) a snapshot document must contain.",
+                "maxItems": 40,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 400
+                }
+              },
+              "raceMs": {
+                "description": "How long the live site may take to beat the local copy. Default 700.",
+                "type": "integer",
+                "minimum": 100,
+                "maximum": 3000
+              },
+              "maxAgeHours": {
+                "description": "A snapshot older than this is never served alone. Default 12 (6 for pages that embed data).",
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 72
+              },
+              "keepVersions": {
+                "description": "Versions kept per route (current, previous, older). Default 3.",
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 5
+              }
+            },
+            "required": [
+              "routes"
+            ],
             "additionalProperties": false
           },
           "killOnTv": {
@@ -928,7 +1170,127 @@
                         }
                       },
                       "controls": {
-                        "description": "Player control bars hidden on idle.",
+                        "description": "Focusable player bar controls.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "menu": {
+                        "description": "The open player menu/popover container (visible = open).",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "hide": {
+                        "description": "Player bars faded after 5 s idle.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "toggles": {
+                        "description": "Buttons that open a player menu (quality, subtitles, servers, speed).",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "menuSelected": {
+                        "description": "The currently selected row of an open menu (focus lands here when it opens).",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "seekBar": {
+                        "description": "The progress / seek bar: told the pointer left after a wake, so no hover preview stays up.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "menuItems": {
+                        "description": "Selectable rows inside an open menu (default: buttons and role=option items).",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "menuColumns": {
+                        "description": "Column containers of a menu: LEFT/RIGHT jump between them.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "menuClose": {
+                        "description": "How an open menu is closed.",
+                        "type": "object",
+                        "properties": {
+                          "mode": {
+                            "type": "string",
+                            "enum": [
+                              "escape",
+                              "toggle",
+                              "click"
+                            ],
+                            "description": "escape: Escape key; toggle: click the opener again; click: click `selector`."
+                          },
+                          "selector": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 400
+                          }
+                        },
+                        "required": [
+                          "mode"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "menuConfirm": {
+                        "description": "Apply button pressed after an item was chosen (menus that need it).",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "never": {
+                        "description": "Never focusable inside the player (text inputs, full-cover buttons, hidden legacy panels).",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "subtitles": {
+                        "description": "Subtitle overlay kept visible when the bars hide.",
                         "maxItems": 40,
                         "type": "array",
                         "items": {
@@ -954,6 +1316,128 @@
                         "maximum": 4
                       }
                     },
+                    "additionalProperties": false
+                  },
+                  "railInset": {
+                    "description": "Page wrappers pushed right while the TV mini rail is visible, so no content sits under it.",
+                    "maxItems": 20,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "selector": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        },
+                        "prop": {
+                          "type": "string",
+                          "enum": [
+                            "padding-left",
+                            "margin-left",
+                            "left"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "selector",
+                        "prop"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "cardActivate": {
+                    "description": "OK on a matching card opens it, then presses the target (e.g. the inner Play of an expanded preview) instead of stopping at the preview.",
+                    "maxItems": 8,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "card": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        },
+                        "target": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "required": [
+                        "card",
+                        "target"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "shell": {
+                    "description": "Versioned local copy of the shell routes, checked against the live site in the background.",
+                    "type": "object",
+                    "properties": {
+                      "routes": {
+                        "minItems": 1,
+                        "maxItems": 12,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "maxLength": 120,
+                          "pattern": "^\\/[^?]*$"
+                        },
+                        "description": "Shell routes (paths, no query): home and the top navigation sections. Served from the local snapshot first."
+                      },
+                      "volatile": {
+                        "description": "Regexes removed from the HTML before hashing (data that changes on every request).",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "root": {
+                        "description": "Selectors of the app root; the boot check needs one of them to hold content within 4 s.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "html": {
+                        "description": "Markers (\"#id\", \".class\" or a tag) a snapshot document must contain.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "raceMs": {
+                        "description": "How long the live site may take to beat the local copy. Default 700.",
+                        "type": "integer",
+                        "minimum": 100,
+                        "maximum": 3000
+                      },
+                      "maxAgeHours": {
+                        "description": "A snapshot older than this is never served alone. Default 12 (6 for pages that embed data).",
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 72
+                      },
+                      "keepVersions": {
+                        "description": "Versions kept per route (current, previous, older). Default 3.",
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 5
+                      }
+                    },
+                    "required": [
+                      "routes"
+                    ],
                     "additionalProperties": false
                   },
                   "killOnTv": {
@@ -1431,7 +1915,127 @@
                         }
                       },
                       "controls": {
-                        "description": "Player control bars hidden on idle.",
+                        "description": "Focusable player bar controls.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "menu": {
+                        "description": "The open player menu/popover container (visible = open).",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "hide": {
+                        "description": "Player bars faded after 5 s idle.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "toggles": {
+                        "description": "Buttons that open a player menu (quality, subtitles, servers, speed).",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "menuSelected": {
+                        "description": "The currently selected row of an open menu (focus lands here when it opens).",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "seekBar": {
+                        "description": "The progress / seek bar: told the pointer left after a wake, so no hover preview stays up.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "menuItems": {
+                        "description": "Selectable rows inside an open menu (default: buttons and role=option items).",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "menuColumns": {
+                        "description": "Column containers of a menu: LEFT/RIGHT jump between them.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "menuClose": {
+                        "description": "How an open menu is closed.",
+                        "type": "object",
+                        "properties": {
+                          "mode": {
+                            "type": "string",
+                            "enum": [
+                              "escape",
+                              "toggle",
+                              "click"
+                            ],
+                            "description": "escape: Escape key; toggle: click the opener again; click: click `selector`."
+                          },
+                          "selector": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 400
+                          }
+                        },
+                        "required": [
+                          "mode"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "menuConfirm": {
+                        "description": "Apply button pressed after an item was chosen (menus that need it).",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "never": {
+                        "description": "Never focusable inside the player (text inputs, full-cover buttons, hidden legacy panels).",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "subtitles": {
+                        "description": "Subtitle overlay kept visible when the bars hide.",
                         "maxItems": 40,
                         "type": "array",
                         "items": {
@@ -1457,6 +2061,128 @@
                         "maximum": 4
                       }
                     },
+                    "additionalProperties": false
+                  },
+                  "railInset": {
+                    "description": "Page wrappers pushed right while the TV mini rail is visible, so no content sits under it.",
+                    "maxItems": 20,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "selector": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        },
+                        "prop": {
+                          "type": "string",
+                          "enum": [
+                            "padding-left",
+                            "margin-left",
+                            "left"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "selector",
+                        "prop"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "cardActivate": {
+                    "description": "OK on a matching card opens it, then presses the target (e.g. the inner Play of an expanded preview) instead of stopping at the preview.",
+                    "maxItems": 8,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "card": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        },
+                        "target": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "required": [
+                        "card",
+                        "target"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "shell": {
+                    "description": "Versioned local copy of the shell routes, checked against the live site in the background.",
+                    "type": "object",
+                    "properties": {
+                      "routes": {
+                        "minItems": 1,
+                        "maxItems": 12,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "maxLength": 120,
+                          "pattern": "^\\/[^?]*$"
+                        },
+                        "description": "Shell routes (paths, no query): home and the top navigation sections. Served from the local snapshot first."
+                      },
+                      "volatile": {
+                        "description": "Regexes removed from the HTML before hashing (data that changes on every request).",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "root": {
+                        "description": "Selectors of the app root; the boot check needs one of them to hold content within 4 s.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "html": {
+                        "description": "Markers (\"#id\", \".class\" or a tag) a snapshot document must contain.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "raceMs": {
+                        "description": "How long the live site may take to beat the local copy. Default 700.",
+                        "type": "integer",
+                        "minimum": 100,
+                        "maximum": 3000
+                      },
+                      "maxAgeHours": {
+                        "description": "A snapshot older than this is never served alone. Default 12 (6 for pages that embed data).",
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 72
+                      },
+                      "keepVersions": {
+                        "description": "Versions kept per route (current, previous, older). Default 3.",
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 5
+                      }
+                    },
+                    "required": [
+                      "routes"
+                    ],
                     "additionalProperties": false
                   },
                   "killOnTv": {
@@ -1934,7 +2660,127 @@
                         }
                       },
                       "controls": {
-                        "description": "Player control bars hidden on idle.",
+                        "description": "Focusable player bar controls.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "menu": {
+                        "description": "The open player menu/popover container (visible = open).",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "hide": {
+                        "description": "Player bars faded after 5 s idle.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "toggles": {
+                        "description": "Buttons that open a player menu (quality, subtitles, servers, speed).",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "menuSelected": {
+                        "description": "The currently selected row of an open menu (focus lands here when it opens).",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "seekBar": {
+                        "description": "The progress / seek bar: told the pointer left after a wake, so no hover preview stays up.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "menuItems": {
+                        "description": "Selectable rows inside an open menu (default: buttons and role=option items).",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "menuColumns": {
+                        "description": "Column containers of a menu: LEFT/RIGHT jump between them.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "menuClose": {
+                        "description": "How an open menu is closed.",
+                        "type": "object",
+                        "properties": {
+                          "mode": {
+                            "type": "string",
+                            "enum": [
+                              "escape",
+                              "toggle",
+                              "click"
+                            ],
+                            "description": "escape: Escape key; toggle: click the opener again; click: click `selector`."
+                          },
+                          "selector": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 400
+                          }
+                        },
+                        "required": [
+                          "mode"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "menuConfirm": {
+                        "description": "Apply button pressed after an item was chosen (menus that need it).",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "never": {
+                        "description": "Never focusable inside the player (text inputs, full-cover buttons, hidden legacy panels).",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "subtitles": {
+                        "description": "Subtitle overlay kept visible when the bars hide.",
                         "maxItems": 40,
                         "type": "array",
                         "items": {
@@ -1960,6 +2806,128 @@
                         "maximum": 4
                       }
                     },
+                    "additionalProperties": false
+                  },
+                  "railInset": {
+                    "description": "Page wrappers pushed right while the TV mini rail is visible, so no content sits under it.",
+                    "maxItems": 20,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "selector": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        },
+                        "prop": {
+                          "type": "string",
+                          "enum": [
+                            "padding-left",
+                            "margin-left",
+                            "left"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "selector",
+                        "prop"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "cardActivate": {
+                    "description": "OK on a matching card opens it, then presses the target (e.g. the inner Play of an expanded preview) instead of stopping at the preview.",
+                    "maxItems": 8,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "card": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        },
+                        "target": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "required": [
+                        "card",
+                        "target"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "shell": {
+                    "description": "Versioned local copy of the shell routes, checked against the live site in the background.",
+                    "type": "object",
+                    "properties": {
+                      "routes": {
+                        "minItems": 1,
+                        "maxItems": 12,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "maxLength": 120,
+                          "pattern": "^\\/[^?]*$"
+                        },
+                        "description": "Shell routes (paths, no query): home and the top navigation sections. Served from the local snapshot first."
+                      },
+                      "volatile": {
+                        "description": "Regexes removed from the HTML before hashing (data that changes on every request).",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "root": {
+                        "description": "Selectors of the app root; the boot check needs one of them to hold content within 4 s.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "html": {
+                        "description": "Markers (\"#id\", \".class\" or a tag) a snapshot document must contain.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "raceMs": {
+                        "description": "How long the live site may take to beat the local copy. Default 700.",
+                        "type": "integer",
+                        "minimum": 100,
+                        "maximum": 3000
+                      },
+                      "maxAgeHours": {
+                        "description": "A snapshot older than this is never served alone. Default 12 (6 for pages that embed data).",
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 72
+                      },
+                      "keepVersions": {
+                        "description": "Versions kept per route (current, previous, older). Default 3.",
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 5
+                      }
+                    },
+                    "required": [
+                      "routes"
+                    ],
                     "additionalProperties": false
                   },
                   "killOnTv": {
