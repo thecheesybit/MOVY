@@ -213,7 +213,8 @@ const profile = {
   playButtons: ['.play'],
   servers: { toggle: '.srv', item: '.srv li', active: '.on', failed: '.dead' },
   episodes: { item: '.ep', next: '.next' },
-  player: { frame: '.pf', fullscreenTarget: '.pf', fullscreenButton: ['#fs'], depth: 1 },
+  player: { frame: '.pf', fullscreenTarget: '.pf', fullscreenButton: ['#fs'], depth: 1, docMarkers: ['#ctl'] },
+  loading: { hide: ['.spin', '.skel'] },
   killOnTv: ['.trailer'],
   viewportWidth: 1280,
 };
@@ -229,6 +230,8 @@ test('tvProfiles: strict keys, types and ranges', () => {
   fails({ ...multi, tvProfiles: { a: { bogus: 1 } } }, /tvProfiles\.a/);
   fails({ ...multi, tvProfiles: { a: { header: 'x' } } }, /tvProfiles\.a\.header/);
   fails({ ...multi, tvProfiles: { a: { servers: { nope: 'x' } } } }, /tvProfiles\.a\.servers/);
+  fails({ ...multi, tvProfiles: { a: { loading: { hide: 'x' } } } }, /tvProfiles.a.loading.hide/);
+  fails({ ...multi, tvProfiles: { a: { loading: { nope: [] } } } }, /tvProfiles.a.loading/);
   fails({ ...multi, tvProfiles: { a: { player: { depth: 9 } } } }, /tvProfiles\.a\.player\.depth/);
   fails({ ...multi, tvProfiles: { a: { viewportWidth: 100 } } }, /tvProfiles\.a\.viewportWidth/);
   fails({ ...multi, tvProfiles: { 'Bad Id': {} } }, /tvProfiles/);

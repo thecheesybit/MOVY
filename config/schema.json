@@ -607,6 +607,22 @@
                   "maxLength": 400
                 }
               },
+              "closeButton": {
+                "description": "The site's own close button of an in-page player overlay (BACK clicks it when leaving the player; default is history back).",
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              },
+              "docMarkers": {
+                "description": "A sub-frame holding one of these is a player frame and gets the TV scripts (frames with a <video> or of player size already do).",
+                "maxItems": 40,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 400
+                }
+              },
               "depth": {
                 "description": "Iframe nesting depth of the real <video> (0 = same document).",
                 "type": "integer",
@@ -736,6 +752,22 @@
             "required": [
               "routes"
             ],
+            "additionalProperties": false
+          },
+          "loading": {
+            "type": "object",
+            "properties": {
+              "hide": {
+                "description": "Site spinners and skeletons hidden (visibility) because the app draws the one loading spinner.",
+                "maxItems": 40,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 400
+                }
+              }
+            },
             "additionalProperties": false
           },
           "killOnTv": {
@@ -1309,6 +1341,22 @@
                           "maxLength": 400
                         }
                       },
+                      "closeButton": {
+                        "description": "The site's own close button of an in-page player overlay (BACK clicks it when leaving the player; default is history back).",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "docMarkers": {
+                        "description": "A sub-frame holding one of these is a player frame and gets the TV scripts (frames with a <video> or of player size already do).",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
                       "depth": {
                         "description": "Iframe nesting depth of the real <video> (0 = same document).",
                         "type": "integer",
@@ -1438,6 +1486,22 @@
                     "required": [
                       "routes"
                     ],
+                    "additionalProperties": false
+                  },
+                  "loading": {
+                    "type": "object",
+                    "properties": {
+                      "hide": {
+                        "description": "Site spinners and skeletons hidden (visibility) because the app draws the one loading spinner.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      }
+                    },
                     "additionalProperties": false
                   },
                   "killOnTv": {
@@ -2054,6 +2118,22 @@
                           "maxLength": 400
                         }
                       },
+                      "closeButton": {
+                        "description": "The site's own close button of an in-page player overlay (BACK clicks it when leaving the player; default is history back).",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "docMarkers": {
+                        "description": "A sub-frame holding one of these is a player frame and gets the TV scripts (frames with a <video> or of player size already do).",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
                       "depth": {
                         "description": "Iframe nesting depth of the real <video> (0 = same document).",
                         "type": "integer",
@@ -2183,6 +2263,22 @@
                     "required": [
                       "routes"
                     ],
+                    "additionalProperties": false
+                  },
+                  "loading": {
+                    "type": "object",
+                    "properties": {
+                      "hide": {
+                        "description": "Site spinners and skeletons hidden (visibility) because the app draws the one loading spinner.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      }
+                    },
                     "additionalProperties": false
                   },
                   "killOnTv": {
@@ -2799,6 +2895,22 @@
                           "maxLength": 400
                         }
                       },
+                      "closeButton": {
+                        "description": "The site's own close button of an in-page player overlay (BACK clicks it when leaving the player; default is history back).",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "docMarkers": {
+                        "description": "A sub-frame holding one of these is a player frame and gets the TV scripts (frames with a <video> or of player size already do).",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
                       "depth": {
                         "description": "Iframe nesting depth of the real <video> (0 = same document).",
                         "type": "integer",
@@ -2928,6 +3040,22 @@
                     "required": [
                       "routes"
                     ],
+                    "additionalProperties": false
+                  },
+                  "loading": {
+                    "type": "object",
+                    "properties": {
+                      "hide": {
+                        "description": "Site spinners and skeletons hidden (visibility) because the app draws the one loading spinner.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      }
+                    },
                     "additionalProperties": false
                   },
                   "killOnTv": {

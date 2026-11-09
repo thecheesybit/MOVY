@@ -16,6 +16,8 @@ import android.widget.FrameLayout;
 final class LaunchController implements SourceRepository.Listener, ChooserView.Listener {
     private static final long SPLASH_HARD_CAP_MS = 1500;
     private static final int READY_PROGRESS = 70;
+    /** The start screen stops waiting for a first paint after this long and reveals the site anyway. */
+    private static final long PAINT_CAP_MS = 15_000;
 
     private final Activity activity;
     private final ViewGroup content;
@@ -29,6 +31,10 @@ final class LaunchController implements SourceRepository.Listener, ChooserView.L
 
     private SplashView splash;
     private ChooserView chooser;
+    private StartView startView;
+    private String requestedId;
+    private boolean tvStart;
+    private final Runnable paintCap = () -> { if (startView != null && requestedId != null) startView.onPagePainted(requestedId); };
     private long splashShownAt;
     private boolean launching;
     /** TV, very first run: the splash also waits (at most 5 s) for the hidden source warm-up. */
@@ -55,12 +61,12 @@ final class LaunchController implements SourceRepository.Listener, ChooserView.L
         return errorPanel;
     }
 
-    ChooserView chooserView() {
-        return chooser;
+    ViewGroup chooserView() {
+        return chooser != null ? chooser : startView;
     }
 
     boolean isChooserShowing() {
-        return chooser != null;
+        return chooser != null || startView != null;
     }
 
     /** TV: enables the first-run warm-up wait (call before {@link #start}). */
@@ -82,6 +88,10 @@ final class LaunchController implements SourceRepository.Listener, ChooserView.L
         splash = new SplashView(activity, appName, cfg, BuildConfig.VERSION_NAME, BuildConfig.MOVY_BUILD, remote);
         content.addView(splash, new FrameLayout.LayoutParams(-1, -1));
         splashShownAt = SystemClock.elapsedRealtime();
+        if (isTv && repo.resumeSource() == null) {
+            startTvScreen(cfg);
+            return;
+        }
         Source launch = repo.launchSource();
         Log.i(KillLog.TAG, "launch flow: " + (launch != null ? "saved source " + launch.id : "chooser"));
         if (launch != null) {
@@ -94,6 +104,64 @@ final class LaunchController implements SourceRepository.Listener, ChooserView.L
             main.postDelayed(this::showChooser, cfg.splashMinMs + holdMs);
         }
         main.postDelayed(() -> checkUpdate(repo.config()), (isTv ? SplashPolicy.NORMAL_CAP_MS : SPLASH_HARD_CAP_MS) + 300);
+    }
+
+    /** TV: the focused source loads behind the splash right away; the start screen takes over from the splash. */
+    private void startTvScreen(LiveConfig cfg) {
+        tvStart = true;
+        Source pre = repo.preselected();
+        Log.i(KillLog.TAG, "launch flow: tv start screen, focus " + pre.id);
+        requestLoad(pre);
+        main.postDelayed(this::showStartScreen, cfg.splashMinMs + holdMs);
+        main.postDelayed(() -> checkUpdate(repo.config()), SplashPolicy.NORMAL_CAP_MS + 300);
+    }
+
+    private void showStartScreen() {
+        if (startView != null) return;
+        if (!tvStart) { dismissSplash(); return; }
+        Source pre = repo.active() != null ? repo.active() : repo.preselected();
+        startView = new StartView(activity, repo.config(), pre.id, new StartView.Listener() {
+            @Override public void onFocusSource(Source source) { requestLoad(source); }
+            @Override public void onOpen(Source source) { openFromStart(); }
+        });
+        content.addView(startView, new FrameLayout.LayoutParams(-1, -1));
+        if (splash != null) {
+            splash.bringToFront();
+            dismissSplash();
+        }
+    }
+
+    /** Loads a source behind the start screen (once per focus change). */
+    private void requestLoad(Source s) {
+        if (s.id.equals(requestedId)) return;
+        requestedId = s.id;
+        main.removeCallbacks(paintCap);
+        main.postDelayed(paintCap, PAINT_CAP_MS);
+        repo.switchTo(s.id);
+    }
+
+    private void openFromStart() {
+        tvStart = false;
+        StartView v = startView;
+        startView = null;
+        main.removeCallbacks(paintCap);
+        if (v != null) v.dismiss(null);
+    }
+
+    /** Debug and shell actions that open a source themselves: the start screen is no longer wanted. */
+    void dismissStart() {
+        tvStart = false;
+        if (startView != null) openFromStart();
+    }
+
+    /** TV: the start flow (splash, then the start screen) owns loading: no cover of its own is drawn. */
+    boolean isStartFlow() {
+        return tvStart;
+    }
+
+    /** The page painted its first content (tvpaint.js); only the focused start-screen source counts. */
+    void onPagePainted(String sourceId) {
+        if (startView != null && sourceId != null) startView.onPagePainted(sourceId);
     }
 
     /** Page progress (UI thread); lets the splash go once the site has started to paint. */

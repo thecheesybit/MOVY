@@ -53,6 +53,16 @@ public class TvProfilesTest {
         }
     }
 
+    @Test public void loadingHideAndDocMarkersSurviveSanitising() throws Exception {
+        String extra = ",\"tvProfiles\":{\"a\":{\"loading\":{\"hide\":[\".spin\",\".skel\"],\"bogus\":1},\"player\":{\"docMarkers\":[\"#ctl\"],\"closeButton\":\"#x\"}}}";
+        JSONObject a = new JSONObject(LiveConfig.parseDefaults(defaults(extra), OBF).tvProfileFor("a"));
+        assertEquals(".skel", a.getJSONObject("loading").getJSONArray("hide").getString(1));
+        assertFalse(a.getJSONObject("loading").has("bogus"));
+        assertEquals("#ctl", a.getJSONObject("player").getJSONArray("docMarkers").getString(0));
+        assertEquals("#x", a.getJSONObject("player").getString("closeButton"));
+        rejects("{\"a\":{\"loading\":{\"hide\":\".spin\"}}}");
+    }
+
     @Test public void invalidProfilesAreRejected() {
         rejects("{\"Bad Id\":{}}");
         rejects("{\"a\":{\"rows\":\".r\"}}");

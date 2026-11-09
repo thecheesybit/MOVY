@@ -84,12 +84,48 @@ final class DohProxy {
     private static final int MAX_BODY = 8 * 1024 * 1024;
     private static final int MAX_LINE = 16 * 1024;
     private static final int MAX_IDLE_PER_HOST = 8;
-    private static final long IDLE_TTL_MS = 15_000;
+    private static final long IDLE_TTL_MS = 45_000;
+    /** At most this many connections to one host are open or opening at once: a page fires dozens of calls together, and a
+     *  hand-rolled client that opens a TLS connection per call made every one of them wait for seconds (Cinejoy home: 79 calls). */
+    static final int MAX_CONNECTIONS = 16;
+    private static final long SLOT_WAIT_MS = 20_000;
     private static final String[] DROP_REQUEST = {"host", "accept-encoding", "connection", "content-length",
             "cookie", "transfer-encoding", "upgrade-insecure-requests"};
 
     private final DohResolver resolver = new DohResolver();
     private final Map<String, ArrayDeque<Conn>> idle = new ConcurrentHashMap<>();
+    private final Map<String, java.util.concurrent.Semaphore> slots = new ConcurrentHashMap<>();
+
+    private java.util.concurrent.Semaphore slotsFor(String host) {
+        return slots.computeIfAbsent(host, h -> new java.util.concurrent.Semaphore(MAX_CONNECTIONS, true));
+    }
+
+    /** Opens connections ahead of the page so its first burst of calls finds them idle (call while the start screen is up). */
+    void prewarm(String host, int count) {
+        for (int i = 0; i < count; i++) {
+            java.util.concurrent.Semaphore s = slotsFor(host);
+            if (!s.tryAcquire()) return;
+            try {
+                ArrayDeque<Conn> q = idle.get(host);
+                if (q != null && q.size() >= count) return;
+                for (InetAddress addr : resolver.resolve(host)) {
+                    Socket raw = new Socket();
+                    try {
+                        raw.connect(new InetSocketAddress(addr, 443), CONNECT_MS);
+                        raw.setSoTimeout(READ_MS);
+                        giveBack(host, open(raw, host));
+                        break;
+                    } catch (IOException e) {
+                        try { raw.close(); } catch (IOException ignored) { /* best effort */ }
+                    }
+                }
+            } catch (IOException e) {
+                return;
+            } finally {
+                s.release();
+            }
+        }
+    }
 
     /** Resolves a host without fetching anything (warm-up). */
     void resolve(String host) throws IOException {
@@ -107,6 +143,21 @@ final class DohProxy {
     }
 
     Reply fetch(String method, String host, String path, Map<String, String> requestHeaders) throws IOException {
+        java.util.concurrent.Semaphore slot = slotsFor(host);
+        try {
+            if (!slot.tryAcquire(SLOT_WAIT_MS, java.util.concurrent.TimeUnit.MILLISECONDS)) throw new IOException("busy");
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IOException("interrupted");
+        }
+        try {
+            return fetchOnSlot(method, host, path, requestHeaders);
+        } finally {
+            slot.release();
+        }
+    }
+
+    private Reply fetchOnSlot(String method, String host, String path, Map<String, String> requestHeaders) throws IOException {
         boolean head = "HEAD".equals(method);
         String request = buildRequest(method, host, path, requestHeaders);
         Conn reused = takeIdle(host);

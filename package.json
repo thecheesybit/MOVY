@@ -11,7 +11,7 @@
     "build": "node scripts/build.mjs",
     "install:android": "node scripts/install-android.mjs",
     "schema": "node scripts/gen-schema.mjs",
-    "test": "node --test packages/inject/test/tvnav.test.mjs packages/inject/test/scamguard.test.mjs && npm test --workspace @movy/config && npm test --workspace @movy/desktop"
+    "test": "node --test packages/inject/test/tvnav.test.mjs packages/inject/test/scamguard.test.mjs packages/inject/test/tvgate.test.mjs packages/inject/test/tvfocusmem.test.mjs packages/inject/test/tvplayerfx.test.mjs && npm test --workspace @movy/config && npm test --workspace @movy/desktop"
   },
   "engines": {
     "node": ">=20"

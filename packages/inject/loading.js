@@ -12,6 +12,22 @@
   var SHOW = { loadstart: 1, waiting: 1, stalled: 1, seeking: 1 };
   var HIDE = { playing: 1, canplay: 1, seeked: 1, pause: 1, error: 1, ended: 1, emptied: 1 };
 
+  // TV: the arc is drawn by the app (one native spinner for the whole app); this file only reports buffering per player.
+  var NATIVE = !!(window.MovyTvNative && typeof window.MovyTvNative.buffering === 'function');
+  var frameToken = Math.random().toString(36).slice(2, 8);
+  var seq = 0;
+  var nativeShown = [];
+  var healTimer = 0;
+  function nativeSet(st, on) { try { window.MovyTvNative.buffering(st.token, on); } catch (e) { /* ignore */ } }
+  function heal() {
+    for (var i = nativeShown.length - 1; i >= 0; i--) {
+      var st = nativeShown[i];
+      if (st.v.readyState >= 3 && !st.v.seeking) hide(st.v);
+    }
+    if (!nativeShown.length) { clearInterval(healTimer); healTimer = 0; }
+  }
+  window.addEventListener('pagehide', function () { for (var i = nativeShown.length - 1; i >= 0; i--) hide(nativeShown[i].v); });
+
   var states = new WeakMap(); // video -> { el, timer, wanted, shown }
   var visible = []; // states currently shown or fading in
   var rafId = 0;
@@ -89,6 +105,16 @@
     st.timer = setTimeout(function () {
       st.timer = 0;
       if (v.readyState >= 3 && !v.seeking) return;
+      if (NATIVE) {
+        var nr = v.getBoundingClientRect();
+        if (nr.width < 40 || nr.height < 40 || !v.isConnected) return;
+        if (!st.token) st.token = frameToken + '.' + (++seq);
+        st.shown = true;
+        nativeShown.push(st);
+        nativeSet(st, true);
+        if (!healTimer) healTimer = setInterval(heal, 700);
+        return;
+      }
       if (!st.el) st.el = makeEl();
       clearTimeout(st.hideTimer);
       var h = host();
@@ -109,6 +135,12 @@
     st.timer = 0;
     if (!st.shown) return;
     st.shown = false;
+    if (NATIVE) {
+      var ni = nativeShown.indexOf(st);
+      if (ni >= 0) nativeShown.splice(ni, 1);
+      nativeSet(st, false);
+      return;
+    }
     st.el.style.opacity = '0';
     var i = visible.indexOf(st);
     if (i >= 0) visible.splice(i, 1);

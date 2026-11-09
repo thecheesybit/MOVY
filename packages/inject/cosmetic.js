@@ -91,7 +91,8 @@ if (bridge && (proto === 'http:' || proto === 'https:') && !window.__movyCosmeti
       };
 
       var schedule = function () {
-        if (!timer) timer = setTimeout(flush, 300);
+        // TV: the generic class/id lookup is a synchronous call into the app per batch; keep it out of the page's first 8 s
+        if (!timer) timer = setTimeout(flush, MOVY_OPTS.tv ? Math.max(300, 8000 - performance.now()) : 300);
       };
 
       var scanTree = function (root) {

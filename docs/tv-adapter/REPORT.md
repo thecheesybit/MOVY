@@ -342,3 +342,62 @@ Dossiers updated (`docs/site-dossiers/*.md`). Bravia install and screenshots: **
 
 ### Tests
 `npm test`: 29 + 24 + 41 = 94 passed. Gradle `testTvDebugUnitTest` 199 (new `cardActivate` test), 0 failures; the phone flavour was last run at 198 before that key and not re-run.
+
+## Round 5 — Level 1 (start screen, one loading language, injection, no-resize, BACK)
+
+Built with `scripts/tv-test/b.ps1`, run on the emulator, debug TV flavour. Screenshots: `screenshots/r5-L1-*` (start screen
+initial / ring mid-way / switched source, switch spinner "Opening Cinejoy...", opened site, 7Movies player).
+
+### What changed
+| Area | Change |
+|---|---|
+| Start screen | New native `StartView` + `AvatarView` + pure `StartRing` (TV only; the phone `ChooserView` is untouched). Dark `#0f1014`, Movy mark top-left, "What are we watching?", four circular accent avatars with the source initial, name below. Focus = last used source, else `recommendedSource` (cinejoy). A ring (3 s, `StartRing.RING_MS`) fills once around the focused avatar; the focused source loads behind the screen (250 ms debounce when moving). Ring full + page painted = 200 ms fade into the site; ring full first = same-style spinner arc on the avatar; page ready first = the last arc fast-forwards over at most 300 ms (`FAST_MS`). LEFT/RIGHT restarts ring + load, OK finishes the ring now, BACK exits (unchanged). `LaunchController` shows it after the splash on TV unless a background-exit resume exists. |
+| First-paint signal | New `tvpaint.js`: reports `MovyTvNative.painted()` when an image of at least 60 px is loaded and in view (or a video has data), 20 s patience. Native caps the wait at 15 s. |
+| One loading language | `LoadingUi` (TV): one centred red `SpinnerView` + optional caption. `LoadingMode` (pure) decides SCREEN (opaque cover + "Opening <name>..." for a source switch, never over fullscreen), SPINNER (navigation over 400 ms, player buffering after 300 ms) or NONE, so never two spinners. The 3 dp top bar is gone on TV. In fullscreen the spinner moves into the fullscreen host. `loading.js` reports buffering per player to the app (`MovyTvNative.buffering`) instead of drawing its own arc on TV; phone and Electron keep the in-page arc. Profile key `loading.hide` (`visibility:hidden`) added (zod, schema, `TvProfiles.java`, `TvProfilesTest`) and filled with the skeleton selectors of inventory section 7. |
+| Analytics | Two custom rules added (git-ignored config, engine rebuilt): the product-analytics host and the "analysis" XHR host seen on Moonflix. The other trackers of inventory section 2 were already blocked: the engine answers a blocked request with an empty 200, which is why the L0 network capture showed "200". Verified with the `MovyAllowed` log: Moonflix and 7Movies no longer let any analytics host through, and Moonflix still renders (76 posters). |
+| Inject only what is needed | `tvgate.js` wraps the TV bundle: the top document always gets it; a sub-frame only when it holds a `<video>`, matches the new profile key `player.docMarkers`, or is player-sized (640x360 or more). 0x0 trace/ad frames get nothing and watch cheaply for 20 s in case they become players. `tvnav`: the MutationObserver ignores text/script/style/own nodes (`mutationsRelevant`), the rebuild delay is 600 ms while the page loads (`rebuildDelay`), rebuilds run in `requestIdleCallback`; `tvinset` uses the same filter and a 3 s gap while loading; the generic cosmetic class/id lookup (a synchronous call into the app) waits until 8 s on TV. `tvnav.js` is 1657 lines (was 1668). |
+| No resize after load | Fullscreen is requested at the Play press (no more waiting for a playing video), again when the player mounts (`loadedmetadata`) and on `play`; the wait for a late-mounting player is 12 s (was 4 s) and no longer shares a counter with the gesture retries. New `tvplayerfx.js` (the old zoom compensation moved out of `tvfs.js`, now 792 lines): the fullscreen element is hidden (opacity 0) from the request and fades in over 150 ms once its rect and the video rect were equal for 2 frames. |
+| BACK and keys | One BACK from a playing player leaves it (a menu closes first; the "hide the controls first" step is gone; after fullscreen exit the shell calls `leavePlayer()`: profile `player.closeButton`, else history back). The first key after idle wakes AND acts (`IdleGate` never swallows); OK with nothing focused only wakes (decided in `tvfs`, the native side cannot see web focus). Held D-pad: 8 moves/s, 14/s after 1 s (`holdGate`). New `tvfocusmem.js`: the card that was opened is remembered per page and focused again (scrolled to centre) when that page is shown again. |
+| Cinejoy API host | `DohProxy`: at most 16 connections per host (the page fired 79 calls together and each opened its own TLS connection), 4 connections opened at start-up, idle TTL 45 s. |
+
+### Before / after (emulator, first poster = `paint-wait.mjs`, median of 3 runs, ms)
+L0 column = `R5-INVENTORY.md` (5 runs). **The emulator had been up for many hours at L0 and was visibly degraded; it was cold-booted for this level.** The fair comparison is "HEAD rebuilt on the fresh emulator" vs "Level 1" (same method, same session, `git stash` / `pop`).
+
+| Case | L0 (old emulator) | HEAD, fresh emulator | Level 1 |
+|---|---|---|---|
+| Switch to Cinejoy | 15685 | 5356 | 5121 |
+| Switch to 7Movies | 3139 | 1494 | 1534 |
+| Switch to Moonflix | 6640 | 2232 | 2257 |
+| Switch to Movy | 2552 | 1279 | 1218 |
+| Launch (process killed, warm caches) Cinejoy | 22565 | 10352 | 9803 |
+| Launch 7Movies | 6467 | 3632 | 3537 |
+| Launch Moonflix | 10819 | 4611 | 4346 |
+| Launch Movy | 5537 | 2797 | 2892 |
+| App start through the start screen, Cinejoy focused (ring running, page loading behind) | n/a | n/a | 9902 / 10172 / 9361 |
+
+Honest reading: the big drop from L0 is the emulator, not the code. Level 1 changes are within noise on first-poster time. The Cinejoy target (cold first poster at most 8 s, switch at most 5 s) is **not met** (switch 5.1 s, launch about 9.8 s). The cause is the site itself: one 6 s main-thread task (about 1.5 MB of its own JS plus hydration) sits between the bundles arriving (about 5 s) and its metadata calls (about 11 s). Our own scripts were about 1 s of that (`tvinset` settled 0.7 s and the cosmetic lookup 0.6 s were the biggest; both reduced or deferred). The remaining levers are keeping a source's page warm (L5 background warm-up) or a persistent API reply cache, not shell code. Cold launch (caches cleared) was not re-measured.
+
+Other measures: tvnav rebuilds in the first 10 s on 7Movies 5 (L0 9), cost per rebuild unchanged (141 ms, 3142 nodes). BACK from a player: 1 press on all four sites (was 3).
+
+### Gate 1 per item
+| Item | Status |
+|---|---|
+| Start screen (4 avatars, Cinejoy first, ring, fade, LEFT/RIGHT restart, OK skips) | done; screenshots taken; ring, fade, LEFT/RIGHT restart verified; the spinner state and OK-skip are covered by `StartRingTest` only |
+| One spinner, caption, no black screen on switch | done (switch screenshot); the buffering spinner inside fullscreen was not seen live |
+| `loading.hide` | key and skeleton selectors done; **player spinner selectors not filled** (no buffering spinner could be caught to read its selector) |
+| Cinejoy speed | not met, see above |
+| Analytics blocked | done, verified |
+| Inject per frame | done for sub-frames; the top document still gets `tvfs`/`tvmenu` (viewport, idle and profile CSS live in `tvfs`) |
+| No resize | Movy, Cinejoy: fullscreen at press / player mount, video rect constant (1280x720 after one hidden 50 ms frame). 7Movies: fullscreen comes before the embed's first frame; its video rect is 960x540 from the first sample and never changes (its UI is laid out at the fullscreen size; a zoom compensation inside the embed was tried and removed because vw/vh-sized UIs shrank twice). Moonflix: stream did not start in this session, not sampled |
+| BACK table | Cinejoy, 7Movies, Movy player and Moonflix overlay: one BACK leaves, the next goes up a level (home: "press back again") |
+| First key after idle | unit tested (`IdleGateTest`); not exercised on the emulator |
+| Focus restore | unit tested (`tvfocusmem.test.mjs`); not exercised live |
+
+### Tests
+`npm test`: 106 pass (inject 41, config 24, desktop 41). Gradle `testTvDebugUnitTest`: 217 tests, 0 failures (new: `StartRingTest`, `LoadingModeTest`; additions to `TvProfilesTest`; `IdleGateTest` rewritten).
+
+### Known issues / left for later
+- Moonflix player was not sampled with `r5-sample.mjs`; Movy's hero trailer is put into fullscreen by the early-fullscreen path after a key press (the old `playing` path did the same).
+- `DohRescue.prewarm()` (public) is unused; start-up warms 4 connections.
+- The start screen shows the source initial, not a logo (no logo assets in the config).
+- `paint-wait.mjs` got a 2.5 s fetch timeout (it could hang on a stale devtools socket).

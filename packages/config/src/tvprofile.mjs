@@ -76,7 +76,15 @@ const playerSchema = z
     never: selectors.optional().describe('Never focusable inside the player (text inputs, full-cover buttons, hidden legacy panels).'),
     subtitles: selectors.optional().describe('Subtitle overlay kept visible when the bars hide.'),
     overlayKill: selectors.optional().describe('Intro layers and ad overlays in front of the player, hidden.'),
+    closeButton: selector.optional().describe("The site's own close button of an in-page player overlay (BACK clicks it when leaving the player; default is history back)."),
+    docMarkers: selectors.optional().describe('A sub-frame holding one of these is a player frame and gets the TV scripts (frames with a <video> or of player size already do).'),
     depth: z.number().int().min(0).max(4).optional().describe('Iframe nesting depth of the real <video> (0 = same document).'),
+  })
+  .strict();
+
+const loadingSchema = z
+  .object({
+    hide: selectors.optional().describe('Site spinners and skeletons hidden (visibility) because the app draws the one loading spinner.'),
   })
   .strict();
 
@@ -97,6 +105,7 @@ export const tvProfileSchema = z
     railInset: z.array(railInsetSchema).max(20).optional().describe('Page wrappers pushed right while the TV mini rail is visible, so no content sits under it.'),
     cardActivate: z.array(cardActivateSchema).max(8).optional().describe('OK on a matching card opens it, then presses the target (e.g. the inner Play of an expanded preview) instead of stopping at the preview.'),
     shell: shellSchema.optional().describe('Versioned local copy of the shell routes, checked against the live site in the background.'),
+    loading: loadingSchema.optional(),
     killOnTv: selectors.optional().describe('Heavy decorative media removed on TV (autoplaying trailer iframes).'),
     viewportWidth: z.number().int().min(320).max(3840).optional().describe('CSS px layout width on TV; default 1280, a site may opt out with 960.'),
   })

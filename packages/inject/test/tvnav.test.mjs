@@ -261,3 +261,40 @@ test('menuCloseOrder: the profile mode first, then the others that are possible,
   assert.deepEqual(menuCloseOrder('click', { toggle: false, click: false }), ['escape'], 'no selector, no opener: Escape only');
   assert.deepEqual(menuCloseOrder(undefined, { toggle: true, click: true }), ['escape', 'toggle', 'click']);
 });
+
+const { mutationsRelevant, rebuildDelay, repeatInterval, holdGate } = createRequire(import.meta.url)('../tvnav-pure.js');
+const node = (nodeName, id = '') => ({ nodeType: 1, nodeName, id });
+const text = { nodeType: 3, nodeName: '#text' };
+
+test('mutations: only elements and state attributes can change focusability', () => {
+  assert.equal(mutationsRelevant([]), false);
+  assert.equal(mutationsRelevant([{ type: 'childList', addedNodes: [text], removedNodes: [] }]), false);
+  assert.equal(mutationsRelevant([{ type: 'childList', addedNodes: [node('SCRIPT'), node('STYLE'), node('LINK')], removedNodes: [] }]), false);
+  assert.equal(mutationsRelevant([{ type: 'childList', addedNodes: [node('DIV', '__movy_tv_bubble')], removedNodes: [] }]), false);
+  assert.equal(mutationsRelevant([{ type: 'childList', addedNodes: [node('A')], removedNodes: [] }]), true);
+  assert.equal(mutationsRelevant([{ type: 'childList', addedNodes: [], removedNodes: [node('BUTTON')] }]), true);
+  assert.equal(mutationsRelevant([{ type: 'attributes' }]), true);
+});
+
+test('rebuild delay: slower while loading, never below 250 ms, scales with the last cost', () => {
+  assert.equal(rebuildDelay(10, 2000, false), 600);
+  assert.equal(rebuildDelay(10, 12000, false), 250);
+  assert.equal(rebuildDelay(10, 2000, true), 250);
+  assert.equal(rebuildDelay(118, 12000, true), 944);
+});
+
+test('held key: about 8 moves a second, faster after one second', () => {
+  assert.equal(repeatInterval(0), 125);
+  assert.equal(repeatInterval(999), 125);
+  assert.equal(repeatInterval(1000), 70);
+  const st = { start: 0, last: 0 };
+  assert.equal(holdGate(st, false, 1000), true);
+  assert.equal(holdGate(st, true, 1030), false);
+  assert.equal(holdGate(st, true, 1125), true);
+  assert.equal(holdGate(st, true, 1200), false);
+  assert.equal(holdGate(st, true, 1250), true);
+  assert.equal(holdGate(st, true, 2100), true); // held past 1 s: faster pace
+  assert.equal(holdGate(st, true, 2150), false);
+  assert.equal(holdGate(st, true, 2170), true);
+  assert.equal(holdGate(st, false, 2171), true); // a fresh press always moves
+});

@@ -20,9 +20,9 @@ public final class TvProfiles {
     private static final String[] LISTS = {"header", "bottomBar", "rows", "cards", "focusables", "skip", "firstFocus", "playButtons", "killOnTv"};
     private static final String[] SERVERS = {"toggle", "list", "item", "active", "failed", "frame"};
     private static final String[] EPISODES = {"list", "item", "next"};
-    private static final String[] PLAYER_TEXT = {"frame", "video", "root", "fullscreenTarget", "menuConfirm"};
+    private static final String[] PLAYER_TEXT = {"frame", "video", "root", "fullscreenTarget", "menuConfirm", "closeButton"};
     private static final String[] PLAYER_LISTS = {"fullscreenButton", "controls", "overlayKill", "menu", "hide", "toggles",
-        "menuItems", "menuColumns", "menuSelected", "never", "subtitles", "seekBar"};
+        "menuItems", "menuColumns", "menuSelected", "never", "subtitles", "seekBar", "docMarkers"};
     private static final String[] CLOSE_MODES = {"escape", "toggle", "click"};
     private static final String[] INSET_PROPS = {"padding-left", "margin-left", "left"};
     private static final int MAX_INSET = 20;
@@ -66,11 +66,19 @@ public final class TvProfiles {
             if (src.has("menuClose")) pl.put("menuClose", menuClose(src.getJSONObject("menuClose")));
             o.put("player", pl);
         }
+        if (p.has("loading")) o.put("loading", loading(p.getJSONObject("loading")));
         if (p.has("railInset")) o.put("railInset", railInset(p.getJSONArray("railInset")));
         if (p.has("cardActivate")) o.put("cardActivate", cardActivate(p.getJSONArray("cardActivate")));
         if (p.has("shell")) o.put("shell", shell(p.getJSONObject("shell")));
         if (p.has("viewportWidth")) o.put("viewportWidth", range(p, "viewportWidth", 320, 3840));
         return o;
+    }
+
+    /** Site spinners / skeletons hidden because the app draws the loading spinner. */
+    private static JSONObject loading(JSONObject l) throws JSONException {
+        JSONObject out = new JSONObject();
+        if (l.has("hide")) out.put("hide", list(l, "hide"));
+        return out;
     }
 
     /** How a player menu is closed: Escape, a click on the toggle that opened it, or a click on the given selector. */

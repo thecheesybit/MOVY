@@ -46,6 +46,10 @@ public class MainActivity extends BridgeActivity {
     private LaunchController launch;
     private LoadingUi loadingUi;
     private boolean clearHistoryOnFinish;
+    /** A switch cover never stays longer than this without a paint signal. */
+    private static final long SCREEN_CAP_MS = 15_000;
+    private static final long LEAVE_PLAYER_DELAY_MS = 250;
+    private final Runnable screenGiveUp = () -> { if (loadingUi != null) loadingUi.hideScreen(); };
     private CookiePersistence cookies;
     private SourceHealth health;
     private Failover failover;
@@ -217,12 +221,14 @@ public class MainActivity extends BridgeActivity {
             }
             @Override public void onPageStarted(String url) {
                 if (url != null) pageUrl = url;
+                loadingUi.navigationStarted();
                 failover.onLoadStarted();
                 // A low-end TV gives the visible page the whole CPU and network while it loads.
                 if (lowEnd && preloader != null && isSourcePage(url)) preloader.pause();
             }
             @Override public void onPageCommitVisible(String url) { failover.onAlive(); }
             @Override public void onPageFinished(String url) {
+                loadingUi.navigationFinished();
                 failover.onAlive();
                 boolean sourcePage = isSourcePage(url);
                 // The shell's own local start page finishing is not the source loading: the warm-up waits for the real page.
@@ -253,6 +259,11 @@ public class MainActivity extends BridgeActivity {
             StorageManager.flushCookies();
             clearHistoryOnFinish = true;
             loadingUi.begin();
+            if (cfg.tv && !launch.isStartFlow()) {
+                loadingUi.showScreen(getString(R.string.movy_opening_source, source.name));
+                bridge.getWebView().removeCallbacks(screenGiveUp);
+                bridge.getWebView().postDelayed(screenGiveUp, SCREEN_CAP_MS);
+            }
             failover.onLoadStarted();
             bridge.getWebView().loadUrl(url);
         });
@@ -353,6 +364,15 @@ public class MainActivity extends BridgeActivity {
         if (shell == null || !shell.onBoot(ok)) return;
         Log.i(KillLog.TAG, "shell: snapshot failed its boot check, reloading from the live site");
         if (bridge != null && bridge.getWebView() != null) bridge.getWebView().reload();
+    }
+
+    /** tvpaint.js: the page painted its first content. Lifts the switch cover and lets the start screen open. */
+    private void onPagePainted() {
+        if (bridge == null || bridge.getWebView() == null) return;
+        bridge.getWebView().removeCallbacks(screenGiveUp);
+        loadingUi.hideScreen();
+        Source s = repo.config().sourceForUrl(pageUrl);
+        launch.onPagePainted(s == null ? null : s.id);
     }
 
     private void setPageIdle(boolean idle) {
@@ -477,6 +497,8 @@ public class MainActivity extends BridgeActivity {
                 () -> runOnUiThread(launch::debugShowChooser),
                 sourceId -> runOnUiThread(() -> repo.openStart(sourceId)));
         tvBridge.setShellBoot(ok -> runOnUiThread(() -> onShellBoot(ok)));
+        tvBridge.setPainted(() -> runOnUiThread(this::onPagePainted));
+        tvBridge.setBuffering((token, on) -> runOnUiThread(() -> loadingUi.setBuffering(token, on)));
         bridge.getWebView().addJavascriptInterface(tvBridge, TvBridge.NAME);
         registerVolumeUnmute();
         lifecycle = new TvLifecycle(this, () -> bridge == null ? null : bridge.getWebView(), new TvLifecycle.Host() {
@@ -616,7 +638,7 @@ public class MainActivity extends BridgeActivity {
         if (intent.hasExtra("movy_shell_offline")) ShellFetcher.Http.debugOffline = intent.getBooleanExtra("movy_shell_offline", false);
         String sourceId = intent.getStringExtra("movy_source");
         if (sourceId != null && repo != null) {
-            bridge.getWebView().postDelayed(() -> repo.openStart(sourceId), 500);
+            bridge.getWebView().postDelayed(() -> { launch.dismissStart(); repo.openStart(sourceId); }, 500);
         }
         String js = intent.getStringExtra("movy_eval");
         if (js == null) return;
@@ -652,6 +674,8 @@ public class MainActivity extends BridgeActivity {
             lastUserFsExitMs = SystemClock.elapsedRealtime();
             if (cfg.tv) wv.evaluateJavascript("window.__movyTv&&window.__movyTv.userExitFs&&window.__movyTv.userExitFs()", null);
             chrome.onHideCustomView();
+            // One BACK leaves a playing player: after fullscreen is gone the page goes back to where the player was opened from.
+            if (cfg.tv) wv.postDelayed(() -> wv.evaluateJavascript("window.__movyTv&&window.__movyTv.leavePlayer&&window.__movyTv.leavePlayer()", null), LEAVE_PLAYER_DELAY_MS);
         } else if (wv.canGoBack()) {
             wv.goBack();
         } else if (cfg.tv) {

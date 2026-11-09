@@ -19,6 +19,7 @@ import java.util.Map;
  */
 public final class DohRescue {
     private static final String TAG = "MovyDoh";
+    private static final int PREWARM_CONNECTIONS = 4;
     private static volatile List<String> hosts = Collections.emptyList();
     private static final DohProxy PROXY = new DohProxy();
     private static final DohReplyCache REPLIES = new DohReplyCache();
@@ -51,9 +52,23 @@ public final class DohRescue {
                     PROXY.resolve(h);
                 } catch (IOException e) {
                     Log.i(TAG, "warm-up lookup failed; the WebView resolves this host itself");
+                    continue;
                 }
+                PROXY.prewarm(h, PREWARM_CONNECTIONS); // idle connections for the page's first burst of calls
             }
         }, "movy-doh-warm");
+        t.setDaemon(true);
+        t.start();
+    }
+
+    /** Opens a few connections to each exact rescued host in the background (a source is about to load). */
+    public static void prewarm() {
+        final List<String> exact = new ArrayList<>();
+        for (String p : hosts) if (!p.startsWith("*.")) exact.add(p);
+        if (exact.isEmpty()) return;
+        Thread t = new Thread(() -> {
+            for (String h : exact) PROXY.prewarm(h, PREWARM_CONNECTIONS);
+        }, "movy-doh-prewarm");
         t.setDaemon(true);
         t.start();
     }

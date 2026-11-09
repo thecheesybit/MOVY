@@ -338,7 +338,44 @@
     return best;
   }
 
+  // ---------- load-time and key-repeat throttles ----------
+
+  var IGNORED_NODES = { SCRIPT: 1, STYLE: 1, LINK: 1, META: 1, NOSCRIPT: 1, TEMPLATE: 1 };
+
+  function relevantNode(n) {
+    if (!n || n.nodeType !== 1 || IGNORED_NODES[String(n.nodeName).toUpperCase()]) return false;
+    return !(typeof n.id === 'string' && n.id.indexOf('__movy') === 0);
+  }
+
+  /** True when a batch of MutationRecords can change what is focusable (elements came or went, or a state attribute flipped). */
+  function mutationsRelevant(recs) {
+    for (var i = 0; i < recs.length; i++) {
+      var r = recs[i], j;
+      if (r.type === 'attributes') return true;
+      for (j = 0; r.addedNodes && j < r.addedNodes.length; j++) if (relevantNode(r.addedNodes[j])) return true;
+      for (j = 0; r.removedNodes && j < r.removedNodes.length; j++) if (relevantNode(r.removedNodes[j])) return true;
+    }
+    return false;
+  }
+
+  /** Wait before the next candidate rebuild: at least 250 ms (600 ms while the page is still loading and nobody navigates), 8x the last cost. */
+  function rebuildDelay(lastCostMs, sinceBootMs, userMoved) {
+    return Math.max(!userMoved && sinceBootMs < 10000 ? 600 : 250, (lastCostMs || 0) * 8);
+  }
+
+  /** Held D-pad key: about 8 moves a second, about 14 after one second of holding. */
+  function repeatInterval(heldMs) { return heldMs >= 1000 ? 70 : 125; }
+
+  /** st = {start, last} kept by the caller. A fresh press always moves; repeats are paced. */
+  function holdGate(st, repeat, now) {
+    if (!repeat || !st.start) { st.start = now; st.last = now; return true; }
+    if (now - st.last < repeatInterval(now - st.start)) return false;
+    st.last = now;
+    return true;
+  }
+
   var api = {
+    mutationsRelevant: mutationsRelevant, rebuildDelay: rebuildDelay, repeatInterval: repeatInterval, holdGate: holdGate,
     score: score, pick: pick, pickInitial: pickInitial, seekTarget: seekTarget, fmt: fmt,
     renderable: renderable, buildLines: buildLines, lineOf: lineOf, nearestInColumn: nearestInColumn,
     pickVertical: pickVertical, pickHorizontal: pickHorizontal, nextColumn: nextColumn, rowScrollDelta: rowScrollDelta,

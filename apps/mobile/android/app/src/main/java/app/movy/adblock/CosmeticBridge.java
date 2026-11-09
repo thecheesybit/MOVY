@@ -90,7 +90,8 @@ public final class CosmeticBridge {
             loading = readAsset(ctx, "shell/loading.js");
             navguard = "(function(){" + readAsset(ctx, "shell/navguard.js") + "\n})();";
             scam = "(function(){" + readAsset(ctx, "shell/scamguard.js") + "\n})();";
-            if (tv) tvnav = readAll(ctx, TV_SCRIPTS); // each file is its own IIFE
+            // each file is its own IIFE; tvgate.js runs the bundle only in documents that need it (top, players)
+            if (tv) tvnav = "(function(){var __movyTvRun=function(){" + readAll(ctx, TV_SCRIPTS) + "\n};" + readAsset(ctx, "shell/tvgate.js") + "\n})();";
         } catch (Exception e) {
             Log.e(TAG, "cannot prepare cosmetic script", e);
             return null;
@@ -110,7 +111,7 @@ public final class CosmeticBridge {
     }
 
     /** The TV scripts, in load order (each needs window.__movyTv from the ones before it). Keep in step with TV_SCRIPTS in scripts/android/generate.mjs. */
-    private static final String[] TV_SCRIPTS = {"tvnav-pure.js", "tvnav.js", "tvfs.js", "tvinset.js", "tvmenu.js", "tvshell.js"};
+    private static final String[] TV_SCRIPTS = {"tvnav-pure.js", "tvnav.js", "tvfs.js", "tvinset.js", "tvmenu.js", "tvshell.js", "tvpaint.js", "tvfocusmem.js", "tvplayerfx.js"};
 
     private static String readAll(Context ctx, String[] files) throws IOException {
         StringBuilder sb = new StringBuilder();

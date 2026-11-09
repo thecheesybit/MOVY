@@ -100,6 +100,12 @@ public final class SourceRepository {
         return null;
     }
 
+    /** TV: the source of a background-exit resume, or null. */
+    public Source resumeSource() {
+        Source r = config.find(resumeId);
+        return r != null && r.enabled ? r : null;
+    }
+
     /** Source to preselect in the chooser: last used, else the recommended one. */
     public Source preselected() {
         Source last = config.find(prefs.lastSourceId());

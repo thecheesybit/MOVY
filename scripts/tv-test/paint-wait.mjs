@@ -25,7 +25,7 @@ async function probe() {
   const pid = adb('shell pidof ' + PKG).split(/\s+/)[0];
   if (!pid) return null;
   adb(`forward tcp:${PORT} localabstract:webview_devtools_remote_${pid}`);
-  const list = await (await fetch(`http://127.0.0.1:${PORT}/json/list`)).json();
+  const list = await (await fetch(`http://127.0.0.1:${PORT}/json/list`, { signal: AbortSignal.timeout(2500) })).json();
   const vis = (p) => { try { const d = JSON.parse(p.description || '{}'); return d.visible && d.attached; } catch { return false; } };
   const page = list.filter((p) => p.type === 'page').find(vis);
   if (!page) return null;

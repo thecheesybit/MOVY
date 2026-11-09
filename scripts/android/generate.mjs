@@ -5,7 +5,8 @@ import { MOBILE_DIR, ROOT } from '../paths.mjs';
 import { generateIcons } from './icons.mjs';
 import { buildDefaults } from './defaults.mjs';
 
-export const TV_SCRIPTS = ['tvnav-pure.js', 'tvnav.js', 'tvfs.js', 'tvinset.js', 'tvmenu.js', 'tvshell.js'];
+export const TV_GATE_SCRIPT = 'tvgate.js';
+export const TV_SCRIPTS = ['tvnav-pure.js', 'tvnav.js', 'tvfs.js', 'tvinset.js', 'tvmenu.js', 'tvshell.js', 'tvpaint.js', 'tvfocusmem.js', 'tvplayerfx.js'];
 export const ANDROID = path.join(MOBILE_DIR, 'android');
 export const APP = path.join(ANDROID, 'app');
 export const MAIN = path.join(APP, 'src', 'main');
@@ -94,7 +95,7 @@ export function writeAdblockAssets(cfg, engine) {
   const shell = path.join(MAIN, 'assets', 'shell');
   fs.rmSync(shell, { recursive: true, force: true });
   fs.mkdirSync(shell, { recursive: true });
-  for (const f of ['loading.js', 'navguard.js', 'scamguard.js', ...(cfg.target === 'tv' ? TV_SCRIPTS : [])]) fs.copyFileSync(path.join(ROOT, 'packages', 'inject', f), path.join(shell, f));
+  for (const f of ['loading.js', 'navguard.js', 'scamguard.js', ...(cfg.target === 'tv' ? [...TV_SCRIPTS, TV_GATE_SCRIPT] : [])]) fs.copyFileSync(path.join(ROOT, 'packages', 'inject', f), path.join(shell, f));
   if (cfg.adblock.enabled && engine) {
     fs.copyFileSync(engine.engineDat, path.join(dir, 'engine.dat'));
     fs.copyFileSync(engine.resourcesJson, path.join(dir, 'resources.json'));

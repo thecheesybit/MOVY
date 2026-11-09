@@ -105,6 +105,7 @@ public class ShellWebChromeClient extends BridgeWebChromeClient {
         ((ViewGroup) w.getDecorView()).addView(customContainer, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         loadingUi.setSuppressed(true);
+        loadingUi.setFullscreen(true, customContainer);
         w.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         WindowManager.LayoutParams lp = w.getAttributes();
         lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
@@ -121,6 +122,7 @@ public class ShellWebChromeClient extends BridgeWebChromeClient {
         Log.i("MovyShell", "fullscreen exit");
         Window w = activity.getWindow();
         main.removeCallbacks(relayout);
+        loadingUi.setFullscreen(false, null);
         ((ViewGroup) w.getDecorView()).removeView(customContainer);
         customContainer.removeAllViews();
         customContainer = null;

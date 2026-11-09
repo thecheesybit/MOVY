@@ -7,7 +7,7 @@ import android.view.KeyEvent;
 
 /**
  * One 5 s idle timer for the whole TV UI. On idle the native views hide and the page is told ({@code __movyTv.idle(true)}
- * in every frame); the first key afterwards only wakes (see {@link IdleGate}).
+ * in every frame); the first key afterwards wakes and acts (see {@link IdleGate}).
  */
 final class TvIdle {
     interface Host {
@@ -36,13 +36,13 @@ final class TvIdle {
         return gate.isIdle();
     }
 
-    /** True when the event must not reach the app (it only woke the screen). */
+    /** True when the event must not reach the app. Never: a key after idle wakes the screen and acts. */
     boolean onKey(KeyEvent e) {
         boolean[] woke = new boolean[1];
         IdleGate.Decision d = gate.onKey(e.getAction() == KeyEvent.ACTION_DOWN, e.getKeyCode(), SystemClock.elapsedRealtime(), woke);
         if (woke[0]) wake();
         arm();
-        return d == IdleGate.Decision.SWALLOW;
+        return false;
     }
 
     /** Background: no timer may run. */

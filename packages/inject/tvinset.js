@@ -130,11 +130,13 @@
   }
 
   var lastScanAt = 0;
-  var MIN_GAP_MS = 1200; // busy pages mutate constantly; measuring toggles the rule, so never more often than this
+  var BOOT_AT = Date.now();
+  // busy pages mutate constantly; measuring toggles the rule, so never more often than this (far less often while the page loads)
+  function minGap() { return Date.now() - BOOT_AT < 10000 ? 3000 : 1200; }
 
   function scheduleScan(delay, settling) {
     if (scanTimer || !visible) return;
-    var wait = settling ? delay : Math.max(delay, MIN_GAP_MS - (Date.now() - lastScanAt));
+    var wait = settling ? delay : Math.max(delay, minGap() - (Date.now() - lastScanAt));
     scanTimer = setTimeout(scan, Math.max(0, wait));
   }
 
@@ -156,7 +158,7 @@
   // New wrappers (route changes, rows that mount late) are measured shortly after the DOM settles.
   function watch() {
     if (!doc.documentElement) { setTimeout(watch, 30); return; }
-    new MutationObserver(function () { retryRounds = 0; scheduleScan(400); }).observe(doc.documentElement, { childList: true, subtree: true });
+    new MutationObserver(function (recs) { if (P.mutationsRelevant(recs)) { retryRounds = 0; scheduleScan(400); } }).observe(doc.documentElement, { childList: true, subtree: true });
   }
   watch();
 })(typeof window !== 'undefined' ? window : {});

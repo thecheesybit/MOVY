@@ -115,7 +115,7 @@
   var current = null;
   var lastRect = null;
   var colX = null;
-  var userMoved = false;
+  var userMoved = false, bootAt = Date.now(), hold = { start: 0, last: 0 };
   var idCounter = 0;
   var ids = new WeakMap();
   var cache = { list: [], dirty: true, builtAt: 0, rowOf: new WeakMap(), modal: null };
@@ -355,12 +355,11 @@
 
   function scheduleRebuild(delay) {
     if (rebuildTimer) return;
-    var wait = delay != null ? delay : Math.max(250, lastRebuildCost * 6);
     rebuildTimer = setTimeout(function () {
       rebuildTimer = 0;
       if (doc.hidden) { cache.dirty = true; return; }
-      try { buildCache(); } catch (e) { cache.dirty = true; }
-    }, wait);
+      var run = function () { try { buildCache(); } catch (e) { cache.dirty = true; } }; if (root.requestIdleCallback) root.requestIdleCallback(run, { timeout: 500 }); else run();
+    }, delay != null ? delay : P.rebuildDelay(lastRebuildCost, Date.now() - bootAt, userMoved));
   }
 
   function ensureCache() {
@@ -1318,6 +1317,7 @@
 
       e.preventDefault();
       e.stopPropagation();
+      if (!P.holdGate(hold, e.repeat, Date.now())) return; // held key: paced moves
       userMoved = true;
       fallbackFocus = false;
       if (dir === 'up' || dir === 'down') { if (colX == null && lastRect) colX = (lastRect.l + lastRect.r) / 2; }
@@ -1474,7 +1474,7 @@
 
   function watch() {
     if (!doc.documentElement) { setTimeout(watch, 20); return; }
-    var mo = new MutationObserver(function () { cache.dirty = true; scheduleRebuild(); });
+    var mo = new MutationObserver(function (recs) { if (P.mutationsRelevant(recs)) { cache.dirty = true; scheduleRebuild(); } });
     mo.observe(doc.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['open', 'hidden', 'aria-hidden', 'tabindex'] });
     lastHref = root.location.href;
     if (!inFrame) {
@@ -1604,14 +1604,8 @@
       return true;
     }
     // Player active
-    var h = doc.documentElement;
     if (isPlayerActive()) {
-      if (h && !h.classList.contains('movy-pctl-off')) {
-        h.classList.add('movy-pctl-off');
-        TV.releaseFocus();
-        return true;
-      }
-      // Second back: exit player
+      // One BACK leaves a playing player (a menu was closed above): no hide-the-controls step first
       if (TV.userExitFs) TV.userExitFs(); // the user is leaving the player: it must not pull the next video back into fullscreen
       var cjBack = doc.querySelector('.player-root button[aria-label="Back"]');
       if (cjBack) { pressLike(cjBack); return true; }
@@ -1623,11 +1617,6 @@
         root.history.back();
         return true;
       }
-    }
-    if (doc.fullscreenElement && h && !h.classList.contains('movy-pctl-off')) {
-      h.classList.add('movy-pctl-off');
-      TV.releaseFocus();
-      return true;
     }
     return false;
   };

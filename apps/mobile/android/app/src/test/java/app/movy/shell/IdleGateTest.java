@@ -28,19 +28,16 @@ public class IdleGateTest {
         assertTrue(g.tick(8000));
     }
 
-    @Test public void firstKeyAfterIdleOnlyWakesAndIsSwallowedWithRepeatsAndUp() {
+    @Test public void firstKeyAfterIdleWakesAndActs() {
         IdleGate g = new IdleGate(IdleGate.IDLE_MS, 0);
         g.tick(6000);
         boolean[] woke = new boolean[1];
-        assertEquals(IdleGate.Decision.SWALLOW, g.onKey(true, DPAD_DOWN, 6100, woke));
+        assertEquals(IdleGate.Decision.PASS, g.onKey(true, DPAD_DOWN, 6100, woke));
         assertTrue(woke[0]);
         assertFalse(g.isIdle());
-        assertEquals(IdleGate.Decision.SWALLOW, g.onKey(true, DPAD_DOWN, 6150, woke)); // held key repeat
+        assertEquals(IdleGate.Decision.PASS, g.onKey(true, DPAD_DOWN, 6150, woke)); // held key repeat
         assertFalse(woke[0]);
-        assertEquals(IdleGate.Decision.SWALLOW, g.onKey(false, DPAD_DOWN, 6200, woke));
-        // the next key is a normal key again
-        assertEquals(IdleGate.Decision.PASS, g.onKey(true, DPAD_DOWN, 6300, woke));
-        assertEquals(IdleGate.Decision.PASS, g.onKey(false, DPAD_DOWN, 6350, woke));
+        assertEquals(IdleGate.Decision.PASS, g.onKey(false, DPAD_DOWN, 6200, woke));
     }
 
     @Test public void playPauseWakesAndActsImmediately() {
@@ -50,15 +47,14 @@ public class IdleGateTest {
         assertEquals(IdleGate.Decision.PASS, g.onKey(true, PLAY_PAUSE, 6100, woke));
         assertTrue(woke[0]);
         assertFalse(g.isIdle());
-        assertEquals(IdleGate.Decision.PASS, g.onKey(false, PLAY_PAUSE, 6150, woke));
     }
 
-    @Test public void keyUpOfAnOlderKeyIsNotSwallowed() {
+    @Test public void wakingRestartsTheCountdown() {
         IdleGate g = new IdleGate(IdleGate.IDLE_MS, 0);
-        g.onKey(true, 22, 100, null); // RIGHT held down before idle (unlikely, but the up must pass)
         g.tick(6000);
-        g.onKey(true, DPAD_DOWN, 6100, null); // wakes, swallowed
-        assertEquals(IdleGate.Decision.PASS, g.onKey(false, 22, 6150, null));
+        g.onKey(true, DPAD_DOWN, 6100, null);
+        assertEquals(11100, g.dueAt());
+        assertFalse(g.tick(11099));
     }
 
     @Test public void touchRestartsTheCountdownButNeverWakes() {

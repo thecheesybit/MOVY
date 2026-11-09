@@ -23,6 +23,8 @@ final class TvBridge {
     private final Runnable showChooser;
     private final Consumer<String> switchSource;
     private volatile Consumer<Boolean> shellBoot;
+    private volatile Runnable painted;
+    private volatile java.util.function.BiConsumer<String, Boolean> buffering;
 
     TvBridge(Supplier<LiveConfig> config, Supplier<Source> active, Supplier<String> pageUrl, Runnable edgeRight,
              Runnable gesture, Consumer<String> media, java.util.function.BooleanSupplier userLeftFullscreen,
@@ -88,6 +90,28 @@ final class TvBridge {
     public void shellBoot(boolean ok, String why) {
         java.util.function.Consumer<Boolean> c = shellBoot;
         if (c != null) c.accept(ok);
+    }
+
+    /** tvpaint.js: the page showed its first real content (a poster). */
+    @JavascriptInterface
+    public void painted() {
+        Runnable r = painted;
+        if (r != null) r.run();
+    }
+
+    /** loading.js: a player in the frame identified by {@code token} started or stopped buffering. */
+    @JavascriptInterface
+    public void buffering(String token, boolean on) {
+        java.util.function.BiConsumer<String, Boolean> b = buffering;
+        if (b != null && token != null) b.accept(token, on);
+    }
+
+    void setPainted(Runnable r) {
+        this.painted = r;
+    }
+
+    void setBuffering(java.util.function.BiConsumer<String, Boolean> b) {
+        this.buffering = b;
     }
 
     void setShellBoot(java.util.function.Consumer<Boolean> c) {

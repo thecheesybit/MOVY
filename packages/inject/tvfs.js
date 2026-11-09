@@ -31,7 +31,7 @@
     try { var t = parseInt(root.sessionStorage.getItem(WANTFS_KEY) || '0', 10); return t > 0 && Date.now() - t < WANTFS_TTL_MS; } catch (e) { return false; }
   }
   if (!inFrame && recallWantFs()) wantFs = true; // the next `playing` re-enters fullscreen (a user BACK clears this)
-  var fsTries = 0;
+  var fsTries = 0, waitTries = 0; // gesture retries / waits for the player element to mount
   var fsTimer = 0;
   var idleOn = false;
   var statusAt = 0;
@@ -55,6 +55,8 @@
     var css = '';
     var hide = function (sel) { return sel ? sel + '{display:none!important}' : ''; };
     css += hide(PF.player.fullscreenButton) + hide(PF.player.overlayKill);
+    var lh = PF.raw && PF.raw.loading && PF.raw.loading.hide;
+    if (lh && lh.length) css += lh.filter(TV.okSel).join(',') + '{visibility:hidden!important}'; // the app draws the one spinner
     var fadeWith = function (cls, sels) {
       return sels.filter(Boolean).map(function (s) { return 'html.' + cls + ' ' + s.split(',').join(',html.' + cls + ' '); }).join(',');
     };
@@ -137,7 +139,9 @@
     if (!inFrame && TV.PF && TV.bigIframe && TV.bigIframe()) TV.relayDown({ __movyTvWake: 1 }); // the player frame wakes its own bar too
   };
 
+  var wokeAt = 0;
   TV.idle = function (on) {
+    if (!on && idleOn) wokeAt = Date.now();
     idleOn = !!on;
     var h = doc.documentElement;
     if (!on) TV.showControls();
@@ -539,6 +543,7 @@
   function requestFs(el) {
     var fn = el.requestFullscreen || el.webkitRequestFullscreen;
     if (!fn) return Promise.reject(new Error('unsupported'));
+    if (TV.hooks.fsRequest) TV.hooks.fsRequest(el);
     var res = fn.call(el);
     return res && res.then ? res : Promise.resolve();
   }
@@ -561,7 +566,7 @@
     var el = fsTarget() || videoContainer();
     clearTimeout(fsTimer);
     if (!el) {
-      if (fsTries++ < 8) fsTimer = setTimeout(function () { ensureFs(why); }, 500);
+      if (waitTries++ < 100) fsTimer = setTimeout(function () { ensureFs(why); }, 120); // the player mounts a moment after the press (a route change can take seconds)
       return;
     }
     requestFs(el).then(function () { fsTries = 0; rememberWantFs(true); }, function () {
@@ -571,7 +576,7 @@
     });
   }
 
-  TV.enterFullscreen = function () { wantFs = true; fsTries = 0; ensureFs('api'); };
+  TV.enterFullscreen = function () { wantFs = true; fsTries = 0; waitTries = 0; ensureFs('api'); };
   TV.userExitFs = function () {
     userExitAt = Date.now();
     wantFs = false;
@@ -587,14 +592,12 @@
     if (!PF || inFrame) return;
     var isPlay = (PF.playButtons && (el.matches(PF.playButtons) || el.closest(PF.playButtons)))
       || (PF.player.frame && TV.okSel(PF.player.frame) && el.closest(PF.player.frame));
-    if (isPlay) { wantFs = true; fsTries = 0; userExitAt = 0; }
+    if (isPlay) { wantFs = true; fsTries = 0; waitTries = 0; userExitAt = 0; }
   };
   TV.hooks.afterActivate = function () {
-    if (wantFs && !inFrame && !fsElement()) {
-      // inside the key handler: counts as a user gesture; the target may not exist yet (route change), so retry shortly
-      var el = fsTarget();
-      if (el && findVideoPlaying()) ensureFs('activate');
-    }
+    // Fullscreen at the Play press itself (inside the key handler: a user gesture), not after the video started: the layout
+    // never changes once the picture is up. The target may not exist yet (route change): ensureFs retries.
+    if (wantFs && !inFrame && !fsElement()) ensureFs('activate');
   };
 
   function findVideoPlaying() {
@@ -620,6 +623,11 @@
   }
 
   root.addEventListener('playing', onPlaying, true);
+  root.addEventListener('play', onPlaying, true);
+  // In-page players (top document): fullscreen as soon as the player has its media, long before the first frame.
+  root.addEventListener('loadedmetadata', function (e) {
+    if (!inFrame && wantFs && !fsElement() && e.target && e.target.tagName === 'VIDEO' && isMainVideo(e.target)) ensureFs('meta');
+  }, true); // fullscreen as soon as playback is requested, not once frames flow
   ['timeupdate', 'pause', 'ended', 'loadedmetadata'].forEach(function (t) {
     root.addEventListener(t, function (e) { if (e.target && e.target.tagName === 'VIDEO' && isMainVideo(e.target)) publishStatus(t !== 'timeupdate'); }, true);
   });
@@ -633,33 +641,6 @@
     if (wantFs) setTimeout(function () { if (wantFs && !fsElement() && !nativeUserExit()) ensureFs('lost'); }, 250); // swapped by the site: re-enter
   });
 
-  // ---------- fullscreen layout-width compensation ----------
-  // The page lays out at the profile width (1280 CSS px) but the native fullscreen view is the real window (960 CSS px at 2x),
-  // so entering fullscreen used to reflow the whole player UI ~33% bigger. Zooming the fullscreen element by (fs width / normal
-  // width) keeps the exact same layout and scale as before fullscreen: no jump, same on every site (top frame and player iframes).
-  var normalW = 0, zoomedEl = null;
-  function clientW() { return doc.documentElement ? doc.documentElement.clientWidth : 0; }
-  function noteNormalWidth() {
-    if (fsElement()) return;
-    var w = clientW();
-    if (w > 0) normalW = w;
-  }
-  root.addEventListener('resize', noteNormalWidth);
-  noteNormalWidth();
-  doc.addEventListener('fullscreenchange', function () {
-    var el = fsElement();
-    if (zoomedEl && zoomedEl !== el) {
-      try { zoomedEl.style.removeProperty('zoom'); } catch (e) { /* detached */ }
-      zoomedEl = null;
-    }
-    if (!el || el === doc.documentElement) return;
-    var w = clientW();
-    if (normalW && w && w < normalW * 0.98) {
-      el.style.setProperty('zoom', String(Math.round((w / normalW) * 1000) / 1000), 'important');
-      zoomedEl = el;
-    }
-  });
-
   // ---------- keys inside video ----------
 
   var lastAliveUp = 0;
@@ -667,6 +648,14 @@
     lastKeyAt = Date.now();
     if (inFrame && lastKeyAt - lastAliveUp > 300) { lastAliveUp = lastKeyAt; up({ __movyTvAlive: 1 }); } // keys inside a player frame restart the page's 5 s fade too
     if (!inFrame && wantFs && !fsElement() && findVideoPlaying()) ensureFs('key');
+    // The first key after idle wakes AND acts; only OK with nothing focused just wakes (it would pause the video blindly).
+    var woke = idleOn || Date.now() - wokeAt < 600;
+    wokeAt = 0;
+    if (woke && (e.keyCode === 13 || e.keyCode === 23) && (!a || a === doc.body || a.tagName === 'VIDEO' || a === fsElement())) {
+      e.preventDefault(); e.stopPropagation();
+      if (idleOn) TV.idle(false);
+      return true;
+    }
     if (idleOn) TV.idle(false);
     TV.showControls(); // any key brings the controls back and restarts the 5 s countdown
     var fs = fsElement();
@@ -750,9 +739,20 @@
       }, 500); // Escape closes it with a short fade: only click the toggle if it is still up afterwards
       return true;
     }
-    var a = TV.activeEl();
-    if (fs && a && a !== fs && a.tagName !== 'VIDEO' && controlVisible(a)) { TV.releaseFocus(); return true; }
-    return false;
+    return false; // one BACK from a playing player leaves it: the shell exits fullscreen, then calls leavePlayer()
+  };
+
+  /** After the shell left fullscreen: back to the page the player was opened from (the site's close button, else history). */
+  TV.leavePlayer = function () {
+    if (inFrame) return false;
+    var PF = TV.PF, sel = PF && PF.raw && PF.raw.player && PF.raw.player.closeButton;
+    if (sel && TV.okSel(sel)) {
+      var b = doc.querySelector(sel);
+      if (b && b.getBoundingClientRect().width > 0) { b.click(); return true; }
+    }
+    if (!TV.isPlayerActive || !TV.isPlayerActive(true)) return false;
+    root.history.back();
+    return true;
   };
 
   // ---------- messages ----------
