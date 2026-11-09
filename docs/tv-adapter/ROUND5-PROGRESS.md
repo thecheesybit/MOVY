@@ -16,8 +16,8 @@ Paste this into a new Claude Code session in `D:\Movy`:
 ## 2. Current status
 | | |
 |---|---|
-| Current level | **L0 — baseline + site inventory** (agent running; writing `R5-INVENTORY.md`) |
-| Next step | When `docs/tv-adapter/R5-INVENTORY.md` is complete: review it, commit it with its `r5-L0-*` screenshots, then launch the L1 agent (navigation, loading, start screen, no-resize) |
+| Current level | **L1 — navigation, loading, start screen, no-resize** (agent running) |
+| Next step | When the L1 agent reports: check its diff (no hosts), run `npm test` + Gradle `testTvDebugUnitTest`, commit, log it, then launch L2 (native drawer) |
 | Last commit | `d87c092` |
 | Uncommitted, on purpose | `config/apps/movy.json` is git-ignored (`recommendedSource` changed to `cinejoy`) |
 
@@ -48,9 +48,13 @@ Paste this into a new Claude Code session in `D:\Movy`:
 | 2026-11-10 | L0 started | Inventory agent launched (timings, scripts per page, player settings matrix, search per site, drawer items, resize repro, spinners, lag causes). | — |
 | 2026-11-10 | Plan update | Start screen with source avatars and a progress ring; global mic search with 4 overlay stages; Hotstar-style drawer; Cinejoy default. Reference images saved in `docs/design/`. L0 agent also asked for each site's search JSON endpoint and mic keycodes (§9). | `b48b3b1` |
 | 2026-11-10 | Plan update | In-page search mic beside the site search box + the keyboard always opens on the search box. | `d87c092` |
+| 2026-11-10 | Resume log | This file + memory notes. | `2e8d78d` |
+| 2026-11-10 | L0 done | `R5-INVENTORY.md`. Cold first poster: Movy 6.0 s, **Cinejoy 24.1 s**, 7Movies 7.1 s, Moonflix 11.9 s. Switch: Cinejoy 15.7 s (black screen ~10 s, no spinner). RAM 97→125 MB, stable. Causes: Cinejoy 33 XHR + 125 images; Moonflix/7Movies analytics NOT blocked; all 10 inject scripts (187 KB) run in every frame; tvnav rebuilds 77–118 ms ×9–26. Resize: tvfs requests fullscreen 1.5–2.2 s after `playing` → 1280→960 jump (7Movies embed stays re-laid out). BACK from player needs 3 presses; first key after idle swallowed. Cinejoy quality exists (gear → QUALITY) but D-pad can't reach it. No slider/colour inputs reachable on any site. KEYCODE_SEARCH(84) reaches the app (unmapped); 231/219 taken by the system Assistant. Search XHR templates recorded in §4. | (this commit) |
+| 2026-11-10 | L1 started | Agent launched with L0 findings as priorities. | — |
+
 
 ## 5. Level checklist
-- [ ] L0 baseline + inventory (`R5-INVENTORY.md`)
+- [x] L0 baseline + inventory (`R5-INVENTORY.md`)
 - [ ] L1 navigation, loading, start screen, no-resize
 - [ ] L2 native drawer + sources row (Hotstar style)
 - [ ] L3 search: keyboard proxy, in-page mic, global mic search, continue watching
