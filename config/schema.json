@@ -770,6 +770,114 @@
             },
             "additionalProperties": false
           },
+          "drawer": {
+            "description": "The native TV drawer of this source.",
+            "type": "object",
+            "properties": {
+              "accent": {
+                "description": "Colour that marks focus and the current source in the drawer.",
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
+              "brand": {
+                "description": "The site name: a page titled with just this is never listed as a recent title.",
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40
+              },
+              "modalTitles": {
+                "description": "The site shows details in a modal without a URL: remember the modal titles as recents.",
+                "type": "boolean"
+              },
+              "items": {
+                "maxItems": 16,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9-]{1,24}$",
+                      "description": "Stable id. Order is fixed by the app: search, home, movies, shows, extras, my list, history, recents, settings, account. \"settings\" is always the native Settings sheet and is ignored here."
+                    },
+                    "label": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 24
+                    },
+                    "icon": {
+                      "type": "string",
+                      "enum": [
+                        "search",
+                        "home",
+                        "film",
+                        "tv",
+                        "sparkles",
+                        "bookmark",
+                        "settings",
+                        "user",
+                        "users",
+                        "history",
+                        "clip",
+                        "flame",
+                        "play"
+                      ]
+                    },
+                    "path": {
+                      "description": "Site route opened inside the SPA (also marks the item current while the page path starts with it).",
+                      "type": "string",
+                      "maxLength": 120,
+                      "pattern": "^\\/"
+                    },
+                    "action": {
+                      "description": "search: the site search; pick: open a menu element and press an entry in it; account: open the sign-in page and press its button.",
+                      "type": "string",
+                      "enum": [
+                        "search",
+                        "pick",
+                        "account"
+                      ]
+                    },
+                    "open": {
+                      "description": "Element that opens the menu (pick) or the elements searched by openText.",
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    },
+                    "openText": {
+                      "description": "Regex the opener text must match (case-insensitive).",
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    },
+                    "item": {
+                      "description": "Regex of the menu entry pressed after opening (case-insensitive).",
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    },
+                    "itemSel": {
+                      "description": "Selector of the menu entries to search.",
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "label",
+                    "icon"
+                  ],
+                  "additionalProperties": false
+                },
+                "description": "Drawer items of this source (the Sources row and Settings are added by the app)."
+              }
+            },
+            "required": [
+              "items"
+            ],
+            "additionalProperties": false
+          },
           "killOnTv": {
             "description": "Heavy decorative media removed on TV (autoplaying trailer iframes).",
             "maxItems": 40,
@@ -1502,6 +1610,114 @@
                         }
                       }
                     },
+                    "additionalProperties": false
+                  },
+                  "drawer": {
+                    "description": "The native TV drawer of this source.",
+                    "type": "object",
+                    "properties": {
+                      "accent": {
+                        "description": "Colour that marks focus and the current source in the drawer.",
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "brand": {
+                        "description": "The site name: a page titled with just this is never listed as a recent title.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 40
+                      },
+                      "modalTitles": {
+                        "description": "The site shows details in a modal without a URL: remember the modal titles as recents.",
+                        "type": "boolean"
+                      },
+                      "items": {
+                        "maxItems": 16,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9-]{1,24}$",
+                              "description": "Stable id. Order is fixed by the app: search, home, movies, shows, extras, my list, history, recents, settings, account. \"settings\" is always the native Settings sheet and is ignored here."
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 24
+                            },
+                            "icon": {
+                              "type": "string",
+                              "enum": [
+                                "search",
+                                "home",
+                                "film",
+                                "tv",
+                                "sparkles",
+                                "bookmark",
+                                "settings",
+                                "user",
+                                "users",
+                                "history",
+                                "clip",
+                                "flame",
+                                "play"
+                              ]
+                            },
+                            "path": {
+                              "description": "Site route opened inside the SPA (also marks the item current while the page path starts with it).",
+                              "type": "string",
+                              "maxLength": 120,
+                              "pattern": "^\\/"
+                            },
+                            "action": {
+                              "description": "search: the site search; pick: open a menu element and press an entry in it; account: open the sign-in page and press its button.",
+                              "type": "string",
+                              "enum": [
+                                "search",
+                                "pick",
+                                "account"
+                              ]
+                            },
+                            "open": {
+                              "description": "Element that opens the menu (pick) or the elements searched by openText.",
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 400
+                            },
+                            "openText": {
+                              "description": "Regex the opener text must match (case-insensitive).",
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 400
+                            },
+                            "item": {
+                              "description": "Regex of the menu entry pressed after opening (case-insensitive).",
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 400
+                            },
+                            "itemSel": {
+                              "description": "Selector of the menu entries to search.",
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 400
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "label",
+                            "icon"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "description": "Drawer items of this source (the Sources row and Settings are added by the app)."
+                      }
+                    },
+                    "required": [
+                      "items"
+                    ],
                     "additionalProperties": false
                   },
                   "killOnTv": {
@@ -2281,6 +2497,114 @@
                     },
                     "additionalProperties": false
                   },
+                  "drawer": {
+                    "description": "The native TV drawer of this source.",
+                    "type": "object",
+                    "properties": {
+                      "accent": {
+                        "description": "Colour that marks focus and the current source in the drawer.",
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "brand": {
+                        "description": "The site name: a page titled with just this is never listed as a recent title.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 40
+                      },
+                      "modalTitles": {
+                        "description": "The site shows details in a modal without a URL: remember the modal titles as recents.",
+                        "type": "boolean"
+                      },
+                      "items": {
+                        "maxItems": 16,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9-]{1,24}$",
+                              "description": "Stable id. Order is fixed by the app: search, home, movies, shows, extras, my list, history, recents, settings, account. \"settings\" is always the native Settings sheet and is ignored here."
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 24
+                            },
+                            "icon": {
+                              "type": "string",
+                              "enum": [
+                                "search",
+                                "home",
+                                "film",
+                                "tv",
+                                "sparkles",
+                                "bookmark",
+                                "settings",
+                                "user",
+                                "users",
+                                "history",
+                                "clip",
+                                "flame",
+                                "play"
+                              ]
+                            },
+                            "path": {
+                              "description": "Site route opened inside the SPA (also marks the item current while the page path starts with it).",
+                              "type": "string",
+                              "maxLength": 120,
+                              "pattern": "^\\/"
+                            },
+                            "action": {
+                              "description": "search: the site search; pick: open a menu element and press an entry in it; account: open the sign-in page and press its button.",
+                              "type": "string",
+                              "enum": [
+                                "search",
+                                "pick",
+                                "account"
+                              ]
+                            },
+                            "open": {
+                              "description": "Element that opens the menu (pick) or the elements searched by openText.",
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 400
+                            },
+                            "openText": {
+                              "description": "Regex the opener text must match (case-insensitive).",
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 400
+                            },
+                            "item": {
+                              "description": "Regex of the menu entry pressed after opening (case-insensitive).",
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 400
+                            },
+                            "itemSel": {
+                              "description": "Selector of the menu entries to search.",
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 400
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "label",
+                            "icon"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "description": "Drawer items of this source (the Sources row and Settings are added by the app)."
+                      }
+                    },
+                    "required": [
+                      "items"
+                    ],
+                    "additionalProperties": false
+                  },
                   "killOnTv": {
                     "description": "Heavy decorative media removed on TV (autoplaying trailer iframes).",
                     "maxItems": 40,
@@ -3056,6 +3380,114 @@
                         }
                       }
                     },
+                    "additionalProperties": false
+                  },
+                  "drawer": {
+                    "description": "The native TV drawer of this source.",
+                    "type": "object",
+                    "properties": {
+                      "accent": {
+                        "description": "Colour that marks focus and the current source in the drawer.",
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "brand": {
+                        "description": "The site name: a page titled with just this is never listed as a recent title.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 40
+                      },
+                      "modalTitles": {
+                        "description": "The site shows details in a modal without a URL: remember the modal titles as recents.",
+                        "type": "boolean"
+                      },
+                      "items": {
+                        "maxItems": 16,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9-]{1,24}$",
+                              "description": "Stable id. Order is fixed by the app: search, home, movies, shows, extras, my list, history, recents, settings, account. \"settings\" is always the native Settings sheet and is ignored here."
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 24
+                            },
+                            "icon": {
+                              "type": "string",
+                              "enum": [
+                                "search",
+                                "home",
+                                "film",
+                                "tv",
+                                "sparkles",
+                                "bookmark",
+                                "settings",
+                                "user",
+                                "users",
+                                "history",
+                                "clip",
+                                "flame",
+                                "play"
+                              ]
+                            },
+                            "path": {
+                              "description": "Site route opened inside the SPA (also marks the item current while the page path starts with it).",
+                              "type": "string",
+                              "maxLength": 120,
+                              "pattern": "^\\/"
+                            },
+                            "action": {
+                              "description": "search: the site search; pick: open a menu element and press an entry in it; account: open the sign-in page and press its button.",
+                              "type": "string",
+                              "enum": [
+                                "search",
+                                "pick",
+                                "account"
+                              ]
+                            },
+                            "open": {
+                              "description": "Element that opens the menu (pick) or the elements searched by openText.",
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 400
+                            },
+                            "openText": {
+                              "description": "Regex the opener text must match (case-insensitive).",
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 400
+                            },
+                            "item": {
+                              "description": "Regex of the menu entry pressed after opening (case-insensitive).",
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 400
+                            },
+                            "itemSel": {
+                              "description": "Selector of the menu entries to search.",
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 400
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "label",
+                            "icon"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "description": "Drawer items of this source (the Sources row and Settings are added by the app)."
+                      }
+                    },
+                    "required": [
+                      "items"
+                    ],
                     "additionalProperties": false
                   },
                   "killOnTv": {

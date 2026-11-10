@@ -1,0 +1,185 @@
+package app.movy.shell;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+/**
+ * Pure model of the TV drawer: the items of one source (from its profile's {@code drawer} key), the fixed order shared by
+ * every source, the recent titles under "Continue watching", which item is current for a page path, and the row geometry.
+ * No Android classes: unit tested. Item ids never carry URLs; a path is a site-relative route.
+ */
+final class DrawerModel {
+    static final String SETTINGS_ID = "settings";
+    static final String RECENT_PREFIX = "recent:";
+    static final int RECENT_MAX = 3;
+
+    /** One row. {@code recent} rows exist only while the drawer is open. */
+    static final class Item {
+        final String id;
+        final String label;
+        final String icon;
+        final String path;
+        final boolean recent;
+        final int rank;
+
+        Item(String id, String label, String icon, String path, boolean recent, int rank) {
+            this.id = id;
+            this.label = label;
+            this.icon = icon;
+            this.path = path;
+            this.recent = recent;
+            this.rank = rank;
+        }
+    }
+
+    private static final int RANK_SEARCH = 0, RANK_HOME = 1, RANK_MOVIES = 2, RANK_SHOWS = 3, RANK_EXTRA = 4, RANK_LIST = 5,
+            RANK_HISTORY = 6, RANK_RECENT = 7, RANK_SETTINGS = 8, RANK_ACCOUNT = 9;
+
+    private DrawerModel() {}
+
+    /** Position of an item id in the fixed order (Sources row is separate; unknown ids are site extras). */
+    static int rankOf(String id) {
+        switch (id) {
+            case "search": return RANK_SEARCH;
+            case "home": return RANK_HOME;
+            case "movies": return RANK_MOVIES;
+            case "shows": return RANK_SHOWS;
+            case "mylist":
+            case "watchlist": return RANK_LIST;
+            case "history": return RANK_HISTORY;
+            case SETTINGS_ID: return RANK_SETTINGS;
+            case "account": return RANK_ACCOUNT;
+            default: return RANK_EXTRA;
+        }
+    }
+
+    /**
+     * The drawer items for a profile JSON (may be null or "{}"), titles of the recent items (at most {@link #RECENT_MAX}
+     * are used) and the native Settings item with its label. Sorted by the fixed order; ties keep the profile's order.
+     * Items the profile names "settings" are dropped: Settings is always the native sheet.
+     */
+    static List<Item> build(String profileJson, List<String> recentTitles, String settingsLabel) {
+        List<Item> out = new ArrayList<>();
+        JSONArray items = itemsOf(profileJson);
+        for (int i = 0; items != null && i < items.length(); i++) {
+            JSONObject o = items.optJSONObject(i);
+            if (o == null) continue;
+            String id = o.optString("id", "");
+            String label = o.optString("label", "");
+            if (id.isEmpty() || label.isEmpty() || SETTINGS_ID.equals(id)) continue;
+            String path = o.has("path") ? o.optString("path", null) : null;
+            out.add(new Item(id, label, o.optString("icon", "play"), path, false, rankOf(id)));
+        }
+        out.add(new Item(SETTINGS_ID, settingsLabel, "settings", null, false, RANK_SETTINGS));
+        for (int i = 0; recentTitles != null && i < Math.min(recentTitles.size(), RECENT_MAX); i++) {
+            String t = recentTitles.get(i);
+            if (t == null || t.isEmpty()) continue;
+            out.add(new Item(RECENT_PREFIX + i, t, "play", null, true, RANK_RECENT));
+        }
+        Collections.sort(out, new Comparator<Item>() {
+            @Override public int compare(Item a, Item b) {
+                return Integer.compare(a.rank, b.rank); // List.sort is stable
+            }
+        });
+        return Collections.unmodifiableList(out);
+    }
+
+    private static JSONArray itemsOf(String profileJson) {
+        JSONObject d = drawerOf(profileJson);
+        return d == null ? null : d.optJSONArray("items");
+    }
+
+    private static JSONObject drawerOf(String profileJson) {
+        if (profileJson == null || profileJson.isEmpty()) return null;
+        try {
+            return new JSONObject(profileJson).optJSONObject("drawer");
+        } catch (org.json.JSONException e) {
+            return null;
+        }
+    }
+
+    /** The accent the profile sets for the drawer, or {@code fallback} when absent or malformed. */
+    static int accentOf(String profileJson, int fallback) {
+        JSONObject d = drawerOf(profileJson);
+        String a = d == null ? "" : d.optString("accent", "");
+        if (!a.matches("#[0-9a-fA-F]{6}")) return fallback;
+        return 0xFF000000 | Integer.parseInt(a.substring(1), 16);
+    }
+
+    /** The JSON array of recent titles the page pushed ("[]" when malformed). */
+    static List<String> parseTitles(String json) {
+        List<String> out = new ArrayList<>();
+        if (json == null) return out;
+        try {
+            JSONArray a = new JSONArray(json);
+            for (int i = 0; i < a.length() && out.size() < RECENT_MAX; i++) {
+                String s = a.optString(i, "");
+                if (!s.isEmpty()) out.add(s);
+            }
+        } catch (org.json.JSONException e) {
+            // a malformed push is ignored: the drawer just shows no recents
+        }
+        return out;
+    }
+
+    /** Index of the item whose path is the longest prefix of {@code pagePath} ("/" matches only itself); -1 when none. */
+    static int currentIndex(List<Item> items, String pagePath) {
+        String cur = pagePath == null || pagePath.isEmpty() ? "/" : pagePath;
+        int best = -1;
+        int bestLen = -1;
+        for (int i = 0; i < items.size(); i++) {
+            String p = items.get(i).path;
+            if (p == null || items.get(i).recent) continue;
+            boolean hit = "/".equals(p) ? "/".equals(cur) : cur.startsWith(p);
+            if (hit && p.length() > bestLen) {
+                best = i;
+                bestLen = p.length();
+            }
+        }
+        return best;
+    }
+
+    /** Where the focus lands when the drawer opens: the current item, else Home, else the first row that is not Search. */
+    static int openIndex(List<Item> items, String pagePath) {
+        int i = currentIndex(items, pagePath);
+        if (i >= 0) return i;
+        for (int k = 0; k < items.size(); k++) if ("home".equals(items.get(k).id)) return k;
+        return items.size() > 1 ? 1 : 0;
+    }
+
+    /** Index in {@code items} of the item with {@code id}, or -1. */
+    static int indexOf(List<Item> items, String id) {
+        for (int i = 0; i < items.size(); i++) if (items.get(i).id.equals(id)) return i;
+        return -1;
+    }
+
+    /** Rows shown by the collapsed strip: everything except the recent titles. */
+    static int closedCount(List<Item> items) {
+        int n = 0;
+        for (Item it : items) if (!it.recent) n++;
+        return n;
+    }
+
+    /** Row height in dp so {@code rows} fit the usable height; between 30 and 40 dp. */
+    static int cellDp(int usableHeightDp, int rows) {
+        int fit = rows <= 0 ? 40 : usableHeightDp / rows;
+        return Math.max(30, Math.min(40, fit));
+    }
+
+    /** Scroll offset (px) that keeps the row at {@code rowTop..rowTop+rowH} inside a viewport of {@code viewH}, moving as little as possible. */
+    static int ensureVisible(int scroll, int rowTop, int rowH, int viewH) {
+        if (rowTop < scroll) return rowTop;
+        if (rowTop + rowH > scroll + viewH) return rowTop + rowH - viewH;
+        return scroll;
+    }
+
+    /** Scroll clamped to the content: never negative, never past the end. */
+    static int clampScroll(int scroll, int contentH, int viewH) {
+        return Math.max(0, Math.min(scroll, Math.max(0, contentH - viewH)));
+    }
+}

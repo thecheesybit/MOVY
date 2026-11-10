@@ -4,13 +4,13 @@ import android.view.KeyEvent;
 
 /**
  * Pure classification of remote-control keys (TV). Which keycode a given remote's MENU / tools / guide button sends
- * differs per vendor, so several candidates open the Island; the colour keys jump to sources 1-4 and the transport
+ * differs per vendor, so several candidates open the TV drawer (Sources row); the colour keys jump to sources 1-4 and the transport
  * keys control the page's video. No Android state here: unit tested.
  */
 final class TvKeys {
     private TvKeys() {}
 
-    enum Action { NONE, TOGGLE_ISLAND, SOURCE, NEXT_SOURCE, PREV_SOURCE, PLAY_PAUSE, PLAY, PAUSE, FORWARD, REWIND }
+    enum Action { NONE, TOGGLE_ISLAND, SOURCE, PLAY_PAUSE, PLAY, PAUSE, FORWARD, REWIND }
 
     /** Result of {@link #classify}: an action plus, for SOURCE, the 0-based source slot. */
     static final class Result {
@@ -24,11 +24,9 @@ final class TvKeys {
     }
 
     private static final Result NONE = new Result(Action.NONE, -1);
-    private static final Result NEXT = new Result(Action.NEXT_SOURCE, -1);
-    private static final Result PREV = new Result(Action.PREV_SOURCE, -1);
     private static final Result ISLAND = new Result(Action.TOGGLE_ISLAND, -1);
 
-    /** Every keycode a vendor remote may use for MENU / tools / guide / info; all open the Island. */
+    /** Every keycode a vendor remote may use for MENU / tools / guide / info; all open the drawer. */
     static boolean opensIsland(int code) {
         switch (code) {
             case KeyEvent.KEYCODE_MENU:                  // 82
@@ -73,8 +71,7 @@ final class TvKeys {
 
     static Result classify(int code) {
         if (opensIsland(code)) return ISLAND;
-        if (code == KeyEvent.KEYCODE_CHANNEL_UP) return NEXT;
-        if (code == KeyEvent.KEYCODE_CHANNEL_DOWN) return PREV;
+        // TODO(L5): CHANNEL_UP / CHANNEL_DOWN step the app brightness. They no longer switch source (the drawer does that).
         int slot = colourSlot(code);
         if (slot >= 0) return new Result(Action.SOURCE, slot);
         Action t = transportAction(code);
@@ -97,10 +94,4 @@ final class TvKeys {
         }
     }
 
-    /** Wrapping index of the source after a step of delta from current (current < 0 starts at the first/last). */
-    static int stepSlot(int current, int count, int delta) {
-        if (count <= 0) return -1;
-        if (current < 0) return delta > 0 ? 0 : count - 1;
-        return ((current + delta) % count + count) % count;
-    }
 }

@@ -54,14 +54,9 @@ public class TvKeysTest {
         assertEquals(TvKeys.Action.NONE, TvKeys.classify(29).action);
     }
 
-    @Test public void channelKeysStepSources() {
-        assertEquals(TvKeys.Action.NEXT_SOURCE, TvKeys.classify(166).action);
-        assertEquals(TvKeys.Action.PREV_SOURCE, TvKeys.classify(167).action);
-        assertEquals(1, TvKeys.stepSlot(0, 4, 1));
-        assertEquals(0, TvKeys.stepSlot(3, 4, 1));
-        assertEquals(3, TvKeys.stepSlot(0, 4, -1));
-        assertEquals(0, TvKeys.stepSlot(-1, 4, 1));
-        assertEquals(3, TvKeys.stepSlot(-1, 4, -1));
-        assertEquals(-1, TvKeys.stepSlot(0, 0, 1));
+    @Test public void channelKeysDoNotSwitchSources() {
+        // Round 5: CH+ / CH- no longer step through the sources (L5 will use them for brightness).
+        assertEquals(TvKeys.Action.NONE, TvKeys.classify(166).action);
+        assertEquals(TvKeys.Action.NONE, TvKeys.classify(167).action);
     }
 }

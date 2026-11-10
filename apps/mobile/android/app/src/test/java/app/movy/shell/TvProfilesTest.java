@@ -63,6 +63,32 @@ public class TvProfilesTest {
         rejects("{\"a\":{\"loading\":{\"hide\":\".spin\"}}}");
     }
 
+    @Test public void drawerSurvivesSanitisingAndIsValidated() throws Exception {
+        String extra = ",\"tvProfiles\":{\"a\":{\"drawer\":{\"accent\":\"#3b82f6\",\"brand\":\"Alpha\",\"modalTitles\":true,\"bogus\":1,\"items\":["
+                + "{\"id\":\"search\",\"label\":\"Search\",\"icon\":\"search\",\"action\":\"search\",\"junk\":2},"
+                + "{\"id\":\"home\",\"label\":\"Home\",\"icon\":\"home\",\"path\":\"/\"},"
+                + "{\"id\":\"account\",\"label\":\"Account\",\"icon\":\"user\",\"action\":\"pick\",\"open\":\"header button\",\"item\":\"^sign in$\",\"itemSel\":\".m a\"}]}}}";
+        JSONObject d = new JSONObject(LiveConfig.parseDefaults(defaults(extra), OBF).tvProfileFor("a")).getJSONObject("drawer");
+        assertEquals("#3b82f6", d.getString("accent"));
+        assertEquals("Alpha", d.getString("brand"));
+        assertTrue(d.getBoolean("modalTitles"));
+        assertFalse(d.has("bogus"));
+        assertEquals(3, d.getJSONArray("items").length());
+        assertFalse(d.getJSONArray("items").getJSONObject(0).has("junk"));
+        assertEquals("^sign in$", d.getJSONArray("items").getJSONObject(2).getString("item"));
+        String item = "{\"id\":\"x\",\"label\":\"X\",\"icon\":\"home\"";
+        rejects("{\"a\":{\"drawer\":{\"accent\":\"blue\",\"items\":[]}}}");
+        rejects("{\"a\":{\"drawer\":{\"items\":[" + item + ",\"icon\":\"rocket\"}]}}");
+        rejects("{\"a\":{\"drawer\":{\"items\":[" + item + ",\"path\":\"relative\"}]}}");
+        rejects("{\"a\":{\"drawer\":{\"items\":[" + item + ",\"action\":\"jump\"}]}}");
+        rejects("{\"a\":{\"drawer\":{\"items\":[{\"id\":\"Bad Id\",\"label\":\"X\",\"icon\":\"home\"}]}}}");
+        rejects("{\"a\":{\"drawer\":{\"items\":[{\"id\":\"x\",\"label\":\"A label that is far too long to fit\",\"icon\":\"home\"}]}}}");
+        rejects("{\"a\":{\"drawer\":{\"modalTitles\":\"yes\",\"items\":[]}}}");
+        StringBuilder many = new StringBuilder();
+        for (int i = 0; i < 17; i++) many.append(i == 0 ? "" : ",").append(item).append("}");
+        rejects("{\"a\":{\"drawer\":{\"items\":[" + many + "]}}}");
+    }
+
     @Test public void invalidProfilesAreRejected() {
         rejects("{\"Bad Id\":{}}");
         rejects("{\"a\":{\"rows\":\".r\"}}");

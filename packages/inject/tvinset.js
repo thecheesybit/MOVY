@@ -1,6 +1,6 @@
-// Movy TV: breathing space next to the mini rail. Concatenated after tvnav.js / tvfs.js (needs window.__movyTv). Top frame only.
+// Movy TV: breathing space next to the collapsed drawer strip (native, 64 dp wide). Concatenated after tvnav.js / tvfs.js (needs window.__movyTv). Top frame only.
 // The profile lists page wrappers (`railInset`: [{selector, prop}]). While the mini rail is on screen, each wrapper whose content
-// would start closer to the left edge than RAIL_CONTENT_START gets just enough extra padding-left / margin-left / left, so
+// would start closer to the left edge than the strip is wide gets just enough extra padding-left / margin-left / left, so
 // nothing sits under the rail. The amount is measured once per element with the rule off; the rule itself is plain CSS under
 // `html.movy-rail-mini`, so showing or hiding the rail (player, fullscreen, modal) switches it without layout work in JS.
 // No transform on body/html: it would break position:fixed and fullscreen.
@@ -12,13 +12,22 @@
   TV.insetLoaded = true;
 
   var doc = document;
-  var RAIL_CONTENT_START = 88; // 60 px rail + 28 px of air
+  var STRIP_DP = 64; // the native strip (TvDrawerView) + 8 dp of air; converted to CSS px by the page scale
+  var AIR_DP = 8;
   var CLS = 'movy-rail-mini';
   var ATTR = 'data-movy-ri';
   var PROPS = ['padding-left', 'margin-left', 'left'];
   var visible = false;
   var scanTimer = 0;
   var seen = new WeakMap(); // last geometry signature of each measured wrapper
+
+  /** Where page content may start, in CSS px: the strip's width in dp times CSS px per dp (layout width / screen width). */
+  function railStart() {
+    var sw = root.screen && root.screen.width;
+    var iw = root.innerWidth;
+    var scale = sw > 0 && iw > 0 ? iw / sw : 1.333;
+    return Math.round((STRIP_DP + AIR_DP) * Math.max(1, Math.min(3, scale)));
+  }
 
   function entries() {
     var raw = TV.PF && TV.PF.raw;
@@ -71,7 +80,7 @@
     var prev = seen.get(el);
     seen.set(el, sig);
     if (prev !== sig) { retry = true; return; }
-    var need = P.insetNeed(P.insetContentStart(prop, r.left, base), RAIL_CONTENT_START);
+    var need = P.insetNeed(P.insetContentStart(prop, r.left, base), railStart());
     if (!need) {
       if (el.hasAttribute(ATTR)) untag(el);
       return;

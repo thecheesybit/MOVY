@@ -306,7 +306,7 @@
     TV.stats.lastBuildMs = Math.round(lastRebuildCost);
     detectModal(PF);
     repairFocus();
-    if (!inFrame && !userMoved && ((!current && !activeEl()) || fallbackFocus)) autoFirstFocus(); // content arrived after the first attempts
+    if (!inFrame && !TV.focusHeld && !userMoved && ((!current && !activeEl()) || fallbackFocus)) autoFirstFocus(); // content arrived after the first attempts
   }
 
   /** The page re-rendered the focused element (a rotating hero, a React key change): keep the highlight alive. */
@@ -446,9 +446,9 @@
   }
 
   function setCurrent(el, dir) {
-    try { TV.cause = String(new Error().stack).split('at ').slice(2, 5).map(function (l) { return l.split(' ')[0]; }).join('<'); } catch (e) { /* ignore */ }
     if (current && current !== el) { clearRing(current); fire(current, 'mouseout'); }
     current = el;
+    if (TV.hooks.focused) TV.hooks.focused(); // tvdrawer.js: re-checks whether LEFT would leave the page
     if (!el) return;
     if (!TV.firstFocusDone) {
       TV.firstFocusDone = true;
@@ -597,11 +597,12 @@
     return out;
   }
 
-  function move(dir) {
+  /** What move(dir) would do: { first: true } (no usable focus yet) or { from, best } (best is null at an edge). */
+  function movePick(dir) {
     ensureCache();
     var cur = activeEl() || (current && current.isConnected && current.classList.contains('movy-tvf') ? current : null);
     var from = currentRect();
-    if (!cur || !from || !usable(cur, from)) return focusFirst(null, true);
+    if (!cur || !from || !usable(cur, from)) return { first: true };
     var items = candItems(null);
     var curId = idOf(cur);
     var hasCur = false, i;
@@ -621,10 +622,24 @@
       items = items.filter(function (c) { return c !== best; });
       best = null;
     }
-    if (best && best.el !== cur && !best.el.contains(cur) && !cur.contains(best.el)) { setCurrent(best.el, dir); return true; }
-    if (best && best.el !== cur) { setCurrent(best.el, dir); return true; }
-    return false;
+    return { from: from, best: best && best.el !== cur ? best : null };
   }
+
+  function move(dir) {
+    var r = movePick(dir);
+    if (r.first) return focusFirst(null, true);
+    if (!r.best) return false;
+    setCurrent(r.best.el, dir);
+    return true;
+  }
+
+  /** True when LEFT has nowhere to go (no candidate to the left, or one at the same x). tvdrawer.js reports it to the app. */
+  TV.leftBlocked = function () {
+    var a = activeEl();
+    if (a && isTextField(a)) return false;
+    var r = movePick('left');
+    return !r.first && (!r.best || r.best.rect.l >= r.from.l - 4);
+  };
 
   function rowOfEl(el) {
     for (var i = 0; i < cache.list.length; i++) if (cache.list[i].el === el) return cache.list[i].row;
@@ -910,7 +925,7 @@
   var firstFocusTries = 0;
 
   function autoFirstFocus() {
-    if (inFrame || cache.modal || (userMoved && (current || activeEl()))) return;
+    if (inFrame || TV.focusHeld || cache.modal || (userMoved && (current || activeEl()))) return; // focusHeld: the drawer owns the focus
     var a = activeEl();
     if (a && isTextField(a)) return; // text field owns the focus
     if (a && a !== current && usable(a, toRect(a.getBoundingClientRect()))) {
@@ -1062,7 +1077,7 @@
     var a = activeEl(), r = a && a.getBoundingClientRect();
     return { cur: a && (a.tagName + '.' + (a.className || '').toString().slice(0, 50) + ' "' + (a.innerText || a.getAttribute('aria-label') || '').trim().slice(0, 30) + '"'),
       rect: r && [Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height)], colX: colX && Math.round(colX), cands: cache.list.length,
-      rows: cache.list.filter(function (c) { return c.row != null; }).length, modal: !!cache.modal, userMoved: userMoved, cause: TV.cause, ff: TV.ff, sy: Math.round(root.scrollY),
+      rows: cache.list.filter(function (c) { return c.row != null; }).length, modal: !!cache.modal, userMoved: userMoved, ff: TV.ff, sy: Math.round(root.scrollY),
       t: TV.timings.slice(-4) };
   };
 

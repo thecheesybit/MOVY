@@ -238,6 +238,29 @@ test('tvProfiles: strict keys, types and ranges', () => {
   fails({ ...multi, tvProfiles: { a: { header: [''] } } }, /tvProfiles\.a\.header\.0/);
 });
 
+test('tvProfiles: drawer items, accent and icons are validated', () => {
+  const drawer = {
+    accent: '#3b82f6',
+    brand: 'Alpha',
+    modalTitles: true,
+    items: [
+      { id: 'search', label: 'Search', icon: 'search', action: 'search' },
+      { id: 'home', label: 'Home', icon: 'home', path: '/' },
+      { id: 'account', label: 'Account', icon: 'user', action: 'pick', open: 'header button', item: '^sign in$', itemSel: '.menu a' },
+    ],
+  };
+  const c = parse({ ...multi, tvProfiles: { a: { drawer } } });
+  assert.equal(c.tvProfiles.a.drawer.items.length, 3);
+  const item = { id: 'x', label: 'X', icon: 'home' };
+  fails({ ...multi, tvProfiles: { a: { drawer: { ...drawer, accent: 'blue' } } } }, /tvProfiles\.a\.drawer\.accent/);
+  fails({ ...multi, tvProfiles: { a: { drawer: { items: [{ ...item, icon: 'rocket' }] } } } }, /tvProfiles\.a\.drawer\.items\.0\.icon/);
+  fails({ ...multi, tvProfiles: { a: { drawer: { items: [{ ...item, path: 'relative' }] } } } }, /tvProfiles\.a\.drawer\.items\.0\.path/);
+  fails({ ...multi, tvProfiles: { a: { drawer: { items: [{ ...item, action: 'jump' }] } } } }, /tvProfiles\.a\.drawer\.items\.0\.action/);
+  fails({ ...multi, tvProfiles: { a: { drawer: { items: [{ ...item, bogus: 1 }] } } } }, /tvProfiles\.a\.drawer\.items\.0/);
+  fails({ ...multi, tvProfiles: { a: { drawer: { items: Array.from({ length: 17 }, () => item) } } } }, /tvProfiles\.a\.drawer\.items/);
+  fails({ ...multi, tvProfiles: { a: { drawer: { items: [{ ...item, id: 'Bad Id' }] } } } }, /tvProfiles\.a\.drawer\.items\.0\.id/);
+});
+
 test('tvProfiles: allowed as a per-target override', () => {
   const c = parse({ ...multi, targets: { tv: { tvProfiles: { b: { rows: ['.r'] } } } } });
   assert.deepEqual(resolveTarget(c, 'tv').tvProfiles.b.rows, ['.r']);

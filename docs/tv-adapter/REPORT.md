@@ -401,3 +401,50 @@ Other measures: tvnav rebuilds in the first 10 s on 7Movies 5 (L0 9), cost per r
 - `DohRescue.prewarm()` (public) is unused; start-up warms 4 connections.
 - The start screen shows the source initial, not a logo (no logo assets in the config).
 - `paint-wait.mjs` got a 2.5 s fetch timeout (it could hang on a stale devtools socket).
+
+## Round 5 — Level 2 (native drawer and source switching)
+
+Built with `scripts/tv-test/b.ps1`, run on the emulator (1920x1080 at 320 dpi = 960x540 dp), debug TV flavour. Screenshots:
+`screenshots/r5-L2-*` (collapsed strip, list open, Sources row, switch spinner, every drawer item per source, Moonflix, playback, start screen).
+Continues from the WIP commit `e65e280` (JS rail already removed from `tvnav.js`, `tvdrawer.js` started).
+
+### What changed
+| Area | Change |
+|---|---|
+| Native drawer | `TvDrawerView` (one custom view over the left 45 % of the screen, above the WebView, never focusable) + `TvDrawerController` (keys, focus handoff, page bridge) + pure `DrawerModel` (item order, current item, recents, row geometry) + pure `DrawerNav` (closed / list / Sources-row state machine) + `DrawerIcons` (thin outline icons from path data) + `AvatarPainter` (the L1 source-avatar disc, now shared with `AvatarView`). All under 400 lines. |
+| Look | Collapsed: 64 dp strip, outline icons vertically centred, current item white with a 3 dp accent bar, the rest grey, current-source avatar at the top. Open: labels slide in (translateX 20 dp + fade, 160 ms, one animator, no blur, no layout) over a full-height left gradient scrim (`#0f1014` 95 % to 88 % at 55 % of its width to transparent at 45 % of the screen); focused row = white bold on an accent pill; Sources row of four round avatars on top (white ring on the focused one, dot under the current one, name below). Row height 30-40 dp by screen height; the list scrolls when it does not fit. |
+| Keys | LEFT at the page's left edge opens the list on the current section; a second LEFT (or MENU) goes up to the Sources row, which starts on the current source; LEFT/RIGHT pick, OK switches (drawer closes at once, L1 spinner "Opening <Source>..."), DOWN returns to the list (UP from the first row also goes up); RIGHT or BACK closes and the page gets its previous focus back. Double-RIGHT is gone. CH+/CH- no longer switch source (`TvKeys` has a `TODO(L5)`, test updated). MENU (and its aliases, long OK) on a page opens the drawer on the Sources row; in playback it does nothing, as before. |
+| Edge detection | The page tells the app after each focus change (160 ms of stillness) whether LEFT would leave the page (`TV.leftBlocked()` in `tvnav.js`, reported by `tvdrawer.js` through `MovyTvNative.edgeState`). When it says yes, the app opens the drawer itself on LEFT without waiting for the page (a busy Cinejoy page took 0.5-2 s to handle the key). The old in-page path (`edgeLeft`) stays as the fallback. |
+| IslandView on TV | `IslandController` creates no `IslandView` on TV (the phone Island is unchanged); colour keys still switch source; the error panel's suggested source now opens the drawer's Sources row. |
+| Config | Profile key `tvProfiles.<site>.drawer = { accent, brand, modalTitles, items:[{id,label,icon,path|action,open,openText,item,itemSel}] }` replaces `SOURCE_THEMES` (moved out of JS). Mirrored in `packages/config/src/tvprofile.mjs`, `config/schema.json` (regenerated), `TvProfiles.java` (sanitiser: id, label, icon enum, path, action enum, hex accent, size limits) and both test suites. Real config (git-ignored `config/apps/movy.json` and the generated defaults asset) updated for the four sources; item "settings" in a profile is ignored (Settings is always the native sheet). `tvdrawer.js` is registered in `CosmeticBridge`, `scripts/android/generate.mjs` and `b.ps1`. |
+| Order | Sources row, Search, Home, Movies, Shows, site extra (Anime / New & Popular / Discover / Shorts / Watch Party), My List / Watchlist, History, Continue watching (at most 3 recents, open drawer only), Settings (native `SettingsSheet`), Account. Missing items are hidden (Moonflix has no Account). |
+| `tvdrawer.js` fixes | Search shows a header that the site hides on TV before pressing its search button (Movy); menu picks (Movy history / watchlist / watch party / login) keep the header laid out while pressing; Cinejoy Account (`/settings` then "Sign In") waits for the load, presses only a visible button, re-presses until a dialog is up (checked with a fresh modal detection) and keeps its flag until pressed (a fallback full navigation used to lose it); `drawerAction` hands the parked focus back when the page does not change; the strip report is re-sent every 3 s. |
+| `tvnav.js` | `move()` split into `movePick()` + `move()`, `TV.leftBlocked`, `TV.hooks.focused`, `TV.focusHeld` (no automatic first focus while the drawer owns the focus); the stack-trace capture in every `setCurrent` is gone. Lines: 1657 (master) -> 1071 (WIP commit) -> **1086** now (+15 for the edge probe). `tvinset.js` converts the strip width to CSS px from the page scale instead of a fixed 88 px. |
+
+### Moonflix bug report (strip empty, dark column over the hero)
+Root cause found: the native strip was hidden while the TV was **idle** (the Round 4 Island rule, copied into the drawer), but the page keeps
+its content inset (`tvinset.js`, `railInset` of the profile) while idle, so after 5 s without a key a dark empty column was left where the icons
+belong. Fixed: the strip no longer hides on idle (and TvIdle is suspended while the drawer is open). Also hardened: the page re-sends the strip
+state every 3 s so the app can never stay out of step with the inset (a source re-activation resets the app's copy). Checked on Moonflix
+(`r5-L2-moonflix-*`): strip visible after a 50 s idle, after SPA route changes (Movies, TV Shows, New & Popular, My List, Home), after the
+More Info modal opens and closes, after Play and BACK, and LEFT opens the drawer from the page's left edge. No site-specific code was needed.
+
+### Gate 2 results (emulator)
+| Check | Result |
+|---|---|
+| LEFT, LEFT, RIGHT x n, OK switches source, all four | Movy -> Cinejoy, Cinejoy -> Moonflix, Moonflix -> 7Movies (LEFT x3), 7Movies -> Movy: all switched, spinner "Opening <Source>..." shown, drawer closed at once |
+| Every item works signed-out | Cinejoy: Search (input focused), Home, Movies, Series, Shorts, My List, Watch History, Settings (native sheet), Account (sign-in dialog opens). Movy: Search (input focused), Home, Movies, TV Shows, Anime, Watch Party, Watchlist, History, Account (sign-in prompt each time). 7Movies: Search, Movies, TV Shows, Discover, My List, Account (dialog). Moonflix: Search, Movies, TV Shows, New & Popular, My List. The native Settings sheet was only opened from Cinejoy (it is the same code path on all sources). Recents open their page. |
+| RIGHT / BACK restore focus | Yes (the same Play button is focused again; checked through the DOM) |
+| Latency, key to drawer | Measured in the app (`MovyDrawer` log, debug builds): handler **3-15 ms**, first frame **19-38 ms** after the key reached the app (n = 12, all four sources, page idle at its left edge). Through the page path (not at the edge yet) a busy page took 270-880 ms; the edge report removes it. |
+| No JS rail left | `tvnav.js` has no rail, no `SOURCE_THEMES`; `grep rail` finds only a skip rule for the site's own carousel arrows |
+| CH+ / CH- do nothing | Yes (no drawer, no source change) |
+| Hidden in playback and on the start screen | Yes: strip off while a Cinejoy title plays, MENU and LEFT do nothing there; no strip on the start screen |
+| Tests | `npm test` 109 pass (was 106), Gradle `testTvDebugUnitTest` 237 pass (was 217) |
+
+### Not met / open
+- Measured on the emulator only (x86); the Bravia (ARMv7) is untested: animation smoothness and the 100 ms budget need an L6 check there.
+- With three recents the open list has 13 rows on a 540 dp screen: Settings and Account sit below the fold and need DOWN (it scrolls). Movy's recents can be dropped to two if that is too long.
+- A key press right after idle is still swallowed by TvIdle (wake only), so LEFT after a long idle opens the drawer on the second press.
+- Movy's search overlay is the site's own narrow header box (L3 replaces it with the native keyboard); Moonflix "recents" come from the old modal-title heuristic and can list odd titles (for example a row title).
+- Start-screen avatars and drawer avatars show initials, not logos.
+- Account actions rely on site texts ("Sign In", "Login"); a signed-in user sees the site's own account menu items through the same `pick` rules (not tested signed-in).

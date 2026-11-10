@@ -77,6 +77,11 @@ public final class LoadingUi {
         content.addView(centre, new FrameLayout.LayoutParams(-1, -1));
     }
 
+    /** True while a source switch covers the screen ("Opening X…"). */
+    boolean isScreenShown() {
+        return screen;
+    }
+
     /** Fullscreen video: the bar never draws over it; the centred spinner may (buffering only). */
     public void setSuppressed(boolean on) {
         suppressed = on;

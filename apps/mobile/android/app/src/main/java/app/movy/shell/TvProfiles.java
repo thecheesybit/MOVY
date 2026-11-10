@@ -25,6 +25,13 @@ public final class TvProfiles {
         "menuItems", "menuColumns", "menuSelected", "never", "subtitles", "seekBar", "docMarkers"};
     private static final String[] CLOSE_MODES = {"escape", "toggle", "click"};
     private static final String[] INSET_PROPS = {"padding-left", "margin-left", "left"};
+    private static final String[] DRAWER_ICONS = {"search", "home", "film", "tv", "sparkles", "bookmark", "settings", "user", "users",
+        "history", "clip", "flame", "play"};
+    private static final String[] DRAWER_ACTIONS = {"search", "pick", "account"};
+    private static final Pattern DRAWER_ID = Pattern.compile("[a-z0-9-]{1,24}");
+    private static final Pattern HEX_COLOUR = Pattern.compile("#[0-9a-fA-F]{6}");
+    private static final int MAX_DRAWER_ITEMS = 16;
+    private static final int MAX_LABEL = 24;
     private static final int MAX_INSET = 20;
     private static final int MAX_ROUTES = 12;
     private static final int MAX_CARD_ACTIVATE = 8;
@@ -67,11 +74,65 @@ public final class TvProfiles {
             o.put("player", pl);
         }
         if (p.has("loading")) o.put("loading", loading(p.getJSONObject("loading")));
+        if (p.has("drawer")) o.put("drawer", drawer(p.getJSONObject("drawer")));
         if (p.has("railInset")) o.put("railInset", railInset(p.getJSONArray("railInset")));
         if (p.has("cardActivate")) o.put("cardActivate", cardActivate(p.getJSONArray("cardActivate")));
         if (p.has("shell")) o.put("shell", shell(p.getJSONObject("shell")));
         if (p.has("viewportWidth")) o.put("viewportWidth", range(p, "viewportWidth", 320, 3840));
         return o;
+    }
+
+    /**
+     * The native drawer of a source: accent colour, brand name (so the site's own title is never listed as a "recent"), whether detail
+     * modals are remembered, and the items (id, label, icon, then a route {@code path} or an {@code action}: search, pick, account).
+     */
+    private static JSONObject drawer(JSONObject d) throws JSONException {
+        JSONObject out = new JSONObject();
+        if (d.has("accent")) {
+            Object a = d.get("accent");
+            if (!(a instanceof String) || !HEX_COLOUR.matcher((String) a).matches()) throw new IllegalArgumentException("drawer.accent");
+            out.put("accent", a);
+        }
+        if (d.has("brand")) out.put("brand", text(d.get("brand"), "drawer.brand", 40));
+        if (d.has("modalTitles")) {
+            if (!(d.get("modalTitles") instanceof Boolean)) throw new IllegalArgumentException("drawer.modalTitles");
+            out.put("modalTitles", d.get("modalTitles"));
+        }
+        JSONArray items = d.getJSONArray("items");
+        if (items.length() > MAX_DRAWER_ITEMS) throw new IllegalArgumentException("drawer.items too long");
+        JSONArray outItems = new JSONArray();
+        for (int i = 0; i < items.length(); i++) outItems.put(drawerItem(items.getJSONObject(i)));
+        out.put("items", outItems);
+        return out;
+    }
+
+    private static JSONObject drawerItem(JSONObject it) throws JSONException {
+        JSONObject o = new JSONObject();
+        Object id = it.get("id");
+        if (!(id instanceof String) || !DRAWER_ID.matcher((String) id).matches()) throw new IllegalArgumentException("drawer.item.id");
+        o.put("id", id);
+        o.put("label", text(it.get("label"), "drawer.item.label", MAX_LABEL));
+        Object icon = it.get("icon");
+        if (!(icon instanceof String) || !oneOf((String) icon, DRAWER_ICONS)) throw new IllegalArgumentException("drawer.item.icon");
+        o.put("icon", icon);
+        if (it.has("path")) {
+            Object p = it.get("path");
+            if (!(p instanceof String) || !((String) p).startsWith("/") || ((String) p).length() > 120) throw new IllegalArgumentException("drawer.item.path");
+            o.put("path", p);
+        }
+        if (it.has("action")) {
+            Object a = it.get("action");
+            if (!(a instanceof String) || !oneOf((String) a, DRAWER_ACTIONS)) throw new IllegalArgumentException("drawer.item.action");
+            o.put("action", a);
+        }
+        for (String k : new String[] {"open", "openText", "item", "itemSel"}) if (it.has(k)) o.put(k, selector(it.get(k), "drawer.item." + k));
+        return o;
+    }
+
+    private static String text(Object v, String key, int max) {
+        String s = selector(v, key);
+        if (s.length() > max) throw new IllegalArgumentException(key + " length");
+        return s;
     }
 
     /** Site spinners / skeletons hidden because the app draws the loading spinner. */

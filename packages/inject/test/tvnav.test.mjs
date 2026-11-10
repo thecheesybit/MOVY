@@ -298,3 +298,26 @@ test('held key: about 8 moves a second, faster after one second', () => {
   assert.equal(holdGate(st, true, 2170), true);
   assert.equal(holdGate(st, false, 2171), true); // a fresh press always moves
 });
+
+const RECENT = createRequire(import.meta.url)('../tvnav-pure.js');
+
+test('recent titles: clean page titles, detail paths, newest first without duplicates', () => {
+  assert.equal(RECENT.cleanTitle('Watch Some Film Online Free - SiteName'), 'Some Film');
+  assert.equal(RECENT.cleanTitle('Some Film | SiteName'), 'Some Film');
+  assert.equal(RECENT.cleanTitle(''), '');
+  assert.equal(RECENT.isDetailPath('/movie/123'), true);
+  assert.equal(RECENT.isDetailPath('/movies'), false);
+  assert.equal(RECENT.isDetailPath('/'), false);
+  const a = { t: 'A', p: '/movie/1' };
+  const b = { t: 'B', p: '/movie/2' };
+  const list = RECENT.addRecent(RECENT.addRecent([], a, 8), b, 8);
+  assert.deepEqual(list.map((e) => e.t), ['B', 'A']);
+  assert.deepEqual(RECENT.addRecent(list, { t: 'A2', p: '/movie/1' }, 8).map((e) => e.t), ['A2', 'B']);
+  assert.equal(RECENT.addRecent(list, { t: 'C', p: '/movie/3' }, 2).length, 2);
+});
+
+test('recent titles: the page being watched is not its own recent; modal titles stay; junk is dropped', () => {
+  const list = [{ t: 'A', p: '/movie/1' }, { t: 'M', p: '/browse', q: 'M' }, { t: 'x', p: 'nope' }, { t: 'B', p: '/movie/2' }, { p: '/movie/9' }];
+  assert.deepEqual(RECENT.recentShown(list, '/movie/1', 5).map((e) => e.t), ['M', 'B']);
+  assert.deepEqual(RECENT.recentShown(list, '/', 2).map((e) => e.t), ['A', 'M']);
+});

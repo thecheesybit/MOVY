@@ -15,7 +15,6 @@ final class TvBridge {
     private final Supplier<LiveConfig> config;
     private final Supplier<Source> active;
     private final Supplier<String> pageUrl;
-    private final Runnable edgeRight;
     private final Runnable gesture;
     private final Consumer<String> media;
     private final java.util.function.BooleanSupplier userLeftFullscreen;
@@ -25,15 +24,27 @@ final class TvBridge {
     private volatile Consumer<Boolean> shellBoot;
     private volatile Runnable painted;
     private volatile java.util.function.BiConsumer<String, Boolean> buffering;
+    private volatile Drawer drawer;
 
-    TvBridge(Supplier<LiveConfig> config, Supplier<Source> active, Supplier<String> pageUrl, Runnable edgeRight,
+    /** The native drawer's side of tvdrawer.js; every method posts to the main thread. */
+    interface Drawer {
+        void edgeLeft();
+
+        /** Whether LEFT would leave the page (focus at its left edge): the drawer then opens on LEFT without asking the page. */
+        void edgeState(boolean atEdge);
+
+        void visible(boolean strip, boolean player);
+
+        void state(String path, String titlesJson);
+    }
+
+    TvBridge(Supplier<LiveConfig> config, Supplier<Source> active, Supplier<String> pageUrl,
              Runnable gesture, Consumer<String> media, java.util.function.BooleanSupplier userLeftFullscreen,
              Runnable onReady, Runnable showChooser, Consumer<String> switchSource) {
         this.userLeftFullscreen = userLeftFullscreen;
         this.config = config;
         this.active = active;
         this.pageUrl = pageUrl;
-        this.edgeRight = edgeRight;
         this.gesture = gesture;
         this.media = media;
         this.onReady = onReady;
@@ -55,10 +66,36 @@ final class TvBridge {
         return profileFor(config.get(), active.get(), url);
     }
 
-    /** tvnav.js: RIGHT was pressed with no focus candidate to the right, so the Island opens. */
+    /** tvdrawer.js: LEFT was pressed at the page's left edge (focus already parked): the drawer opens. */
     @JavascriptInterface
-    public void edgeRight() {
-        edgeRight.run();
+    public void edgeLeft() {
+        Drawer d = drawer;
+        if (d != null) d.edgeLeft();
+    }
+
+    /** tvdrawer.js: LEFT has nowhere to go on the page (true) or the focus can still move left (false). */
+    @JavascriptInterface
+    public void edgeState(boolean atEdge) {
+        Drawer d = drawer;
+        if (d != null) d.edgeState(atEdge);
+    }
+
+    /** tvdrawer.js: whether the collapsed strip may show (not in a player, fullscreen or modal), and whether a player is up. */
+    @JavascriptInterface
+    public void drawerVisible(boolean strip, boolean player) {
+        Drawer d = drawer;
+        if (d != null) d.visible(strip, player);
+    }
+
+    /** tvdrawer.js: the page path and the recent titles (JSON array of strings) the drawer lists. */
+    @JavascriptInterface
+    public void drawerState(String path, String titlesJson) {
+        Drawer d = drawer;
+        if (d != null) d.state(path, titlesJson);
+    }
+
+    void setDrawer(Drawer d) {
+        this.drawer = d;
     }
 
     /** tvfs.js: fullscreen was refused for lack of a user gesture; a synthetic key from here grants one. */

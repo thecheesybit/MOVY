@@ -54,6 +54,7 @@ public class MainActivity extends BridgeActivity {
     private SourceHealth health;
     private Failover failover;
     private IslandController island;
+    private TvDrawerController drawer;
     private SettingsSheet settings;
     private TvController tvKeys;
     private TvHint tvHint;
@@ -190,7 +191,10 @@ public class MainActivity extends BridgeActivity {
         setupSystemBars();
         launch = new LaunchController(this, repo, prefs, getString(R.string.app_name), BuildConfig.MOVY_REMOTE, cfg.tv);
         health = new SourceHealth(repo);
-        failover = new Failover(this, repo, health, launch, suggested -> island.onFailureShown(suggested));
+        failover = new Failover(this, repo, health, launch, suggested -> {
+            island.onFailureShown(suggested);
+            if (drawer != null && suggested != null) drawer.openSourcesFor(suggested.id);
+        });
         settings = new SettingsSheet(this, repo, prefs, stats, health, () -> bridge.getWebView(), cfg.adblockEnabled,
                 getString(R.string.app_name), cfg.tv);
         island = new IslandController(this, repo, prefs, health, launch, cfg.tv, settings::show,
@@ -204,6 +208,7 @@ public class MainActivity extends BridgeActivity {
         if (cfg.tv) failover.setLowEnd(lowEnd);
         chrome.setFullscreenListener(on -> {
             island.onFullscreen(on);
+            if (drawer != null) drawer.refresh();
             if (preloader == null) return;
             if (on) preloader.pause(); // a player is starting: free the bandwidth and the hidden page
             else preloader.resumeWhenIdle();
@@ -371,6 +376,7 @@ public class MainActivity extends BridgeActivity {
         if (bridge == null || bridge.getWebView() == null) return;
         bridge.getWebView().removeCallbacks(screenGiveUp);
         loadingUi.hideScreen();
+        if (drawer != null) drawer.refresh();
         Source s = repo.config().sourceForUrl(pageUrl);
         launch.onPagePainted(s == null ? null : s.id);
     }
@@ -429,6 +435,7 @@ public class MainActivity extends BridgeActivity {
             // Volume keys wake a muted banner/trailer: the system still changes the volume, the page just stops being silent.
             bridge.getWebView().evaluateJavascript("window.__movyTv&&window.__movyTv.media&&window.__movyTv.media('unmute',0)", null);
         }
+        if (drawer != null && drawer.handleKey(e)) return true;
         if (tvKeys != null && tvKeys.dispatch(e)) return true;
         if (cfg.tv && e.getKeyCode() == KeyEvent.KEYCODE_BACK && chrome != null && chrome.isFullscreen()
                 && tvKeys != null && !tvKeys.cursor().isActive() && !nativeOverlayOpen()) {
@@ -442,10 +449,17 @@ public class MainActivity extends BridgeActivity {
         return super.dispatchKeyEvent(e);
     }
 
-    /** Settings, the chooser, the error panel or the expanded Island is up: native views own BACK. */
+    /** Settings, the chooser, the error panel, the open drawer or the expanded Island is up: native views own BACK. */
     private boolean nativeOverlayOpen() {
         return (settings != null && settings.isOpen()) || launch.isChooserShowing()
-                || launch.errorPanel().isShowing() || (island != null && island.isExpanded());
+                || launch.errorPanel().isShowing() || (island != null && island.isExpanded())
+                || (drawer != null && drawer.isOpen());
+    }
+
+    /** Start screen, chooser, error panel, Settings or a source switch cover: the drawer's strip hides and it will not open. */
+    private boolean drawerBlocked() {
+        return launch.isChooserShowing() || launch.errorPanel().isShowing() || (settings != null && settings.isOpen())
+                || (loadingUi != null && loadingUi.isScreenShown());
     }
 
     private void setupTv() {
@@ -454,23 +468,17 @@ public class MainActivity extends BridgeActivity {
         tvHint = new TvHint(this, prefs);
         tvKeys = new TvController(new TvController.Host() {
             @Override public boolean nativeOverlayActive() {
-                return (settings != null && settings.isOpen()) || launch.isChooserShowing()
-                        || launch.errorPanel().isShowing() || island.isExpanded();
+                return nativeOverlayOpen();
             }
             @Override public boolean isFullscreen() { return chrome != null && chrome.isFullscreen(); }
             @Override public void toggleIsland() {
                 if (tvHint != null) tvHint.dismiss();
                 if (settings != null && settings.isOpen()) return;
-                island.menuToggle();
+                drawer.menuKey();
             }
             @Override public void pickSlot(int slot) {
                 if (launch.isChooserShowing() || (settings != null && settings.isOpen())) return;
                 island.pickSlot(slot);
-            }
-            @Override public void stepSource(int delta) {
-                if (launch.isChooserShowing() || (settings != null && settings.isOpen())) return;
-                String name = island.stepSource(delta);
-                if (name != null) Toast.makeText(MainActivity.this, name, Toast.LENGTH_SHORT).show();
             }
             @Override public void media(String action, int seconds) {
                 bridge.getWebView().evaluateJavascript("window.__movyTv&&window.__movyTv.media('" + action + "'," + seconds + ")", null);
@@ -484,18 +492,13 @@ public class MainActivity extends BridgeActivity {
             @Override public boolean deliver(KeyEvent ev) { return dispatchToPage(ev); }
         }, cursor, cfg.debug);
         TvBridge tvBridge = new TvBridge(repo::config, repo::active, () -> pageUrl,
-                () -> runOnUiThread(() -> {
-                    if (tvKeys == null || island.isExpanded() || launch.isChooserShowing()
-                            || (settings != null && settings.isOpen()) || (chrome != null && chrome.isFullscreen())) return;
-                    if (tvHint != null) tvHint.dismiss();
-                    island.menuToggle();
-                }),
                 () -> runOnUiThread(this::injectGestureKey),
                 json -> { if (cfg.debug) Log.i("MovyMedia", json); },
                 () -> SystemClock.elapsedRealtime() - lastUserFsExitMs < 3000,
                 () -> runOnUiThread(() -> launch.onAdapterReady()),
                 () -> runOnUiThread(launch::debugShowChooser),
                 sourceId -> runOnUiThread(() -> repo.openStart(sourceId)));
+        setupDrawer(tvBridge);
         tvBridge.setShellBoot(ok -> runOnUiThread(() -> onShellBoot(ok)));
         tvBridge.setPainted(() -> runOnUiThread(this::onPagePainted));
         tvBridge.setBuffering((token, on) -> runOnUiThread(() -> loadingUi.setBuffering(token, on)));
@@ -537,8 +540,31 @@ public class MainActivity extends BridgeActivity {
             }
             @Override public void setPageIdle(boolean idle) { MainActivity.this.setPageIdle(idle); }
             @Override public boolean idleSuspended() {
-                return launch.isChooserShowing() || launch.errorPanel().isShowing();
+                return launch.isChooserShowing() || launch.errorPanel().isShowing() || (drawer != null && drawer.isOpen());
             }
+        });
+    }
+
+    /** The native drawer (above the WebView): its page-side reports come in through the TV bridge. */
+    private void setupDrawer(TvBridge tvBridge) {
+        drawer = new TvDrawerController(this, repo, new TvDrawerController.Host() {
+            @Override public boolean blocked() { return drawerBlocked(); }
+            @Override public boolean fullscreen() { return chrome != null && chrome.isFullscreen(); }
+            @Override public void eval(String js) {
+                if (bridge != null && bridge.getWebView() != null) bridge.getWebView().evaluateJavascript(js, null);
+            }
+            @Override public void switchSource(String sourceId) { repo.switchTo(sourceId); }
+            @Override public void openSettings() { if (settings != null) settings.show(); }
+        }, cfg.debug);
+        tvBridge.setDrawer(new TvBridge.Drawer() {
+            @Override public void edgeLeft() { runOnUiThread(() -> drawer.onEdgeLeft()); }
+            @Override public void edgeState(boolean atEdge) { drawer.setAtEdge(atEdge); }
+            @Override public void visible(boolean strip, boolean player) { runOnUiThread(() -> drawer.onVisible(strip, player)); }
+            @Override public void state(String path, String titlesJson) { runOnUiThread(() -> drawer.onState(path, titlesJson)); }
+        });
+        repo.addListener(new SourceRepository.Listener() {
+            @Override public void onConfigChanged(LiveConfig config) { drawer.onConfigChanged(); }
+            @Override public void onActiveSourceChanged(Source active) { drawer.onSourceChanged(); }
         });
     }
 

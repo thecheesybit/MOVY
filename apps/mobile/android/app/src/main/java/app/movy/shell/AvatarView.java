@@ -2,11 +2,8 @@ package app.movy.shell;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.graphics.Shader;
-import android.graphics.Typeface;
 import android.view.View;
 
 /**
@@ -19,8 +16,7 @@ final class AvatarView extends View {
     private static final float RING_PAD_DP = 10f;
     private static final float RING_STROKE_DP = 4f;
 
-    private final Paint fill = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Paint letter = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final AvatarPainter disc = new AvatarPainter();
     private final Paint track = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint arc = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final RectF oval = new RectF();
@@ -36,9 +32,6 @@ final class AvatarView extends View {
         dp = ctx.getResources().getDisplayMetrics().density;
         accent = s.accent;
         initial = s.monogram();
-        letter.setColor(UiTokens.WHITE);
-        letter.setTextAlign(Paint.Align.CENTER);
-        letter.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
         for (Paint p : new Paint[] {track, arc}) {
             p.setStyle(Paint.Style.STROKE);
             p.setStrokeWidth(RING_STROKE_DP * dp);
@@ -67,10 +60,7 @@ final class AvatarView extends View {
         float w = getWidth(), h = getHeight();
         float cx = w / 2f, cy = h / 2f;
         float r = Math.min(w, h) / 2f - RING_PAD_DP * dp;
-        fill.setShader(new LinearGradient(0, cy - r, 0, cy + r, accent, IslandPainter.darken(accent, 0.3f), Shader.TileMode.CLAMP));
-        c.drawCircle(cx, cy, r, fill);
-        letter.setTextSize(r * 0.95f);
-        c.drawText(initial, cx, cy - (letter.ascent() + letter.descent()) / 2f, letter);
+        disc.draw(c, cx, cy, r, accent, initial);
         if (mode == Mode.NONE) return;
         float rr = r + (RING_PAD_DP - RING_STROKE_DP / 2f - 1f) * dp;
         oval.set(cx - rr, cy - rr, cx + rr, cy + rr);

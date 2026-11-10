@@ -4,13 +4,13 @@ import android.util.Log;
 import android.view.KeyEvent;
 
 /**
- * Routes remote-control keys on TV before the WebView sees them: Island keys (MENU and friends), colour keys (sources
- * 1-4), transport keys (video), the long press of CENTER (Island fallback for remotes without MENU) and the long press
+ * Routes remote-control keys on TV before the WebView sees them: drawer keys (MENU and friends), colour keys (sources
+ * 1-4), transport keys (video), the long press of CENTER (drawer fallback for remotes without MENU) and the long press
  * of BACK (pointer mode). Everything else, including short CENTER presses, goes on to the page unchanged.
  */
 final class TvController {
     interface Host {
-        /** Chooser, Settings, the error panel or the expanded Island is up: native views own the keys. */
+        /** Chooser, Settings, the error panel or the open drawer is up: native views own the keys. */
         boolean nativeOverlayActive();
 
         boolean isFullscreen();
@@ -18,9 +18,6 @@ final class TvController {
         void toggleIsland();
 
         void pickSlot(int slot);
-
-        /** CHANNEL_UP / CHANNEL_DOWN: switch to the next (+1) or previous (-1) source and toast its name. */
-        void stepSource(int delta);
 
         void media(String action, int seconds);
 
@@ -71,10 +68,6 @@ final class TvController {
             case TOGGLE_ISLAND:
                 if (down && e.getRepeatCount() == 0) host.toggleIsland();
                 return true;
-            case NEXT_SOURCE:
-            case PREV_SOURCE:
-                if (down && e.getRepeatCount() == 0 && !host.nativeOverlayActive()) host.stepSource(r.action == TvKeys.Action.NEXT_SOURCE ? 1 : -1);
-                return true;
             case SOURCE:
                 if (down && e.getRepeatCount() == 0) host.pickSlot(r.slot);
                 return true;
@@ -119,7 +112,7 @@ final class TvController {
     }
 
     /**
-     * CENTER: held back until release so a long press can open the Island without the page also seeing a click. A short
+     * CENTER: held back until release so a long press can open the drawer without the page also seeing a click. A short
      * press is replayed (down + up) to the page on release. Not used over native views or in fullscreen video.
      */
     private boolean handleCenter(KeyEvent e, boolean down) {

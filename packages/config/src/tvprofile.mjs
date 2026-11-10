@@ -88,6 +88,31 @@ const loadingSchema = z
   })
   .strict();
 
+export const drawerIcons = ['search', 'home', 'film', 'tv', 'sparkles', 'bookmark', 'settings', 'user', 'users', 'history', 'clip', 'flame', 'play'];
+
+const drawerItemSchema = z
+  .object({
+    id: z.string().regex(/^[a-z0-9-]{1,24}$/).describe('Stable id. Order is fixed by the app: search, home, movies, shows, extras, my list, history, recents, settings, account. "settings" is always the native Settings sheet and is ignored here.'),
+    label: z.string().min(1).max(24),
+    icon: z.enum(drawerIcons),
+    path: z.string().regex(/^\//).max(120).optional().describe('Site route opened inside the SPA (also marks the item current while the page path starts with it).'),
+    action: z.enum(['search', 'pick', 'account']).optional().describe('search: the site search; pick: open a menu element and press an entry in it; account: open the sign-in page and press its button.'),
+    open: selector.optional().describe('Element that opens the menu (pick) or the elements searched by openText.'),
+    openText: selector.optional().describe('Regex the opener text must match (case-insensitive).'),
+    item: selector.optional().describe('Regex of the menu entry pressed after opening (case-insensitive).'),
+    itemSel: selector.optional().describe('Selector of the menu entries to search.'),
+  })
+  .strict();
+
+const drawerSchema = z
+  .object({
+    accent: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional().describe('Colour that marks focus and the current source in the drawer.'),
+    brand: z.string().min(1).max(40).optional().describe('The site name: a page titled with just this is never listed as a recent title.'),
+    modalTitles: z.boolean().optional().describe('The site shows details in a modal without a URL: remember the modal titles as recents.'),
+    items: z.array(drawerItemSchema).max(16).describe('Drawer items of this source (the Sources row and Settings are added by the app).'),
+  })
+  .strict();
+
 export const tvProfileSchema = z
   .object({
     notes: z.string().max(2000).optional().describe('Free text for humans; ignored by the app.'),
@@ -106,6 +131,7 @@ export const tvProfileSchema = z
     cardActivate: z.array(cardActivateSchema).max(8).optional().describe('OK on a matching card opens it, then presses the target (e.g. the inner Play of an expanded preview) instead of stopping at the preview.'),
     shell: shellSchema.optional().describe('Versioned local copy of the shell routes, checked against the live site in the background.'),
     loading: loadingSchema.optional(),
+    drawer: drawerSchema.optional().describe('The native TV drawer of this source.'),
     killOnTv: selectors.optional().describe('Heavy decorative media removed on TV (autoplaying trailer iframes).'),
     viewportWidth: z.number().int().min(320).max(3840).optional().describe('CSS px layout width on TV; default 1280, a site may opt out with 960.'),
   })

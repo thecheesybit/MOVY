@@ -6,7 +6,8 @@ import android.widget.FrameLayout;
 
 /**
  * Owns the Island: feeds it the live source list, decides when it is visible (home pages, error panel, fullscreen,
- * chooser) and turns its taps into actions. All calls on the main thread.
+ * chooser) and turns its taps into actions. All calls on the main thread. On TV there is no Island view: the native
+ * drawer ({@link TvDrawerController}) replaces it; this class then only keeps the bookkeeping (home page, landing page).
  */
 final class IslandController implements SourceRepository.Listener, HealthChecker.Listener, IslandView.Listener, Failover.Listener {
     private static final String ALWAYS = "always";
@@ -18,6 +19,7 @@ final class IslandController implements SourceRepository.Listener, HealthChecker
     private final LaunchController launch;
     private final Runnable openSettings;
     private final Runnable focusPage;
+    /** Null on TV. */
     private final IslandView view;
     private final boolean tv;
     private boolean homeNow;
@@ -41,12 +43,16 @@ final class IslandController implements SourceRepository.Listener, HealthChecker
         this.openSettings = openSettings;
         this.focusPage = focusPage;
         this.tv = tv;
-        view = new IslandView(activity, tv);
-        view.setListener(this);
-        view.setHealth(health);
-        view.setPositionFraction(prefs.islandY());
-        ViewGroup content = activity.findViewById(android.R.id.content);
-        content.addView(view, new FrameLayout.LayoutParams(-1, -1));
+        if (tv) {
+            view = null;
+        } else {
+            view = new IslandView(activity, false);
+            view.setListener(this);
+            view.setHealth(health);
+            view.setPositionFraction(prefs.islandY());
+            ViewGroup content = activity.findViewById(android.R.id.content);
+            content.addView(view, new FrameLayout.LayoutParams(-1, -1));
+        }
         applyConfig(repo.config());
         repo.addListener(this);
         health.addListener(this);
@@ -57,12 +63,12 @@ final class IslandController implements SourceRepository.Listener, HealthChecker
     }
 
     boolean isExpanded() {
-        return view.isExpanded();
+        return view != null && view.isExpanded();
     }
 
     /** True when the key was consumed by the expanded Island (TV D-pad navigation). */
     boolean handleKey(android.view.KeyEvent e) {
-        return tv && e.getAction() == android.view.KeyEvent.ACTION_DOWN && view.handleKey(e);
+        return view != null && tv && e.getAction() == android.view.KeyEvent.ACTION_DOWN && view.handleKey(e);
     }
 
     boolean isHomeNow() {
@@ -74,28 +80,16 @@ final class IslandController implements SourceRepository.Listener, HealthChecker
         java.util.List<Source> list = repo.config().enabledSources();
         if (slot < 0 || slot >= list.size()) return;
         onSourcePicked(list.get(slot));
-        if (view.isExpanded()) view.collapse();
-    }
-
-    /** TV CHANNEL +/-: switches to the next/previous enabled source (wrapping) and returns its name, or null. */
-    String stepSource(int delta) {
-        java.util.List<Source> list = repo.config().enabledSources();
-        Source a = repo.active();
-        int cur = -1;
-        for (int i = 0; i < list.size(); i++) if (a != null && list.get(i).id.equals(a.id)) cur = i;
-        int next = TvKeys.stepSlot(cur, list.size(), delta);
-        if (next < 0) return null;
-        pickSlot(next);
-        return list.get(next).name;
+        if (view != null && view.isExpanded()) view.collapse();
     }
 
     void collapse() {
-        view.collapse();
+        if (view != null) view.collapse();
     }
 
-    /** TV MENU key: shows and toggles the Island on any page. */
+    /** Menu key on a phone-style Island: shows and toggles it on any page. */
     void menuToggle() {
-        if (fullscreen || launch.isChooserShowing()) return;
+        if (view == null || fullscreen || launch.isChooserShowing()) return;
         if (view.isExpanded()) {
             view.collapse();
             return;
@@ -139,13 +133,13 @@ final class IslandController implements SourceRepository.Listener, HealthChecker
                 && (launch.errorPanel().isShowing() || ALWAYS.equals(repo.config().islandVisibility) || homeNow));
         if (fullscreen || idle) want = false;
         android.util.Log.i(KillLog.TAG, "island: shown=" + want + " err=" + launch.errorPanel().isShowing() + " fs=" + fullscreen);
-        view.setShown(want, true);
+        if (view != null) view.setShown(want, true);
     }
 
     @Override
     public void onFailureShown(Source suggested) {
         refreshVisibility();
-        if (suggested == null) return;
+        if (suggested == null || view == null) return;
         view.expand();
         view.pulse(suggested.id);
     }
@@ -160,7 +154,7 @@ final class IslandController implements SourceRepository.Listener, HealthChecker
 
     @Override
     public void onActiveSourceChanged(Source active) {
-        view.setActive(active.id);
+        if (view != null) view.setActive(active.id);
         landing = landings.get(active.id);
         landingUntil = 0;
         armLanding = landing == null && repo.lastUrl(active).equals(active.url); // only a start-page load defines the landing page
@@ -169,6 +163,7 @@ final class IslandController implements SourceRepository.Listener, HealthChecker
 
     private void applyConfig(LiveConfig c) {
         Source a = repo.active();
+        if (view == null) return;
         view.setSources(c.enabledSources(), a != null ? a.id : null);
         Announcement an = c.announcement;
         view.setAnnouncement(an != null && !an.id.equals(prefs.announcementSeen()) ? an : null);
@@ -176,7 +171,7 @@ final class IslandController implements SourceRepository.Listener, HealthChecker
 
     @Override
     public void onHealthChanged() {
-        view.invalidateBlock();
+        if (view != null) view.invalidateBlock();
     }
 
     // ---- IslandView.Listener ----

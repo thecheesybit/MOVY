@@ -3,6 +3,8 @@
 //  - runs the actions the app asks for (TV.drawerAction): route, search, pick-from-a-menu, sign-in;
 //  - hands focus over: TV.drawerOpened() parks the focused element, TV.drawerClosed(restore) gives it back;
 //  - owns the recent-titles store (movy_tv_recent, per origin).
+// The page also tells the app, a moment after each focus change, whether LEFT would leave the page (TV.leftBlocked): then the app opens
+// the drawer by itself on LEFT, without waiting for a busy page to handle the key.
 // Items come from the profile (`drawer.items`), never from the host name. Top frame only. Needs window.__movyTv and __movyTvPure.
 (function (root) {
   'use strict';
@@ -92,16 +94,21 @@
   }
 
   var lastVisible = null;
+  var lastPlayer = null;
+  var lastReportAt = 0;
 
   /** The strip steps aside for players, fullscreen and modals; tvinset.js moves the page content only while it shows. */
   function syncVisibility() {
     if (recordedPath !== path() && P.isDetailPath(path())) recordRecent(); // the title may land late on SPAs
-    var hide = !!doc.fullscreenElement || TV.isPlayerActive(true) || TV.modalOpen();
-    var on = !hide;
-    if (on !== lastVisible) {
+    var player = !!doc.fullscreenElement || TV.isPlayerActive(true);
+    var on = !(player || TV.modalOpen());
+    // Re-sent every 3 s even when unchanged: the app resets its copy when a source is (re)activated, and must never stay out of step with the inset.
+    if (on !== lastVisible || player !== lastPlayer || Date.now() - lastReportAt > 3000) {
       lastVisible = on;
+      lastPlayer = player;
+      lastReportAt = Date.now();
       var n = native();
-      if (n && n.drawerVisible) { try { n.drawerVisible(on); } catch (e) { /* ignore */ } }
+      if (n && n.drawerVisible) { try { n.drawerVisible(on, player); } catch (e) { /* ignore */ } }
     }
     if (TV.hooks.railVisible) TV.hooks.railVisible(on);
   }
@@ -114,6 +121,7 @@
         last = ts;
         try { syncVisibility(); pushState(); } catch (e) { /* never end the loop */ }
       }
+      if (edgeDue && Date.now() > edgeDue + 400) { try { probeEdge(); } catch (e) { /* ignore */ } } // the timer was swept by the site
       root.requestAnimationFrame(frame);
     })(0);
     syncVisibility();
@@ -121,18 +129,48 @@
     setTimeout(recordRecent, 1800);
   }
 
+  // ---------- LEFT-edge report ----------
+
+  var edgeLast = null;
+  var edgeDue = 0;
+
+  function reportEdge(on) {
+    if (on === edgeLast) return;
+    edgeLast = on;
+    var n = native();
+    if (n && n.edgeState) { try { n.edgeState(on); } catch (e) { /* ignore */ } }
+  }
+
+  function probeEdge() {
+    edgeDue = 0;
+    var on = false;
+    try { on = !!TV.leftBlocked(); } catch (e) { /* unknown: not at the edge */ }
+    reportEdge(on);
+  }
+
+  /** The focus moved (or the page changed): not at the edge until the page has been still for a moment. */
+  function scheduleEdge() {
+    reportEdge(false);
+    var due = edgeDue = Date.now() + 160;
+    setTimeout(function () { if (edgeDue === due) probeEdge(); }, 170); // only the last focus change's timer probes
+  }
+
+  TV.hooks.focused = scheduleEdge;
+
   // ---------- focus handoff ----------
 
   var parked = null;
 
   TV.drawerOpened = function () {
     if (!parked) parked = TV.activeEl() || TV.currentEl();
+    TV.focusHeld = true; // no automatic first focus while the drawer is open
     TV.releaseFocus();
   };
 
   TV.drawerClosed = function (restore) {
     var el = parked;
     parked = null;
+    TV.focusHeld = false;
     if (restore === false) return;
     if (el && el.isConnected && TV.renderableNow(el)) TV.setCurrent(el, null);
     else TV.focusFirst(null, true);
@@ -168,25 +206,55 @@
     }, 1000);
   }
 
+  var shownHeader = null;
+
+  /** Some sites hide their header on TV: while its search is in use the header (and the search box in it) must be on screen. */
+  function showHeaderOf(el) {
+    if (el.getBoundingClientRect().width) return;
+    var h = el.closest('header, div.fixed.top-0.z-50, header.topbar, div.pref-pill-wrap, header.fixed');
+    if (!h) return;
+    h.style.setProperty('display', 'block', 'important');
+    h.style.setProperty('opacity', '1', 'important');
+    shownHeader = h;
+  }
+
+  function restoreHeader() {
+    if (!shownHeader) return;
+    shownHeader.style.removeProperty('display');
+    shownHeader.style.removeProperty('opacity');
+    shownHeader = null;
+  }
+
   function openSiteSearch() {
     var sBtn = doc.querySelector('button[aria-label="Search" i], button[aria-label="Open search" i], .nav-action[aria-label="Search" i], a[aria-label="Search" i]');
     if (!sBtn) { root.location.href = '/search'; return; }
+    showHeaderOf(sBtn);
     setTimeout(function () {
       press(sBtn);
       setTimeout(function () {
         var inp = doc.querySelector('input[type="search" i], input[type="text" i], input:not([type="hidden"])');
         if (inp) { inp.focus(); TV.setCurrent(inp, null); }
-      }, 100);
+      }, 200);
     }, 150);
   }
 
-  function pressByText(re, tries) {
+  /** A button pressed before its page finished hydrating does nothing: press again (a few times) until a dialog is up. */
+  function confirmOpened(btn, n) {
+    setTimeout(function () {
+      TV.collect(); // refreshes the modal detection (it is only recomputed on a rebuild)
+      if (TV.modalOpen() || n >= 4 || !btn.isConnected) return;
+      press(btn);
+      confirmOpened(btn, n + 1);
+    }, 1400);
+  }
+
+  function pressByText(re, tries, expectDialog, onPressed) {
     var rx = new RegExp(re, 'i');
     var n = 0;
     (function find() {
       var btns = doc.querySelectorAll('button, a');
       for (var i = 0; i < btns.length; i++) {
-        if (rx.test((btns[i].textContent || '').trim())) { press(btns[i]); return; }
+        if (rx.test((btns[i].textContent || '').trim()) && btns[i].getBoundingClientRect().width > 0) { press(btns[i]); if (onPressed) onPressed(); if (expectDialog) confirmOpened(btns[i], 0); return; }
       }
       if (++n < (tries || 15)) setTimeout(find, 150);
     })();
@@ -205,27 +273,16 @@
       openEl = doc.querySelector(it.open);
     }
     if (!openEl) return;
-    var hidParent = openEl.closest('header, div.fixed.top-0.z-50, header.topbar, div.pref-pill-wrap, header.fixed');
-    var prevDisp = '';
-    if (hidParent) {
-      prevDisp = hidParent.style.display;
-      hidParent.style.setProperty('display', 'block', 'important');
-      hidParent.style.setProperty('visibility', 'hidden', 'important');
-    }
-    function restoreHeader() {
-      if (!hidParent) return;
-      hidParent.style.display = prevDisp;
-      hidParent.style.removeProperty('visibility');
-    }
+    showHeaderOf(openEl); // a header hidden on TV is laid out while its menu is pressed (the menu needs a box)
     press(openEl);
-    if (!it.item) { restoreHeader(); return; }
+    if (!it.item) { setTimeout(restoreHeader, 700); return; }
     var itemRe = new RegExp(it.item, 'i');
     var tries = 0;
     (function findItem() {
       var cands = doc.querySelectorAll(it.itemSel || '.profile-menu-primary, .profile-menu-actions button, .profile-menu-actions a, [role="menuitem"], [role="menu"] button, .profile-popover button, .player-surface button');
       for (var j = 0; j < cands.length; j++) {
         var txt = (cands[j].innerText || cands[j].getAttribute('aria-label') || '').trim();
-        if (itemRe.test(txt)) { restoreHeader(); press(cands[j]); return; }
+        if (itemRe.test(txt)) { press(cands[j]); setTimeout(restoreHeader, 700); return; } // the menu must still be laid out while it is pressed
       }
       if (++tries < 12) setTimeout(findItem, 100); else restoreHeader();
     })();
@@ -234,9 +291,15 @@
   /** `account` with a path: open that page, then press the sign-in button the item names (openText). */
   function account(it) {
     if (!it.path) { pick(it); return; }
-    if (path() === it.path) { pressByText(it.openText || '^sign in$'); return; }
+    if (path() === it.path) { pressByText(it.openText || '^sign in$', 40, true); return; }
     try { root.sessionStorage.setItem(SIGNIN_KEY, it.openText || '^sign in$'); } catch (e) { /* ignore */ }
     go(it.path);
+  }
+
+  /** A button pressed before the page finished hydrating does nothing: wait for the load event (then a moment more). */
+  function afterLoad(fn) {
+    if (doc.readyState === 'complete') { setTimeout(fn, 800); return; }
+    root.addEventListener('load', function () { setTimeout(fn, 1200); }, { once: true });
   }
 
   function checkSignIn() {
@@ -246,8 +309,10 @@
     var items = cfg().items || [];
     for (var i = 0; i < items.length; i++) {
       if (items[i].action === 'account' && items[i].path === path()) {
-        try { root.sessionStorage.removeItem(SIGNIN_KEY); } catch (e) { /* ignore */ }
-        setTimeout(function () { pressByText(re); }, 500);
+        // The flag stays until the button was pressed: the page may still be replaced by a real navigation (go() falls back to one).
+        afterLoad(function () {
+          pressByText(re, 40, true, function () { try { root.sessionStorage.removeItem(SIGNIN_KEY); } catch (e) { /* ignore */ } });
+        });
         return;
       }
     }
@@ -264,9 +329,24 @@
     go(e.p);
   }
 
-  /** The app picked an item (id from the profile, or "recent:N"). */
+  /**
+   * The app picked an item (id from the profile, or "recent:N"). The parked focus is dropped (the page is about to change or
+   * the action focuses something itself); a pick that changes nothing (the page it opens is the one already shown) restores it.
+   */
   TV.drawerAction = function (id) {
     id = String(id || '');
+    var before = path();
+    var el = parked;
+    parked = null;
+    TV.focusHeld = false;
+    var done = runAction(id);
+    setTimeout(function () {
+      if (done && before === path() && el && el.isConnected && !TV.activeEl() && TV.renderableNow(el)) TV.setCurrent(el, null);
+    }, 450);
+    return done;
+  };
+
+  function runAction(id) {
     if (id.indexOf('recent:') === 0) { recentAction(parseInt(id.slice(7), 10)); return true; }
     var items = cfg().items || [];
     for (var i = 0; i < items.length; i++) {
@@ -279,14 +359,16 @@
       return true;
     }
     return false;
-  };
+  }
 
   // ---------- hooks from tvnav ----------
 
   TV.hooks.modalOpened = function (m) { setTimeout(function () { recordModalRecent(m); }, 700); };
   TV.hooks.route = function () {
+    restoreHeader();
     setTimeout(recordRecent, 1800);
     setTimeout(function () { syncVisibility(); pushState(); }, 400);
+    scheduleEdge();
     checkSignIn();
   };
   TV.hooks.loaded = function () { setTimeout(openRecentTitle, 900); };
