@@ -11,9 +11,9 @@ Paste the prompt in `docs/tv-adapter/RESUME-PROMPT.md` into a new Claude Code se
 ## 2. Current status
 | | |
 |---|---|
-| Current level | **L3a done** (committed `18b43d2`) and installed on the Bravia (2026-11-10 12:27). Next: speed pass, then L3b. |
-| Next step | 1) (done 2026-11-10 12:27, repeat after each stable point) Bravia install: APK is built at `apps/mobile/android/app/build/outputs/apk/tv/debug/app-tv-debug.apk` (has armeabi-v7a); run `adb connect 192.168.29.104:5555` then `adb -s 192.168.29.104:5555 install -r <apk>` (the TV must be awake with network debugging on; it dropped off adb once while asleep). 2) **Speed pass** on the start-screen ring (measure OK-to-first-paint per source, cut the 3 s ring dwell, pre-warm the other sources, before/after medians). 3) L3b: global mic search + continue watching; Moonflix has no history page, so L3b builds a native Watch History tiles screen from Movy's own watch records (Moonflix keeps `recentlyWatched` in localStorage, a ready data source). Then L4, L5, L6. Gradle needs `JAVA_HOME=C:/Program Files/Java/jdk-17` and `ANDROID_HOME=C:/Users/ak818/AppData/Local/Android/Sdk`. |
-| Last commit | master `18b43d2` (L3a) |
+| Current level | **PAUSED 2026-11-10 by the user ("wrap up") during the start-screen ring speed pass.** No agents running. L0-L3a done on master and L3a installed on the Bravia. |
+| Next step | Resume the speed pass: `git switch wip/r5-speed-ring` (`c52585d`, UNVERIFIED partial work: `StartRing`/`StartView`/`LaunchController`/`LoadingUi` edits, new `SourceWarmup` + `StartTiming` + `SourceWarmupTest`, `tvpaint.js` tweak, `scripts/tv-test/r5-speed.mjs`; no BEFORE/AFTER numbers and no REPORT section yet). Relaunch the speed-pass agent (brief below) telling it to continue from that commit, verify (`npm test` 121, Gradle 262), merge into master, reinstall on the Bravia. Then L3b, L4, L5, L6. Gradle needs `JAVA_HOME=C:/Program Files/Java/jdk-17` and `ANDROID_HOME=C:/Users/ak818/AppData/Local/Android/Sdk`. Bravia: `adb connect 192.168.29.104:5555` (TV must be awake) then `install -r apps/mobile/android/app/build/outputs/apk/tv/debug/app-tv-debug.apk`. |
+| Last commit | master `1063fa3` (L3a docs); WIP branch `wip/r5-speed-ring` `c52585d` |
 | Uncommitted, on purpose | `config/apps/movy.json` is git-ignored (`recommendedSource` changed to `cinejoy`) |
 
 ## 3. Decisions (user-confirmed) — do not re-ask
@@ -69,7 +69,7 @@ Paste the prompt in `docs/tv-adapter/RESUME-PROMPT.md` into a new Claude Code se
 - [x] L1 navigation, loading, start screen, no-resize
 - [x] L2 native drawer + sources row (Hotstar style)
 - [x] L3a keyboard proxy + in-page mic + drawer cleanup
-- [ ] Speed pass: start-screen ring (after L3a)
+- [ ] Speed pass: start-screen ring (partial, on `wip/r5-speed-ring`)
 - [ ] L3b global mic search + continue watching
 - [ ] L4 unified player settings panel + subtitle size
 - [ ] L5 exit dialog, cache lifecycle, warm-up during playback, brightness
