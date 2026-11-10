@@ -51,3 +51,12 @@ Check that work first, then finish:
 
 ## After L2: fix the L1 review
 Work through `docs/tv-adapter/R5-L1-REVIEW.md`: #1 high, #2–#7 medium, and the low items where cheap. Run on master after L2 is merged.
+
+## Level 3a — keyboard proxy + in-page mic (L3 is split in two so one agent never runs out of room)
+Read plan §"Level 3" (the "two different mics" bullets and the keyboard bullet) and `R5-INVENTORY.md` §4 and §4b.
+- **Native keyboard proxy:** OK on any site search box opens the TV keyboard every time. A hidden native `EditText` takes focus and `showSoftInput`; each keystroke is mirrored into the site input (native value setter + `input` event); Done/Search = Enter in the site; BACK / hide returns D-pad focus to the field. The WebView input is never focused for typing. Profile key `tvProfiles.<site>.search.input` (selector) in the schema mirrors, `TvProfiles.java`, tests. The drawer "Search" item opens the site's search page, focuses the box and opens the keyboard (replaces the interim behaviour from L2). Keep the pure parts (diffing text, selector choice) unit-tested.
+- **In-page mic:** a round outline mic button injected right of each site's search field, same height as the field, a normal D-pad stop (RIGHT from the field), focus ring like the cards. OK → native `RecognizerIntent` (small listening pill, hidden when nothing resolves the intent); the text is typed into that site's search box (value setter + `input`/`change`; Enter if the site needs it); focus then moves to the first result. New module `tvsearchmic.js` (registered in `CosmeticBridge`, `generate.mjs`, `b.ps1`) — do not grow `tvnav.js`.
+- **Gate 3a:** on all four sites OK on the search box opens the keyboard every time and typing appears live in the site and results update; DOWN after typing reaches results on Cinejoy and 7Movies; the in-page mic types spoken text (emulator: simulate a recognition result through a debug intent if no recogniser exists) and results appear; BACK restores focus. Screenshots `r5-L3a-*`. Report section "## Round 5 — Level 3a".
+
+## Level 3b — global mic search + continue watching (after 3a is merged)
+Plan §"Level 3": the global search overlay (4 stages), KEYCODE_SEARCH (84) + 231/219 handling, per-source `search.api` fetched natively, results loop with BACK returning to the same card, recents; Continue watching (SharedPreferences, Watch Next via androidx.tvprovider, `movy://open` deep link, in-app drawer items). Report section "## Round 5 — Level 3b". Gate 3 in the plan.
