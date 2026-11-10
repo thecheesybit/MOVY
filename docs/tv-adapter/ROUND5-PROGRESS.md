@@ -11,9 +11,9 @@ Paste the prompt in `docs/tv-adapter/RESUME-PROMPT.md` into a new Claude Code se
 ## 2. Current status
 | | |
 |---|---|
-| Current level | **L2 + review fixes done. Now: L3 (search: keyboard proxy, in-page mic, global mic search, continue watching).** |
-| Next step | Launch the L3 agent (brief in `R5-AGENT-BRIEFS.md`, plan §Level 3, §4b L3 findings). Gradle needs `JAVA_HOME=C:/Program Files/Java/jdk-17` and `ANDROID_HOME=C:/Users/ak818/AppData/Local/Android/Sdk`. |
-| Last commit | master (review fixes, after `fbb73d8`) |
+| Current level | **L3a running** (keyboard proxy + in-page mic, plus drawer cleanup: no recents rows, Cinejoy no Shorts, one "Watch History" tiles item on every source). Agent on the emulator. |
+| Next step | 1) Verify and commit L3a (`git diff --stat`, URL scan, `npm test`, Gradle). 2) **Speed pass** on the start-screen ring (measure OK-to-first-paint per source, cut the 3 s ring dwell, pre-warm the other sources, before/after medians). 3) L3b (global mic search + continue watching; no drawer recents; sources without a history page get a native tiles screen from Movy's own watch records). Then L4, L5, L6. Gradle needs `JAVA_HOME=C:/Program Files/Java/jdk-17` and `ANDROID_HOME=C:/Users/ak818/AppData/Local/Android/Sdk`. |
+| Last commit | master `2637e9d` (L3a/3b briefs); review fixes `1df167a` |
 | Uncommitted, on purpose | `config/apps/movy.json` is git-ignored (`recommendedSource` changed to `cinejoy`) |
 
 ## 3. Decisions (user-confirmed) — do not re-ask
@@ -31,6 +31,8 @@ Paste the prompt in `docs/tv-adapter/RESUME-PROMPT.md` into a new Claude Code se
 | 2026-11-10 | CH+/CH− = app brightness; VOL± = system volume (the first press unmutes a muted site video). |
 | 2026-11-10 | Exit: BACK at the root opens "Exit Movy?" (focus on Stay); a second BACK or OK on Exit exits. |
 | 2026-11-10 | Continue watching: Android home-screen Watch Next (TvProvider; Engage SDK needs Play) + an in-app row; resume via `movy://open` deep link. |
+| 2026-11-10 | Drawer has **no recents/continue-watching rows** (user, after seeing L2). Cinejoy drops Shorts. Moonflix gets a Watch History item. Continue watching lives in L3b (Watch Next + a place outside the drawer). |
+| 2026-11-10 | User: the loading circle takes ~5 s, "not fast fast". Confirmed: it is the **start-screen ring**. Queued as a **speed pass right after L3a** (before L3b): measure where the 5 s goes per source (ring dwell vs site hydration vs DNS/connect), cut what we own (ring dwell, cover timing, pre-warm the other sources' connections and the last-used source while the start screen is up), and report before/after medians. |
 | standing | Never write source URLs or hosts into files, logs, commits or UI. No movie media on disk. No second WebView during playback. TV-only changes; phone and Electron unchanged. |
 
 ## 4. Stage log
@@ -55,6 +57,7 @@ Paste the prompt in `docs/tv-adapter/RESUME-PROMPT.md` into a new Claude Code se
 
 | 2026-11-10 | Review fixes | R5-L1-REVIEW #1-#8, #10-#12 fixed (#3 partly, #9 skipped); L2 leftovers: recents cut back to fit 540 dp (b), first-key-after-idle not reproducible (a). Tests: npm 111, Gradle 255. Details in REPORT.md. | uncommitted |
 
+| 2026-11-10 | L3 split | L3a (keyboard proxy + in-page mic) and L3b (global mic search + continue watching) briefs added to `R5-AGENT-BRIEFS.md`. L3a agent launched; user feedback relayed to it: drawer recents removed, Cinejoy Shorts removed, one "Watch History" tiles item on every source. | `2637e9d` |
 
 ## 4b. L0 findings that change later levels
 - **L3 mic key:** the remote's mic/Assistant keys (`KEYCODE_VOICE_ASSIST` 231, `KEYCODE_ASSIST` 219) never reach the app on the emulator; the system Assistant takes them. `KEYCODE_SEARCH` (84) does reach `dispatchKeyEvent`. So global search opens on key 84, from the drawer, and from the search overlay's own mic. Re-check 231/219 on the Bravia in L6.
@@ -66,7 +69,9 @@ Paste the prompt in `docs/tv-adapter/RESUME-PROMPT.md` into a new Claude Code se
 - [x] L0 baseline + inventory (`R5-INVENTORY.md`)
 - [x] L1 navigation, loading, start screen, no-resize
 - [x] L2 native drawer + sources row (Hotstar style)
-- [ ] L3 search: keyboard proxy, in-page mic, global mic search, continue watching
+- [ ] L3a keyboard proxy + in-page mic (running)
+- [ ] Speed pass: start-screen ring (after L3a)
+- [ ] L3b global mic search + continue watching
 - [ ] L4 unified player settings panel + subtitle size
 - [ ] L5 exit dialog, cache lifecycle, warm-up during playback, brightness
 - [ ] L6 full QA (emulator + Bravia), docs
