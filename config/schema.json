@@ -830,12 +830,13 @@
                       "pattern": "^\\/"
                     },
                     "action": {
-                      "description": "search: the site search; pick: open a menu element and press an entry in it; account: open the sign-in page and press its button.",
+                      "description": "search: the site search; pick: open a menu element and press an entry in it; account: open the sign-in page and press its button; section: open `path`, scroll to the heading matching `openText` and focus its first tile.",
                       "type": "string",
                       "enum": [
                         "search",
                         "pick",
-                        "account"
+                        "account",
+                        "section"
                       ]
                     },
                     "open": {
@@ -875,6 +876,49 @@
             },
             "required": [
               "items"
+            ],
+            "additionalProperties": false
+          },
+          "search": {
+            "description": "The site search box (native keyboard proxy, in-page mic, drawer Search).",
+            "type": "object",
+            "properties": {
+              "input": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400,
+                "description": "The site search text box. OK on it opens the TV keyboard (a native proxy mirrors the typing into it); also where the in-page mic types."
+              },
+              "open": {
+                "description": "Button that reveals the search box (a header search button) when it is not on the page yet.",
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              },
+              "route": {
+                "description": "Search page route used when neither the box nor the opener is on the page.",
+                "type": "string",
+                "maxLength": 120,
+                "pattern": "^\\/"
+              },
+              "results": {
+                "description": "Result links or cards; the first one gets the focus after a spoken search.",
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              },
+              "enter": {
+                "description": "Press Enter in the box after a spoken search (the site needs a submit).",
+                "type": "boolean"
+              },
+              "css": {
+                "description": "Layout fix for a search box that collapses to zero width without focus (the native keyboard keeps the page input unfocused).",
+                "type": "string",
+                "maxLength": 600
+              }
+            },
+            "required": [
+              "input"
             ],
             "additionalProperties": false
           },
@@ -1672,12 +1716,13 @@
                               "pattern": "^\\/"
                             },
                             "action": {
-                              "description": "search: the site search; pick: open a menu element and press an entry in it; account: open the sign-in page and press its button.",
+                              "description": "search: the site search; pick: open a menu element and press an entry in it; account: open the sign-in page and press its button; section: open `path`, scroll to the heading matching `openText` and focus its first tile.",
                               "type": "string",
                               "enum": [
                                 "search",
                                 "pick",
-                                "account"
+                                "account",
+                                "section"
                               ]
                             },
                             "open": {
@@ -1717,6 +1762,49 @@
                     },
                     "required": [
                       "items"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "search": {
+                    "description": "The site search box (native keyboard proxy, in-page mic, drawer Search).",
+                    "type": "object",
+                    "properties": {
+                      "input": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400,
+                        "description": "The site search text box. OK on it opens the TV keyboard (a native proxy mirrors the typing into it); also where the in-page mic types."
+                      },
+                      "open": {
+                        "description": "Button that reveals the search box (a header search button) when it is not on the page yet.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "route": {
+                        "description": "Search page route used when neither the box nor the opener is on the page.",
+                        "type": "string",
+                        "maxLength": 120,
+                        "pattern": "^\\/"
+                      },
+                      "results": {
+                        "description": "Result links or cards; the first one gets the focus after a spoken search.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "enter": {
+                        "description": "Press Enter in the box after a spoken search (the site needs a submit).",
+                        "type": "boolean"
+                      },
+                      "css": {
+                        "description": "Layout fix for a search box that collapses to zero width without focus (the native keyboard keeps the page input unfocused).",
+                        "type": "string",
+                        "maxLength": 600
+                      }
+                    },
+                    "required": [
+                      "input"
                     ],
                     "additionalProperties": false
                   },
@@ -2557,12 +2645,13 @@
                               "pattern": "^\\/"
                             },
                             "action": {
-                              "description": "search: the site search; pick: open a menu element and press an entry in it; account: open the sign-in page and press its button.",
+                              "description": "search: the site search; pick: open a menu element and press an entry in it; account: open the sign-in page and press its button; section: open `path`, scroll to the heading matching `openText` and focus its first tile.",
                               "type": "string",
                               "enum": [
                                 "search",
                                 "pick",
-                                "account"
+                                "account",
+                                "section"
                               ]
                             },
                             "open": {
@@ -2602,6 +2691,49 @@
                     },
                     "required": [
                       "items"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "search": {
+                    "description": "The site search box (native keyboard proxy, in-page mic, drawer Search).",
+                    "type": "object",
+                    "properties": {
+                      "input": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400,
+                        "description": "The site search text box. OK on it opens the TV keyboard (a native proxy mirrors the typing into it); also where the in-page mic types."
+                      },
+                      "open": {
+                        "description": "Button that reveals the search box (a header search button) when it is not on the page yet.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "route": {
+                        "description": "Search page route used when neither the box nor the opener is on the page.",
+                        "type": "string",
+                        "maxLength": 120,
+                        "pattern": "^\\/"
+                      },
+                      "results": {
+                        "description": "Result links or cards; the first one gets the focus after a spoken search.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "enter": {
+                        "description": "Press Enter in the box after a spoken search (the site needs a submit).",
+                        "type": "boolean"
+                      },
+                      "css": {
+                        "description": "Layout fix for a search box that collapses to zero width without focus (the native keyboard keeps the page input unfocused).",
+                        "type": "string",
+                        "maxLength": 600
+                      }
+                    },
+                    "required": [
+                      "input"
                     ],
                     "additionalProperties": false
                   },
@@ -3442,12 +3574,13 @@
                               "pattern": "^\\/"
                             },
                             "action": {
-                              "description": "search: the site search; pick: open a menu element and press an entry in it; account: open the sign-in page and press its button.",
+                              "description": "search: the site search; pick: open a menu element and press an entry in it; account: open the sign-in page and press its button; section: open `path`, scroll to the heading matching `openText` and focus its first tile.",
                               "type": "string",
                               "enum": [
                                 "search",
                                 "pick",
-                                "account"
+                                "account",
+                                "section"
                               ]
                             },
                             "open": {
@@ -3487,6 +3620,49 @@
                     },
                     "required": [
                       "items"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "search": {
+                    "description": "The site search box (native keyboard proxy, in-page mic, drawer Search).",
+                    "type": "object",
+                    "properties": {
+                      "input": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400,
+                        "description": "The site search text box. OK on it opens the TV keyboard (a native proxy mirrors the typing into it); also where the in-page mic types."
+                      },
+                      "open": {
+                        "description": "Button that reveals the search box (a header search button) when it is not on the page yet.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "route": {
+                        "description": "Search page route used when neither the box nor the opener is on the page.",
+                        "type": "string",
+                        "maxLength": 120,
+                        "pattern": "^\\/"
+                      },
+                      "results": {
+                        "description": "Result links or cards; the first one gets the focus after a spoken search.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "enter": {
+                        "description": "Press Enter in the box after a spoken search (the site needs a submit).",
+                        "type": "boolean"
+                      },
+                      "css": {
+                        "description": "Layout fix for a search box that collapses to zero width without focus (the native keyboard keeps the page input unfocused).",
+                        "type": "string",
+                        "maxLength": 600
+                      }
+                    },
+                    "required": [
+                      "input"
                     ],
                     "additionalProperties": false
                   },

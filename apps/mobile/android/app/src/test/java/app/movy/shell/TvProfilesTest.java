@@ -81,12 +81,34 @@ public class TvProfilesTest {
         rejects("{\"a\":{\"drawer\":{\"items\":[" + item + ",\"icon\":\"rocket\"}]}}");
         rejects("{\"a\":{\"drawer\":{\"items\":[" + item + ",\"path\":\"relative\"}]}}");
         rejects("{\"a\":{\"drawer\":{\"items\":[" + item + ",\"action\":\"jump\"}]}}");
+        JSONObject sec = new JSONObject(LiveConfig.parseDefaults(defaults(",\"tvProfiles\":{\"a\":{\"drawer\":{\"items\":[" + item + ",\"action\":\"section\",\"path\":\"/\",\"openText\":\"^continue\"}]}}}"), OBF).tvProfileFor("a")).getJSONObject("drawer").getJSONArray("items").getJSONObject(0);
+        assertEquals("section", sec.getString("action"));
         rejects("{\"a\":{\"drawer\":{\"items\":[{\"id\":\"Bad Id\",\"label\":\"X\",\"icon\":\"home\"}]}}}");
         rejects("{\"a\":{\"drawer\":{\"items\":[{\"id\":\"x\",\"label\":\"A label that is far too long to fit\",\"icon\":\"home\"}]}}}");
         rejects("{\"a\":{\"drawer\":{\"modalTitles\":\"yes\",\"items\":[]}}}");
         StringBuilder many = new StringBuilder();
         for (int i = 0; i < 17; i++) many.append(i == 0 ? "" : ",").append(item).append("}");
         rejects("{\"a\":{\"drawer\":{\"items\":[" + many + "]}}}");
+    }
+
+    @Test public void searchBoxProfileSurvivesSanitisingAndIsValidated() throws Exception {
+        String extra = ",\"tvProfiles\":{\"a\":{\"search\":{\"input\":\"input[type=search]\",\"open\":\"button.s\",\"route\":\"/search\","
+                + "\"results\":\"a.r\",\"enter\":true,\"css\":\".a{width:300px}\",\"junk\":1}}}";
+        JSONObject s = new JSONObject(LiveConfig.parseDefaults(defaults(extra), OBF).tvProfileFor("a")).getJSONObject("search");
+        assertEquals("input[type=search]", s.getString("input"));
+        assertEquals("button.s", s.getString("open"));
+        assertEquals("/search", s.getString("route"));
+        assertEquals("a.r", s.getString("results"));
+        assertTrue(s.getBoolean("enter"));
+        assertEquals(".a{width:300px}", s.getString("css"));
+        assertFalse(s.has("junk"));
+        rejects("{\"a\":{\"search\":{\"open\":\"button\"}}}");
+        rejects("{\"a\":{\"search\":{\"input\":\"\"}}}");
+        rejects("{\"a\":{\"search\":{\"input\":\"i\",\"route\":\"relative\"}}}");
+        rejects("{\"a\":{\"search\":{\"input\":\"i\",\"enter\":\"yes\"}}}");
+        rejects("{\"a\":{\"search\":{\"input\":5}}}");
+        rejects("{\"a\":{\"search\":{\"input\":\"i\",\"css\":\".a{background:url(x)}\"}}}");
+        rejects("{\"a\":{\"search\":{\"input\":\"i\",\"css\":\"</style><b>\"}}}");
     }
 
     @Test public void invalidProfilesAreRejected() {

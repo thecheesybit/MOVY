@@ -10,35 +10,31 @@ import java.util.List;
 
 /**
  * Pure model of the TV drawer: the items of one source (from its profile's {@code drawer} key), the fixed order shared by
- * every source, the recent titles under "Continue watching", which item is current for a page path, and the row geometry.
+ * every source, which item is current for a page path, and the row geometry.
  * No Android classes: unit tested. Item ids never carry URLs; a path is a site-relative route.
  */
 final class DrawerModel {
     static final String SETTINGS_ID = "settings";
-    static final String RECENT_PREFIX = "recent:";
-    static final int RECENT_MAX = 3;
 
-    /** One row. {@code recent} rows exist only while the drawer is open. */
+    /** One row. */
     static final class Item {
         final String id;
         final String label;
         final String icon;
         final String path;
-        final boolean recent;
         final int rank;
 
-        Item(String id, String label, String icon, String path, boolean recent, int rank) {
+        Item(String id, String label, String icon, String path, int rank) {
             this.id = id;
             this.label = label;
             this.icon = icon;
             this.path = path;
-            this.recent = recent;
             this.rank = rank;
         }
     }
 
     private static final int RANK_SEARCH = 0, RANK_HOME = 1, RANK_MOVIES = 2, RANK_SHOWS = 3, RANK_EXTRA = 4, RANK_LIST = 5,
-            RANK_HISTORY = 6, RANK_RECENT = 7, RANK_SETTINGS = 8, RANK_ACCOUNT = 9;
+            RANK_HISTORY = 6, RANK_SETTINGS = 7, RANK_ACCOUNT = 8;
 
     private DrawerModel() {}
 
@@ -59,11 +55,10 @@ final class DrawerModel {
     }
 
     /**
-     * The drawer items for a profile JSON (may be null or "{}"), titles of the recent items (at most {@link #RECENT_MAX}
-     * are used) and the native Settings item with its label. Sorted by the fixed order; ties keep the profile's order.
+     * The drawer items for a profile JSON (may be null or "{}") and the native Settings item with its label. Sorted by the fixed order; ties keep the profile's order.
      * Items the profile names "settings" are dropped: Settings is always the native sheet.
      */
-    static List<Item> build(String profileJson, List<String> recentTitles, String settingsLabel) {
+    static List<Item> build(String profileJson, String settingsLabel) {
         List<Item> out = new ArrayList<>();
         JSONArray items = itemsOf(profileJson);
         for (int i = 0; items != null && i < items.length(); i++) {
@@ -73,14 +68,9 @@ final class DrawerModel {
             String label = o.optString("label", "");
             if (id.isEmpty() || label.isEmpty() || SETTINGS_ID.equals(id)) continue;
             String path = o.has("path") ? o.optString("path", null) : null;
-            out.add(new Item(id, label, o.optString("icon", "play"), path, false, rankOf(id)));
+            out.add(new Item(id, label, o.optString("icon", "play"), path, rankOf(id)));
         }
-        out.add(new Item(SETTINGS_ID, settingsLabel, "settings", null, false, RANK_SETTINGS));
-        for (int i = 0; recentTitles != null && i < Math.min(recentTitles.size(), RECENT_MAX); i++) {
-            String t = recentTitles.get(i);
-            if (t == null || t.isEmpty()) continue;
-            out.add(new Item(RECENT_PREFIX + i, t, "play", null, true, RANK_RECENT));
-        }
+        out.add(new Item(SETTINGS_ID, settingsLabel, "settings", null, RANK_SETTINGS));
         Collections.sort(out, new Comparator<Item>() {
             @Override public int compare(Item a, Item b) {
                 return Integer.compare(a.rank, b.rank); // List.sort is stable
@@ -111,22 +101,6 @@ final class DrawerModel {
         return 0xFF000000 | Integer.parseInt(a.substring(1), 16);
     }
 
-    /** The JSON array of recent titles the page pushed ("[]" when malformed). */
-    static List<String> parseTitles(String json) {
-        List<String> out = new ArrayList<>();
-        if (json == null) return out;
-        try {
-            JSONArray a = new JSONArray(json);
-            for (int i = 0; i < a.length() && out.size() < RECENT_MAX; i++) {
-                String s = a.optString(i, "");
-                if (!s.isEmpty()) out.add(s);
-            }
-        } catch (org.json.JSONException e) {
-            // a malformed push is ignored: the drawer just shows no recents
-        }
-        return out;
-    }
-
     /** Index of the item whose path is the longest prefix of {@code pagePath} ("/" matches only itself); -1 when none. */
     static int currentIndex(List<Item> items, String pagePath) {
         String cur = pagePath == null || pagePath.isEmpty() ? "/" : pagePath;
@@ -134,7 +108,7 @@ final class DrawerModel {
         int bestLen = -1;
         for (int i = 0; i < items.size(); i++) {
             String p = items.get(i).path;
-            if (p == null || items.get(i).recent) continue;
+            if (p == null) continue;
             boolean hit = "/".equals(p) ? "/".equals(cur) : cur.startsWith(p);
             if (hit && p.length() > bestLen) {
                 best = i;
@@ -158,13 +132,6 @@ final class DrawerModel {
         return -1;
     }
 
-    /** Rows shown by the collapsed strip: everything except the recent titles. */
-    static int closedCount(List<Item> items) {
-        int n = 0;
-        for (Item it : items) if (!it.recent) n++;
-        return n;
-    }
-
     /** Height of the Sources block above the list, in dp (shared with the view). */
     static final int SOURCE_BLOCK_DP = 92;
     static final int MIN_CELL_DP = 30;
@@ -173,15 +140,6 @@ final class DrawerModel {
     /** Height in dp the open list can use: the screen minus the safe margins above and below and the Sources block. */
     static int listViewportDp(int screenDp, int safeVDp) {
         return Math.max(0, screenDp - 2 * safeVDp - SOURCE_BLOCK_DP);
-    }
-
-    /**
-     * How many of {@code wanted} recent titles the open list can show without Settings and Account scrolling in: the rows must fit
-     * the viewport at the smallest row height. Between 0 and {@code wanted}.
-     */
-    static int recentsThatFit(int viewportDp, int baseRows, int wanted) {
-        int room = viewportDp / MIN_CELL_DP - baseRows;
-        return Math.max(0, Math.min(wanted, room));
     }
 
     /** Row height in dp of the open list: as tall as fits {@code rows} in the viewport, between 30 and 40. */

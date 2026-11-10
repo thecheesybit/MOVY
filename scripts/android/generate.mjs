@@ -6,7 +6,7 @@ import { generateIcons } from './icons.mjs';
 import { buildDefaults } from './defaults.mjs';
 
 export const TV_GATE_SCRIPT = 'tvgate.js';
-export const TV_SCRIPTS = ['tvnav-pure.js', 'tvnav.js', 'tvdrawer.js', 'tvfs.js', 'tvinset.js', 'tvmenu.js', 'tvshell.js', 'tvpaint.js', 'tvfocusmem.js', 'tvplayerfx.js'];
+export const TV_SCRIPTS = ['tvnav-pure.js', 'tvnav.js', 'tvdrawer.js', 'tvfs.js', 'tvinset.js', 'tvmenu.js', 'tvshell.js', 'tvpaint.js', 'tvfocusmem.js', 'tvplayerfx.js', 'tvsearchmic.js'];
 export const ANDROID = path.join(MOBILE_DIR, 'android');
 export const APP = path.join(ANDROID, 'app');
 export const MAIN = path.join(APP, 'src', 'main');

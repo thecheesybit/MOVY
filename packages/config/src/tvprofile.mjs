@@ -96,7 +96,7 @@ const drawerItemSchema = z
     label: z.string().min(1).max(24),
     icon: z.enum(drawerIcons),
     path: z.string().regex(/^\//).max(120).optional().describe('Site route opened inside the SPA (also marks the item current while the page path starts with it).'),
-    action: z.enum(['search', 'pick', 'account']).optional().describe('search: the site search; pick: open a menu element and press an entry in it; account: open the sign-in page and press its button.'),
+    action: z.enum(['search', 'pick', 'account', 'section']).optional().describe('search: the site search; pick: open a menu element and press an entry in it; account: open the sign-in page and press its button; section: open `path`, scroll to the heading matching `openText` and focus its first tile.'),
     open: selector.optional().describe('Element that opens the menu (pick) or the elements searched by openText.'),
     openText: selector.optional().describe('Regex the opener text must match (case-insensitive).'),
     item: selector.optional().describe('Regex of the menu entry pressed after opening (case-insensitive).'),
@@ -110,6 +110,22 @@ const drawerSchema = z
     brand: z.string().min(1).max(40).optional().describe('The site name: a page titled with just this is never listed as a recent title.'),
     modalTitles: z.boolean().optional().describe('The site shows details in a modal without a URL: remember the modal titles as recents.'),
     items: z.array(drawerItemSchema).max(16).describe('Drawer items of this source (the Sources row and Settings are added by the app).'),
+  })
+  .strict();
+
+const searchSchema = z
+  .object({
+    input: selector.describe('The site search text box. OK on it opens the TV keyboard (a native proxy mirrors the typing into it); also where the in-page mic types.'),
+    open: selector.optional().describe('Button that reveals the search box (a header search button) when it is not on the page yet.'),
+    route: z.string().regex(/^\//).max(120).optional().describe('Search page route used when neither the box nor the opener is on the page.'),
+    results: selector.optional().describe('Result links or cards; the first one gets the focus after a spoken search.'),
+    enter: z.boolean().optional().describe('Press Enter in the box after a spoken search (the site needs a submit).'),
+    css: z
+      .string()
+      .max(600)
+      .refine((c) => !/[<]|url\(|@import|expression\(/i.test(c), 'no markup, url() or @import')
+      .optional()
+      .describe('Layout fix for a search box that collapses to zero width without focus (the native keyboard keeps the page input unfocused).'),
   })
   .strict();
 
@@ -132,6 +148,7 @@ export const tvProfileSchema = z
     shell: shellSchema.optional().describe('Versioned local copy of the shell routes, checked against the live site in the background.'),
     loading: loadingSchema.optional(),
     drawer: drawerSchema.optional().describe('The native TV drawer of this source.'),
+    search: searchSchema.optional().describe('The site search box (native keyboard proxy, in-page mic, drawer Search).'),
     killOnTv: selectors.optional().describe('Heavy decorative media removed on TV (autoplaying trailer iframes).'),
     viewportWidth: z.number().int().min(320).max(3840).optional().describe('CSS px layout width on TV; default 1280, a site may opt out with 960.'),
   })

@@ -27,7 +27,7 @@ public final class TvProfiles {
     private static final String[] INSET_PROPS = {"padding-left", "margin-left", "left"};
     private static final String[] DRAWER_ICONS = {"search", "home", "film", "tv", "sparkles", "bookmark", "settings", "user", "users",
         "history", "clip", "flame", "play"};
-    private static final String[] DRAWER_ACTIONS = {"search", "pick", "account"};
+    private static final String[] DRAWER_ACTIONS = {"search", "pick", "account", "section"};
     private static final Pattern DRAWER_ID = Pattern.compile("[a-z0-9-]{1,24}");
     private static final Pattern HEX_COLOUR = Pattern.compile("#[0-9a-fA-F]{6}");
     private static final int MAX_DRAWER_ITEMS = 16;
@@ -75,6 +75,7 @@ public final class TvProfiles {
         }
         if (p.has("loading")) o.put("loading", loading(p.getJSONObject("loading")));
         if (p.has("drawer")) o.put("drawer", drawer(p.getJSONObject("drawer")));
+        if (p.has("search")) o.put("search", search(p.getJSONObject("search")));
         if (p.has("railInset")) o.put("railInset", railInset(p.getJSONArray("railInset")));
         if (p.has("cardActivate")) o.put("cardActivate", cardActivate(p.getJSONArray("cardActivate")));
         if (p.has("shell")) o.put("shell", shell(p.getJSONObject("shell")));
@@ -133,6 +134,32 @@ public final class TvProfiles {
         String s = selector(v, key);
         if (s.length() > max) throw new IllegalArgumentException(key + " length");
         return s;
+    }
+
+    /** The site search box: its selector (required), the optional opener button, search route, result selector and whether a spoken search presses Enter. */
+    private static JSONObject search(JSONObject s) throws JSONException {
+        JSONObject out = new JSONObject();
+        out.put("input", selector(s.get("input"), "search.input"));
+        for (String k : new String[] {"open", "results"}) if (s.has(k)) out.put(k, selector(s.get(k), "search." + k));
+        if (s.has("route")) {
+            Object r = s.get("route");
+            if (!(r instanceof String) || !((String) r).startsWith("/") || ((String) r).length() > 120) throw new IllegalArgumentException("search.route");
+            out.put("route", r);
+        }
+        if (s.has("css")) out.put("css", css(s.get("css")));
+        if (s.has("enter")) {
+            if (!(s.get("enter") instanceof Boolean)) throw new IllegalArgumentException("search.enter");
+            out.put("enter", s.get("enter"));
+        }
+        return out;
+    }
+
+    private static final Pattern CSS_FORBIDDEN = Pattern.compile("[<]|url\\(|@import|expression\\(", Pattern.CASE_INSENSITIVE);
+
+    /** A small CSS fix for the search box: no markup, no url(), no @import. */
+    private static String css(Object v) {
+        if (!(v instanceof String) || ((String) v).length() > 600 || CSS_FORBIDDEN.matcher((String) v).find()) throw new IllegalArgumentException("search.css");
+        return (String) v;
     }
 
     /** Site spinners / skeletons hidden because the app draws the loading spinner. */

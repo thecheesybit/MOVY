@@ -25,6 +25,7 @@ final class TvBridge {
     private volatile Consumer<String> painted;
     private volatile java.util.function.BiConsumer<String, Boolean> buffering;
     private volatile Drawer drawer;
+    private volatile Search search;
     private volatile boolean debug;
 
     /** The native drawer's side of tvdrawer.js; every method posts to the main thread. */
@@ -36,7 +37,16 @@ final class TvBridge {
 
         void visible(boolean strip, boolean player);
 
-        void state(String path, String titlesJson);
+        void state(String path);
+    }
+
+    /** The native search keyboard and mic (tvsearchmic.js); every method posts to the main thread except {@link #micAvailable}. */
+    interface Search {
+        void open(String current);
+
+        boolean micAvailable();
+
+        void micStart();
     }
 
     TvBridge(Supplier<LiveConfig> config, Supplier<Source> active, Supplier<String> pageUrl,
@@ -88,15 +98,40 @@ final class TvBridge {
         if (d != null) d.visible(strip, player);
     }
 
-    /** tvdrawer.js: the page path and the recent titles (JSON array of strings) the drawer lists. */
+    /** tvdrawer.js: the page path (the drawer marks the current section) and the recent titles (kept for the in-app Continue watching row; not listed by the drawer). */
     @JavascriptInterface
     public void drawerState(String path, String titlesJson) {
         Drawer d = drawer;
-        if (d != null) d.state(path, titlesJson);
+        if (d != null) d.state(path);
     }
 
     void setDrawer(Drawer d) {
         this.drawer = d;
+    }
+
+    void setSearch(Search s) {
+        this.search = s;
+    }
+
+    /** tvsearchmic.js: OK on the site search box; {@code current} is the box's text. The TV keyboard opens (a native proxy types into the box). */
+    @JavascriptInterface
+    public void searchOpen(String current) {
+        Search s = search;
+        if (s != null && (current == null || current.length() < 2048)) s.open(current == null ? "" : current);
+    }
+
+    /** tvsearchmic.js: whether the in-page mic button should show (something resolves the speech intent). */
+    @JavascriptInterface
+    public boolean micAvailable() {
+        Search s = search;
+        return s != null && s.micAvailable();
+    }
+
+    /** tvsearchmic.js: OK on the in-page mic. */
+    @JavascriptInterface
+    public void micStart() {
+        Search s = search;
+        if (s != null) s.micStart();
     }
 
     /** tvfs.js: fullscreen was refused for lack of a user gesture; a synthetic key from here grants one. */

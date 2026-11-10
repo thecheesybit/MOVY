@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -16,7 +15,7 @@ import java.util.regex.Pattern;
 /**
  * The TV drawer's brain: owns {@link TvDrawerView} (over the WebView), the focus machine ({@link DrawerNav}) and the model
  * ({@link DrawerModel}), turns the remote's keys into drawer moves, and talks to the page (tvdrawer.js) through the host.
- * The page reports LEFT-at-the-edge, whether the strip may show and the recent titles; the drawer asks it to run an item or to
+ * The page reports LEFT-at-the-edge, whether the strip may show and its path; the drawer asks it to run an item or to
  * hand focus back. Everything here runs on the main thread. No URLs, only ids and names.
  */
 final class TvDrawerController {
@@ -48,7 +47,6 @@ final class TvDrawerController {
     private final String settingsLabel;
     private List<DrawerModel.Item> items = Collections.emptyList();
     private List<Source> sources = Collections.emptyList();
-    private List<String> titles = new ArrayList<>();
     private String pagePath = "/";
     private boolean stripAllowed;
     private boolean playerPage;
@@ -99,9 +97,8 @@ final class TvDrawerController {
         refresh();
     }
 
-    void onState(String path, String titlesJson) {
+    void onState(String path) {
         pagePath = path == null || path.isEmpty() ? "/" : path;
-        titles = DrawerModel.parseTitles(titlesJson);
         rebuild();
     }
 
@@ -114,7 +111,6 @@ final class TvDrawerController {
         if (debug) Log.i(TAG, "source changed: strip waits for the page");
         stripAllowed = false;
         playerPage = false;
-        titles = new ArrayList<>();
         pagePath = "/";
         shown = false;
         nav.close();
@@ -283,21 +279,12 @@ final class TvDrawerController {
         return -1;
     }
 
-    /** The list; recents are cut back (2, 1, 0) when they would push Settings and Account below the fold. */
-    private List<DrawerModel.Item> buildItems(String profile) {
-        android.content.res.Resources res = activity.getResources();
-        int viewportDp = DrawerModel.listViewportDp(res.getConfiguration().screenHeightDp, Math.round(Ui.safeV(activity) / res.getDisplayMetrics().density));
-        int base = DrawerModel.build(profile, null, settingsLabel).size();
-        int keep = DrawerModel.recentsThatFit(viewportDp, base, titles.size());
-        return DrawerModel.build(profile, titles.subList(0, keep), settingsLabel);
-    }
-
     private void rebuild() {
         LiveConfig cfg = repo.config();
         Source a = repo.active();
         sources = cfg.enabledSources();
         String profile = a == null ? "{}" : cfg.tvProfileFor(a.id);
-        items = buildItems(profile);
+        items = DrawerModel.build(profile, settingsLabel);
         nav.setCounts(items.size(), sources.size());
         int cur = DrawerModel.currentIndex(items, pagePath);
         view.setContent(items, sources, currentSource(), DrawerModel.accentOf(profile, a == null ? 0xFFE50914 : a.accent),

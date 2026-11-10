@@ -29,35 +29,25 @@ public class DrawerModelTest {
     }
 
     @Test public void orderIsTheSameForEverySource() {
-        List<DrawerModel.Item> l = DrawerModel.build(PROFILE, Arrays.asList("A", "B"), "Settings");
-        assertEquals(Arrays.asList("search", "home", "movies", "shows", "shorts", "mylist", "history", "recent:0", "recent:1", "settings", "account"), ids(l));
+        List<DrawerModel.Item> l = DrawerModel.build(PROFILE, "Settings");
+        assertEquals(Arrays.asList("search", "home", "movies", "shows", "shorts", "mylist", "history", "settings", "account"), ids(l));
     }
 
     @Test public void siteSettingsItemIsReplacedByTheNativeOne() {
-        List<DrawerModel.Item> l = DrawerModel.build(PROFILE, Collections.<String>emptyList(), "Settings");
+        List<DrawerModel.Item> l = DrawerModel.build(PROFILE, "Settings");
         DrawerModel.Item s = l.get(DrawerModel.indexOf(l, DrawerModel.SETTINGS_ID));
         assertEquals("Settings", s.label);
         assertNull(s.path);
     }
 
-    @Test public void atMostThreeRecents() {
-        List<DrawerModel.Item> l = DrawerModel.build(PROFILE, Arrays.asList("1", "2", "3", "4", "5"), "Settings");
-        int n = 0;
-        for (DrawerModel.Item it : l) if (it.recent) n++;
-        assertEquals(3, n);
-        assertEquals(Arrays.asList("1", "2"), DrawerModel.parseTitles("[\"1\",\"\",\"2\"]"));
-        assertEquals(3, DrawerModel.parseTitles("[\"1\",\"2\",\"3\",\"4\"]").size());
-        assertTrue(DrawerModel.parseTitles("not json").isEmpty());
-    }
-
     @Test public void missingProfileStillHasSettings() {
-        assertEquals(Collections.singletonList("settings"), ids(DrawerModel.build("{}", null, "Settings")));
-        assertEquals(Collections.singletonList("settings"), ids(DrawerModel.build(null, null, "Settings")));
-        assertEquals(Collections.singletonList("settings"), ids(DrawerModel.build("{broken", null, "Settings")));
+        assertEquals(Collections.singletonList("settings"), ids(DrawerModel.build("{}", "Settings")));
+        assertEquals(Collections.singletonList("settings"), ids(DrawerModel.build(null, "Settings")));
+        assertEquals(Collections.singletonList("settings"), ids(DrawerModel.build("{broken", "Settings")));
     }
 
     @Test public void currentItemIsTheLongestMatchingPath() {
-        List<DrawerModel.Item> l = DrawerModel.build(PROFILE, Collections.<String>emptyList(), "Settings");
+        List<DrawerModel.Item> l = DrawerModel.build(PROFILE, "Settings");
         assertEquals("home", l.get(DrawerModel.currentIndex(l, "/")).id);
         assertEquals("movies", l.get(DrawerModel.currentIndex(l, "/movies")).id);
         assertEquals("movies", l.get(DrawerModel.currentIndex(l, "/movies/page/2")).id);
@@ -71,9 +61,7 @@ public class DrawerModelTest {
         assertEquals(0xFF111111, DrawerModel.accentOf("{\"drawer\":{\"accent\":\"red\",\"items\":[]}}", 0xFF111111));
     }
 
-    @Test public void closedStripHasNoRecentsAndRowsShrinkToFit() {
-        List<DrawerModel.Item> l = DrawerModel.build(PROFILE, Arrays.asList("A", "B", "C"), "Settings");
-        assertEquals(l.size() - 3, DrawerModel.closedCount(l));
+    @Test public void rowsShrinkToFit() {
         assertEquals(40, DrawerModel.cellDp(500, 8));
         assertEquals(31, DrawerModel.cellDp(310, 10));
         assertEquals(30, DrawerModel.cellDp(200, 12));
@@ -89,14 +77,9 @@ public class DrawerModelTest {
         assertEquals(0, DrawerModel.clampScroll(50, 100, 200));
     }
 
-    @Test public void recentsAreCutBackWhenSettingsAndAccountWouldScrollIn() {
-        int vp = DrawerModel.listViewportDp(540, 27); // 540 dp screen
-        assertEquals(540 - 54 - DrawerModel.SOURCE_BLOCK_DP, vp);
-        assertEquals(3, DrawerModel.recentsThatFit(vp, 10, 3));
-        assertEquals(2, DrawerModel.recentsThatFit(vp, 11, 3));
-        assertEquals(0, DrawerModel.recentsThatFit(vp, 20, 3));
-        assertEquals(0, DrawerModel.recentsThatFit(0, 10, 3));
-        assertEquals(1, DrawerModel.recentsThatFit(vp, 10, 1));
+    @Test public void listViewportIsTheScreenMinusMarginsAndTheSourcesBlock() {
+        assertEquals(540 - 54 - DrawerModel.SOURCE_BLOCK_DP, DrawerModel.listViewportDp(540, 27));
+        assertEquals(0, DrawerModel.listViewportDp(100, 60));
     }
 
     @Test public void theOpenListTightensItsRowsToFit() {

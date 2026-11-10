@@ -139,12 +139,18 @@ final class DohProxy {
 
     /** Closes every idle connection (background, low memory). */
     void closeIdle() {
+        java.util.List<Conn> doomed = new java.util.ArrayList<>();
         for (ArrayDeque<Conn> q : idle.values()) {
             synchronized (q) {
-                for (Conn c : q) c.close();
+                doomed.addAll(q);
                 q.clear();
             }
         }
+        if (doomed.isEmpty()) return;
+        // Closing a TLS socket writes its close_notify: never on the main thread (onStop calls this; StrictMode killed the app).
+        Thread t = new Thread(() -> { for (Conn c : doomed) c.close(); }, "doh-close");
+        t.setDaemon(true);
+        t.start();
     }
 
     Reply fetch(String method, String host, String path, Map<String, String> requestHeaders) throws IOException {

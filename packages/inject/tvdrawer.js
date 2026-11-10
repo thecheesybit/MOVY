@@ -225,17 +225,9 @@
     shownHeader = null;
   }
 
+  /** The drawer's Search item: tvsearchmic.js shows the site box (profile `search`), focuses it and opens the native TV keyboard. */
   function openSiteSearch() {
-    var sBtn = doc.querySelector('button[aria-label="Search" i], button[aria-label="Open search" i], .nav-action[aria-label="Search" i], a[aria-label="Search" i]');
-    if (!sBtn) { root.location.href = '/search'; return; }
-    showHeaderOf(sBtn);
-    setTimeout(function () {
-      press(sBtn);
-      setTimeout(function () {
-        var inp = doc.querySelector('input[type="search" i], input[type="text" i], input:not([type="hidden"])');
-        if (inp) { inp.focus(); TV.setCurrent(inp, null); }
-      }, 200);
-    }, 150);
+    if (TV.searchFromDrawer) TV.searchFromDrawer({ showHeaderOf: showHeaderOf, press: press, go: go });
   }
 
   /** A button pressed before its page finished hydrating does nothing: press again (a few times) until a dialog is up. */
@@ -285,6 +277,27 @@
         if (itemRe.test(txt)) { press(cands[j]); setTimeout(restoreHeader, 700); return; } // the menu must still be laid out while it is pressed
       }
       if (++tries < 12) setTimeout(findItem, 100); else restoreHeader();
+    })();
+  }
+
+  /** `section`: open the route, then scroll to the heading the item names (openText) and focus its first tile (a site's own "continue watching" row). */
+  function section(it) {
+    var rx = new RegExp(it.openText || '^$', 'i');
+    if (it.path && path() !== it.path) go(it.path);
+    var tries = 0;
+    (function look() {
+      var heads = doc.querySelectorAll('h1,h2,h3,[role="heading"]');
+      for (var i = 0; i < heads.length; i++) {
+        if (!rx.test((heads[i].textContent || '').trim()) || !heads[i].getBoundingClientRect().width) continue;
+        var hb = heads[i].getBoundingClientRect().bottom;
+        var all = TV.collect();
+        for (var box = heads[i].parentElement, up = 0; box && up < 5; up++, box = box.parentElement) {
+          var tiles = all.filter(function (c) { return box.contains(c.el) && c.rect.t >= hb - 4; }); // the tiles under the heading (not its own buttons)
+          tiles.sort(function (a, b) { return a.rect.t - b.rect.t || a.rect.l - b.rect.l; });
+          if (tiles.length) { TV.setCurrent(tiles[0].el, null); tiles[0].el.scrollIntoView({ block: 'center' }); return; }
+        }
+      }
+      if (++tries < 16) setTimeout(look, 300);
     })();
   }
 
@@ -355,6 +368,7 @@
       if (it.action === 'search') openSiteSearch();
       else if (it.action === 'pick') pick(it);
       else if (it.action === 'account') account(it);
+      else if (it.action === 'section') section(it);
       else if (it.path) go(it.path);
       return true;
     }

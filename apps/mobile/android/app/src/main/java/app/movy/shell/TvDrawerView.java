@@ -140,7 +140,7 @@ final class TvDrawerView extends View {
             openY = new float[0];
             return;
         }
-        int closedN = DrawerModel.closedCount(items);
+        int closedN = items.size();
         int usableDp = Math.round((h - 2f * safeV) / d);
         closedCell = Math.round(px(DrawerModel.cellDp(usableDp, closedN)));
         regionTop = safeV + px(DrawerModel.SOURCE_BLOCK_DP);
@@ -151,12 +151,10 @@ final class TvDrawerView extends View {
         float openTop = Math.max(regionTop, (h - contentH) / 2f);
         closedY = new float[items.size()];
         openY = new float[items.size()];
-        int k = 0;
         for (int i = 0; i < items.size(); i++) {
-            if (!items.get(i).recent) closedY[i] = closedTop + k++ * closedCell;
+            closedY[i] = closedTop + i * closedCell;
             openY[i] = openTop + i * cell;
         }
-        for (int i = 0; i < items.size(); i++) if (items.get(i).recent) closedY[i] = openY[i];
         scroll = DrawerModel.clampScroll(Math.round(scroll), Math.round(contentH), Math.round(viewH()));
         ellipsize();
     }
@@ -235,15 +233,13 @@ final class TvDrawerView extends View {
 
     private void drawRow(Canvas c, int i, float f) {
         DrawerModel.Item it = items.get(i);
-        if (it.recent && f <= 0.02f) return;
-        float rowAlpha = it.recent ? f * f : 1f;
-        float y = it.recent ? openY[i] - scroll * f : closedY[i] + (openY[i] - scroll - closedY[i]) * f;
+        float y = closedY[i] + (openY[i] - scroll - closedY[i]) * f;
         float cell = closedCell + (this.cell - closedCell) * f; // the pitch tightens as the list opens
         float cy = y + cell / 2f;
         boolean focus = zone == DrawerNav.Zone.LIST && i == listIdx;
         boolean current = it.id.equals(currentId);
         int tone = focus || current ? UiTokens.WHITE : GREY;
-        int a = Math.round(255 * rowAlpha);
+        int a = 255;
         if (focus && f > 0f) {
             rect.set(px(8), y + px(3), px(STRIP_DP + LABEL_DP - 12), y + cell - px(3));
             fill.setColor(withAlpha(accent, Math.round(0x40 * f)));
@@ -257,9 +253,9 @@ final class TvDrawerView extends View {
             rect.set(0, cy - cell * 0.25f, px(3), cy + cell * 0.25f);
             c.drawRoundRect(rect, px(1.5f), px(1.5f), fill);
         }
-        icons.draw(c, it.icon, px(STRIP_DP) / 2f, cy, cell * (it.recent ? 0.42f : 0.55f), withAlpha(tone, a));
+        icons.draw(c, it.icon, px(STRIP_DP) / 2f, cy, cell * 0.55f, withAlpha(tone, a));
         if (f <= 0f) return;
-        text.setColor(withAlpha(tone, Math.round(255 * f * rowAlpha)));
+        text.setColor(withAlpha(tone, Math.round(255 * f)));
         text.setFakeBoldText(focus || current);
         c.drawText(labels.get(i), 0, labels.get(i).length(), px(STRIP_DP) + px(2) + (1f - f) * px(-20),
                 cy - (text.ascent() + text.descent()) / 2f, text);

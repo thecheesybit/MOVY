@@ -54,6 +54,7 @@ public class MainActivity extends BridgeActivity {
     private Failover failover;
     private IslandController island;
     private TvDrawerController drawer;
+    private TvSearchController search;
     private SettingsSheet settings;
     private TvController tvKeys;
     private TvHint tvHint;
@@ -435,6 +436,7 @@ public class MainActivity extends BridgeActivity {
             // Volume keys wake a muted banner/trailer: the system still changes the volume, the page just stops being silent.
             bridge.getWebView().evaluateJavascript("window.__movyTv&&window.__movyTv.media&&window.__movyTv.media('unmute',0)", null);
         }
+        if (search != null && search.handleKey(e)) return true; // the search keyboard owns the D-pad and BACK while it is up
         if (drawer != null && drawer.handleKey(e)) return true;
         if (tvKeys != null && tvKeys.dispatch(e)) return true;
         if (cfg.tv && e.getKeyCode() == KeyEvent.KEYCODE_BACK && chrome != null && chrome.isFullscreen()
@@ -499,6 +501,7 @@ public class MainActivity extends BridgeActivity {
                 () -> runOnUiThread(launch::debugShowChooser),
                 sourceId -> runOnUiThread(() -> repo.openStart(sourceId)));
         setupDrawer(tvBridge);
+        search = TvSearchController.install(this, repo, tvBridge, () -> bridge == null ? null : bridge.getWebView(), cfg.debug);
         tvBridge.setShellBoot(ok -> runOnUiThread(() -> onShellBoot(ok)));
         tvBridge.setPainted(url -> runOnUiThread(() -> onPagePainted(url))); tvBridge.setDebug(cfg.debug);
         tvBridge.setBuffering((token, on) -> runOnUiThread(() -> loadingUi.setBuffering(token, on)));
@@ -540,7 +543,7 @@ public class MainActivity extends BridgeActivity {
             }
             @Override public void setPageIdle(boolean idle) { MainActivity.this.setPageIdle(idle); }
             @Override public boolean idleSuspended() {
-                return launch.isChooserShowing() || launch.errorPanel().isShowing() || (drawer != null && drawer.isOpen());
+                return launch.isChooserShowing() || launch.errorPanel().isShowing() || (drawer != null && drawer.isOpen()) || (search != null && search.isOpen());
             }
         });
     }
@@ -560,7 +563,7 @@ public class MainActivity extends BridgeActivity {
             @Override public void edgeLeft() { runOnUiThread(() -> drawer.onEdgeLeft()); }
             @Override public void edgeState(boolean atEdge) { drawer.setAtEdge(atEdge); }
             @Override public void visible(boolean strip, boolean player) { runOnUiThread(() -> drawer.onVisible(strip, player)); }
-            @Override public void state(String path, String titlesJson) { runOnUiThread(() -> drawer.onState(path, titlesJson)); }
+            @Override public void state(String path) { runOnUiThread(() -> drawer.onState(path)); }
         });
         repo.addListener(new SourceRepository.Listener() {
             @Override public void onConfigChanged(LiveConfig config) { drawer.onConfigChanged(); }
@@ -654,7 +657,7 @@ public class MainActivity extends BridgeActivity {
     }
 
     private void handleDebugIntent(Intent intent) {
-        if (cfg.debug && bridge != null) DebugIntents.handle(intent, bridge.getWebView(), failover, launch, repo);
+        if (cfg.debug && bridge != null) DebugIntents.handle(intent, bridge.getWebView(), failover, launch, repo, search);
     }
 
     private void onBack() {

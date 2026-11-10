@@ -55,4 +55,6 @@
     <string name="movy_cursor_pill">Pointer mode · hold BACK to exit</string>
     <string name="movy_cursor_on">Pointer mode on</string>
     <string name="movy_cursor_off">Pointer mode off</string>
+    <string name="movy_listening">Listening…</string>
+    <string name="movy_say_title">Say a movie or show</string>
 </resources>

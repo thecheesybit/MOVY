@@ -238,6 +238,19 @@ test('tvProfiles: strict keys, types and ranges', () => {
   fails({ ...multi, tvProfiles: { a: { header: [''] } } }, /tvProfiles\.a\.header\.0/);
 });
 
+test('tvProfiles: search box selectors, route and flags are validated', () => {
+  const search = { input: 'input[type=search]', open: 'button[aria-label=Search]', route: '/search', results: 'a[href^="/m/"]', enter: false };
+  const c = parse({ ...multi, tvProfiles: { a: { search } } });
+  assert.equal(c.tvProfiles.a.search.input, 'input[type=search]');
+  assert.equal(c.tvProfiles.a.search.route, '/search');
+  fails({ ...multi, tvProfiles: { a: { search: { open: 'button' } } } }, /tvProfiles\.a\.search\.input/);
+  fails({ ...multi, tvProfiles: { a: { search: { ...search, route: 'relative' } } } }, /tvProfiles\.a\.search\.route/);
+  fails({ ...multi, tvProfiles: { a: { search: { ...search, enter: 'yes' } } } }, /tvProfiles\.a\.search\.enter/);
+  fails({ ...multi, tvProfiles: { a: { search: { ...search, bogus: 1 } } } }, /tvProfiles\.a\.search/);
+  parse({ ...multi, tvProfiles: { a: { search: { ...search, css: '.a{width:300px}' } } } });
+  fails({ ...multi, tvProfiles: { a: { search: { ...search, css: '.a{background:url(x)}' } } } }, /tvProfiles\.a\.search\.css/);
+});
+
 test('tvProfiles: drawer items, accent and icons are validated', () => {
   const drawer = {
     accent: '#3b82f6',
@@ -256,6 +269,7 @@ test('tvProfiles: drawer items, accent and icons are validated', () => {
   fails({ ...multi, tvProfiles: { a: { drawer: { items: [{ ...item, icon: 'rocket' }] } } } }, /tvProfiles\.a\.drawer\.items\.0\.icon/);
   fails({ ...multi, tvProfiles: { a: { drawer: { items: [{ ...item, path: 'relative' }] } } } }, /tvProfiles\.a\.drawer\.items\.0\.path/);
   fails({ ...multi, tvProfiles: { a: { drawer: { items: [{ ...item, action: 'jump' }] } } } }, /tvProfiles\.a\.drawer\.items\.0\.action/);
+  parse({ ...multi, tvProfiles: { a: { drawer: { items: [{ ...item, action: 'section', path: '/', openText: '^continue' }] } } } });
   fails({ ...multi, tvProfiles: { a: { drawer: { items: [{ ...item, bogus: 1 }] } } } }, /tvProfiles\.a\.drawer\.items\.0/);
   fails({ ...multi, tvProfiles: { a: { drawer: { items: Array.from({ length: 17 }, () => item) } } } }, /tvProfiles\.a\.drawer\.items/);
   fails({ ...multi, tvProfiles: { a: { drawer: { items: [{ ...item, id: 'Bad Id' }] } } } }, /tvProfiles\.a\.drawer\.items\.0\.id/);
