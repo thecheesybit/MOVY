@@ -12,7 +12,7 @@ Paste the prompt in `docs/tv-adapter/RESUME-PROMPT.md` into a new Claude Code se
 | | |
 |---|---|
 | Current level | **L3a running** (keyboard proxy + in-page mic, plus drawer cleanup: no recents rows, Cinejoy no Shorts, one "Watch History" tiles item on every source). Agent on the emulator. |
-| Next step | 1) Verify and commit L3a (`git diff --stat`, URL scan, `npm test`, Gradle). 2) **Speed pass** on the start-screen ring (measure OK-to-first-paint per source, cut the 3 s ring dwell, pre-warm the other sources, before/after medians). 3) L3b (global mic search + continue watching; no drawer recents; sources without a history page get a native tiles screen from Movy's own watch records). Then L4, L5, L6. Gradle needs `JAVA_HOME=C:/Program Files/Java/jdk-17` and `ANDROID_HOME=C:/Users/ak818/AppData/Local/Android/Sdk`. |
+| Next step | 1) Verify and commit L3a (`git diff --stat`, URL scan, `npm test`, Gradle), then **install the latest TV build on the Bravia** (`adb connect 192.168.29.104:5555`, `adb -s <ip>:5555 install -r` of the tv debug APK; install only, user's standing request). Repeat the Bravia install at every later stable point (after each verified+committed level). 2) **Speed pass** on the start-screen ring (measure OK-to-first-paint per source, cut the 3 s ring dwell, pre-warm the other sources, before/after medians). 3) L3b (global mic search + continue watching; no drawer recents; sources without a history page get a native tiles screen from Movy's own watch records). Then L4, L5, L6. Gradle needs `JAVA_HOME=C:/Program Files/Java/jdk-17` and `ANDROID_HOME=C:/Users/ak818/AppData/Local/Android/Sdk`. |
 | Last commit | master `2637e9d` (L3a/3b briefs); review fixes `1df167a` |
 | Uncommitted, on purpose | `config/apps/movy.json` is git-ignored (`recommendedSource` changed to `cinejoy`) |
 
@@ -33,6 +33,7 @@ Paste the prompt in `docs/tv-adapter/RESUME-PROMPT.md` into a new Claude Code se
 | 2026-11-10 | Continue watching: Android home-screen Watch Next (TvProvider; Engage SDK needs Play) + an in-app row; resume via `movy://open` deep link. |
 | 2026-11-10 | Drawer has **no recents/continue-watching rows** (user, after seeing L2). Cinejoy drops Shorts. Moonflix gets a Watch History item. Continue watching lives in L3b (Watch Next + a place outside the drawer). |
 | 2026-11-10 | User: the loading circle takes ~5 s, "not fast fast". Confirmed: it is the **start-screen ring**. Queued as a **speed pass right after L3a** (before L3b): measure where the 5 s goes per source (ring dwell vs site hydration vs DNS/connect), cut what we own (ring dwell, cover timing, pre-warm the other sources' connections and the last-used source while the start screen is up), and report before/after medians. |
+| 2026-11-10 | **Standing:** at each stable point (a verified, committed level) install the latest TV build on the Bravia (`192.168.29.104:5555`). Install only; full Bravia QA stays in L6. |
 | standing | Never write source URLs or hosts into files, logs, commits or UI. No movie media on disk. No second WebView during playback. TV-only changes; phone and Electron unchanged. |
 
 ## 4. Stage log
