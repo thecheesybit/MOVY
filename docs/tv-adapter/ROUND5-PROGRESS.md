@@ -11,9 +11,9 @@ Paste the prompt in `docs/tv-adapter/RESUME-PROMPT.md` into a new Claude Code se
 ## 2. Current status
 | | |
 |---|---|
-| Current level | **PAUSED 2026-11-10 by the user, during L2 (native drawer).** No agents running. |
-| Next step | Resume L2: `git switch wip/r5-L2-drawer` (commit `e65e280`: the JS rail is removed from tvnav.js (1657→1071 lines) and `tvdrawer.js` started; tvfs/tvmenu/tvnav-pure touched; **native `TvDrawerView` not built, schema/profile `drawer` key not done, CH± not unmapped, IslandView still used on TV**). Relaunch the L2 agent on that branch with the same Level 2 brief, telling it to continue from that commit. Then merge into master, fix the `R5-L1-REVIEW.md` findings (1 high, 6 medium), commit, and start L3. Gradle needs `JAVA_HOME=C:/Program Files/Java/jdk-17` and `ANDROID_HOME=C:/Users/ak818/AppData/Local/Android/Sdk`. |
-| Last commit | master `a967bd8` (L1 review docs); WIP branch `wip/r5-L2-drawer` `e65e280` |
+| Current level | **L2 done (merged to master). Now: fix L1 review findings, then L3.** |
+| Next step | Launch a fix agent for `R5-L1-REVIEW.md` (#1 high, #2-#7 medium, cheap lows) plus the L2 leftovers below; then commit and start L3 (search: keyboard proxy, in-page mic, global mic search, continue watching). Gradle needs `JAVA_HOME=C:/Program Files/Java/jdk-17` and `ANDROID_HOME=C:/Users/ak818/AppData/Local/Android/Sdk`. |
+| Last commit | master `1d3f039` (L2) |
 | Uncommitted, on purpose | `config/apps/movy.json` is git-ignored (`recommendedSource` changed to `cinejoy`) |
 
 ## 3. Decisions (user-confirmed) — do not re-ask
@@ -49,7 +49,9 @@ Paste the prompt in `docs/tv-adapter/RESUME-PROMPT.md` into a new Claude Code se
 | 2026-11-10 | L1 done | Start screen (StartView/AvatarView/StartRing, Cinejoy default, 3 s ring), one spinner + caption (LoadingMode), tvgate.js (player scripts only in player frames), tvplayerfx.js (fullscreen at Play, hidden until stable), one BACK leaves player, idle key acts, held D-pad throttle, tvfocusmem.js, DohProxy warm connections, Moonflix analytics rules. Fresh-emulator medians (HEAD → L1): switch Cinejoy 5356→5121 ms, launch Cinejoy 10352→9803 ms; the others within noise (L0's numbers came from a degraded emulator). **Not met:** Cinejoy cold ≤ 8 s (site's own 6 s main-thread hydration). Open: player-spinner selectors for `loading.hide`, Moonflix player sampling, 7Movies embed is 960x540 from the start (stable but small), start screen shows initials not logos, idle-key/focus-restore only unit-tested. Tests: npm 106, Gradle 217, all pass. | `7a8b13c` |
 | 2026-11-10 | L2 started | Native drawer agent + L1 code-review agent (read-only) launched. | — |
 | 2026-11-10 | L1 review | 0 critical, 1 high (start ring can wait 15 s if the page painted during the splash), 6 medium, 5 low. Saved in `R5-L1-REVIEW.md`; **fix after L2 lands**. | `a967bd8` |
-| 2026-11-10 | **Paused** | User asked to pause. L2 agent stopped mid-work; its partial JS changes are parked on branch `wip/r5-L2-drawer` (`e65e280`) so master still builds and works at L1. | `e65e280` (branch) |
+| 2026-11-10 | Paused | User asked to pause. L2 agent stopped mid-work; its partial JS changes are parked on branch `wip/r5-L2-drawer` (`e65e280`) so master still builds and works at L1. | `e65e280` (branch) |
+
+| 2026-11-10 | L2 done | Native drawer: `TvDrawerView`/`TvDrawerController`/`DrawerModel`/`DrawerNav`, profile key `tvProfiles.<site>.drawer`, Sources row, edge-LEFT open, no double-RIGHT, CH± unmapped (TODO L5), IslandView off TV. Latency: handler 3-15 ms, first frame 19-38 ms (old JS path 270-880 ms). tvnav.js 1657→1086. User bug fixed: Moonflix strip vanished after 5 s idle (strip hid on idle while the inset stayed). Tests: npm 109, Gradle 237. **Open:** Bravia untested (L6); Settings/Account scroll in below the fold with 3 recents; first key after long idle still swallowed; Movy search overlay narrow until L3; Moonflix recents show odd titles; initials not logos; signed-in not tested. | `1d3f039` |
 
 
 ## 4b. L0 findings that change later levels
@@ -61,7 +63,7 @@ Paste the prompt in `docs/tv-adapter/RESUME-PROMPT.md` into a new Claude Code se
 ## 5. Level checklist
 - [x] L0 baseline + inventory (`R5-INVENTORY.md`)
 - [x] L1 navigation, loading, start screen, no-resize
-- [ ] L2 native drawer (partial, on `wip/r5-L2-drawer`) + sources row (Hotstar style)
+- [x] L2 native drawer + sources row (Hotstar style)
 - [ ] L3 search: keyboard proxy, in-page mic, global mic search, continue watching
 - [ ] L4 unified player settings panel + subtitle size
 - [ ] L5 exit dialog, cache lifecycle, warm-up during playback, brightness
