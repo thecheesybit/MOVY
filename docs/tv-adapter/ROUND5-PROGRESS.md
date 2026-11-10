@@ -52,11 +52,8 @@ Paste the prompt in `docs/tv-adapter/RESUME-PROMPT.md` into a new Claude Code se
 | 2026-11-10 | L2 started | Native drawer agent + L1 code-review agent (read-only) launched. | — |
 | 2026-11-10 | L1 review | 0 critical, 1 high (start ring can wait 15 s if the page painted during the splash), 6 medium, 5 low. Saved in `R5-L1-REVIEW.md`; **fix after L2 lands**. | `a967bd8` |
 | 2026-11-10 | Paused | User asked to pause. L2 agent stopped mid-work; its partial JS changes are parked on branch `wip/r5-L2-drawer` (`e65e280`) so master still builds and works at L1. | `e65e280` (branch) |
-
 | 2026-11-10 | L2 done | Native drawer: `TvDrawerView`/`TvDrawerController`/`DrawerModel`/`DrawerNav`, profile key `tvProfiles.<site>.drawer`, Sources row, edge-LEFT open, no double-RIGHT, CH± unmapped (TODO L5), IslandView off TV. Latency: handler 3-15 ms, first frame 19-38 ms (old JS path 270-880 ms). tvnav.js 1657→1086. User bug fixed: Moonflix strip vanished after 5 s idle (strip hid on idle while the inset stayed). Tests: npm 109, Gradle 237. **Open:** Bravia untested (L6); Settings/Account scroll in below the fold with 3 recents; first key after long idle still swallowed; Movy search overlay narrow until L3; Moonflix recents show odd titles; initials not logos; signed-in not tested. | `1d3f039` |
-
 | 2026-11-10 | Review fixes | R5-L1-REVIEW #1-#8, #10-#12 fixed (#3 partly, #9 skipped); L2 leftovers: recents cut back to fit 540 dp (b), first-key-after-idle not reproducible (a). Tests: npm 111, Gradle 255. Details in REPORT.md. | uncommitted |
-
 | 2026-11-10 | L3 split | L3a (keyboard proxy + in-page mic) and L3b (global mic search + continue watching) briefs added to `R5-AGENT-BRIEFS.md`. L3a agent launched; user feedback relayed to it: drawer recents removed, Cinejoy Shorts removed, one "Watch History" tiles item on every source. | `2637e9d` |
 
 ## 4b. L0 findings that change later levels
