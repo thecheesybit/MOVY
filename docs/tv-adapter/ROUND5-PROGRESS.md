@@ -11,9 +11,9 @@ Paste the prompt in `docs/tv-adapter/RESUME-PROMPT.md` into a new Claude Code se
 ## 2. Current status
 | | |
 |---|---|
-| Current level | **L3a running** (keyboard proxy + in-page mic, plus drawer cleanup: no recents rows, Cinejoy no Shorts, one "Watch History" tiles item on every source). Agent on the emulator. |
-| Next step | 1) Verify and commit L3a (`git diff --stat`, URL scan, `npm test`, Gradle), then **install the latest TV build on the Bravia** (`adb connect 192.168.29.104:5555`, `adb -s <ip>:5555 install -r` of the tv debug APK; install only, user's standing request). Repeat the Bravia install at every later stable point (after each verified+committed level). 2) **Speed pass** on the start-screen ring (measure OK-to-first-paint per source, cut the 3 s ring dwell, pre-warm the other sources, before/after medians). 3) L3b (global mic search + continue watching; no drawer recents; sources without a history page get a native tiles screen from Movy's own watch records). Then L4, L5, L6. Gradle needs `JAVA_HOME=C:/Program Files/Java/jdk-17` and `ANDROID_HOME=C:/Users/ak818/AppData/Local/Android/Sdk`. |
-| Last commit | master `2637e9d` (L3a/3b briefs); review fixes `1df167a` |
+| Current level | **L3a done** (committed). Bravia install pending (TV unreachable at the last try). Next: speed pass, then L3b. |
+| Next step | 1) Install the L3a build on the Bravia: APK is built at `apps/mobile/android/app/build/outputs/apk/tv/debug/app-tv-debug.apk` (has armeabi-v7a); run `adb connect 192.168.29.104:5555` then `adb -s 192.168.29.104:5555 install -r <apk>` (the TV must be awake with network debugging on). 2) **Speed pass** on the start-screen ring (measure OK-to-first-paint per source, cut the 3 s ring dwell, pre-warm the other sources, before/after medians). 3) L3b: global mic search + continue watching; Moonflix has no history page, so L3b builds a native Watch History tiles screen from Movy's own watch records (Moonflix keeps `recentlyWatched` in localStorage, a ready data source). Then L4, L5, L6. Gradle needs `JAVA_HOME=C:/Program Files/Java/jdk-17` and `ANDROID_HOME=C:/Users/ak818/AppData/Local/Android/Sdk`. |
+| Last commit | master `18b43d2` (L3a) |
 | Uncommitted, on purpose | `config/apps/movy.json` is git-ignored (`recommendedSource` changed to `cinejoy`) |
 
 ## 3. Decisions (user-confirmed) — do not re-ask
@@ -56,6 +56,7 @@ Paste the prompt in `docs/tv-adapter/RESUME-PROMPT.md` into a new Claude Code se
 | 2026-11-10 | L2 done | Native drawer: `TvDrawerView`/`TvDrawerController`/`DrawerModel`/`DrawerNav`, profile key `tvProfiles.<site>.drawer`, Sources row, edge-LEFT open, no double-RIGHT, CH± unmapped (TODO L5), IslandView off TV. Latency: handler 3-15 ms, first frame 19-38 ms (old JS path 270-880 ms). tvnav.js 1657→1086. User bug fixed: Moonflix strip vanished after 5 s idle (strip hid on idle while the inset stayed). Tests: npm 109, Gradle 237. **Open:** Bravia untested (L6); Settings/Account scroll in below the fold with 3 recents; first key after long idle still swallowed; Movy search overlay narrow until L3; Moonflix recents show odd titles; initials not logos; signed-in not tested. | `1d3f039` |
 | 2026-11-10 | Review fixes | R5-L1-REVIEW #1-#8, #10-#12 fixed (#3 partly, #9 skipped); L2 leftovers: recents cut back to fit 540 dp (b), first-key-after-idle not reproducible (a). Tests: npm 111, Gradle 255. Details in REPORT.md. | uncommitted |
 | 2026-11-10 | L3 split | L3a (keyboard proxy + in-page mic) and L3b (global mic search + continue watching) briefs added to `R5-AGENT-BRIEFS.md`. L3a agent launched; user feedback relayed to it: drawer recents removed, Cinejoy Shorts removed, one "Watch History" tiles item on every source. | `2637e9d` |
+| 2026-11-10 | L3a done | Native search keyboard proxy (hidden EditText mirrors keys into the site box, OK reopens it every time), in-page mic button (`tvsearchmic.js`, debug phrase `--es movy_voice`), profile `tvProfiles.<site>.search`, drawer search opens site search + keyboard. Drawer: recents rows and Cinejoy Shorts removed; "Watch History" per source (Cinejoy real page, Movy account-menu entry, 7Movies scrolls to its Continue-watching row, **Moonflix none**). Fixed a crash: `DohProxy.closeIdle` closed sockets on the main thread when the app went to background. Tests: npm 121, Gradle 262. **Open:** not tried on the Bravia or with a real recogniser result; Movy DOWN after typing lands on result tabs; search box is read-only so a USB keyboard no longer types into it; emulator screensaver must be off for `r5-search.sh`/`r5-mic.sh`. | `18b43d2` |
 
 ## 4b. L0 findings that change later levels
 - **L3 mic key:** the remote's mic/Assistant keys (`KEYCODE_VOICE_ASSIST` 231, `KEYCODE_ASSIST` 219) never reach the app on the emulator; the system Assistant takes them. `KEYCODE_SEARCH` (84) does reach `dispatchKeyEvent`. So global search opens on key 84, from the drawer, and from the search overlay's own mic. Re-check 231/219 on the Bravia in L6.
@@ -67,7 +68,7 @@ Paste the prompt in `docs/tv-adapter/RESUME-PROMPT.md` into a new Claude Code se
 - [x] L0 baseline + inventory (`R5-INVENTORY.md`)
 - [x] L1 navigation, loading, start screen, no-resize
 - [x] L2 native drawer + sources row (Hotstar style)
-- [ ] L3a keyboard proxy + in-page mic (running)
+- [x] L3a keyboard proxy + in-page mic + drawer cleanup
 - [ ] Speed pass: start-screen ring (after L3a)
 - [ ] L3b global mic search + continue watching
 - [ ] L4 unified player settings panel + subtitle size
