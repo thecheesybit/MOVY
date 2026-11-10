@@ -448,3 +448,36 @@ More Info modal opens and closes, after Play and BACK, and LEFT opens the drawer
 - Movy's search overlay is the site's own narrow header box (L3 replaces it with the native keyboard); Moonflix "recents" come from the old modal-title heuristic and can list odd titles (for example a row title).
 - Start-screen avatars and drawer avatars show initials, not logos.
 - Account actions rely on site texts ("Sign In", "Login"); a signed-in user sees the site's own account menu items through the same `pick` rules (not tested signed-in).
+
+
+## Round 5 — Review fixes (L1 review findings and L2 leftovers)
+
+Between L2 and L3. TV only; the phone flavour compiles unchanged, Electron untouched. Status per finding is also marked in `R5-L1-REVIEW.md`.
+
+| # | Sev | Result | What changed |
+|---|---|---|---|
+| 1 | HIGH | Fixed | `PaintLedger` (pure) remembers which sources painted since the last real load. `LaunchController` asks it when `StartView` is created and in the same-source branch of `requestLoad`, so a paint that came during the splash (or while focus was elsewhere) is no longer lost and the ring no longer waits for the 15 s cap. Emulator check: Movy loaded behind a 10 s held splash, the start screen appeared at ~10 s and the site opened at ~13.5 s (ring 3 s), not at the 15 s cap (`r5-fix-hold-*`). |
+| 2 | MED | Fixed | `tvpaint.js` sends its own `location.href` (`painted(url)`); `PaintLedger.accept(cfg, reportedUrl, currentPageUrl)` credits the paint only when both belong to the same source. A late paint of the previous document no longer lifts the cover or opens the start screen early. |
+| 3 | MED | Partly fixed | The bridge cannot tell which frame called, and cross-origin player embeds must be able to report buffering, so a strict top-frame rule is not possible. Instead: `painted` is accepted only for a source page that is the page now showing (rule of #2: an ad frame is not one), and the buffering set is `BufferingSet` (pure): at most 8 players, tokens at most 40 chars, an entry not refreshed within 60 s is dropped. A hostile frame that spoofs a source URL could still lift the cover early; it can no longer pin the spinner. |
+| 4 | MED | Fixed | `LeavePlayerGate` (pure): after the BACK that leaves fullscreen, a second BACK within 500 ms is ignored; the delayed `leavePlayer` runs only if the page URL is unchanged. Emulator: two BACKs 100 ms apart during playback end on the Cinejoy home, no exit toast (`r5-fix-double-back*`). |
+| 5 | MED | Fixed | `tvplayerfx.js`: `mayZoom(inFrame, z)`; only the top document zooms its fullscreen element. |
+| 6 | MED | Fixed | `DohProxy.prewarm` reads `q.size()` inside `synchronized(q)`. |
+| 7 | MED | Fixed | Slot wait 20 s to 6 s (`SLOT_WAIT_MS`), then `IOException("busy")`; `DohRescue.intercept` already turns an IOException into `null`, so the WebView resolves the host itself. `acquireSlot/releaseSlot` split out so it is testable without a network. |
+| 8 | LOW | Fixed | `DohRescue.prewarm()` is called from `LaunchController.requestLoad` (start-screen focus changes). |
+| 9 | LOW | Skipped | Splitting `tvnav.js` (1086, unchanged) and `tvfs.js` (793) is a risky refactor outside this round; nothing grew. `MainActivity` stays at 708 lines (the debug-intent handler moved to `DebugIntents`). |
+| 10 | LOW | Fixed | `LoadingUi.release()` removes the delayed runnables and clears the buffering set; called from `onDestroy`. |
+| 11 | LOW | Fixed | `tvfocusmem.js`: `pushState`/`replaceState` are wrapped (plus `popstate`, `hashchange`); the 500 ms interval is gone. |
+| 12 | LOW | Fixed | `tvgate.js`: `validate()` drops an invalid `player.docMarkers` selector (the others still work) and, when `MovyTvNative.debug()` is true (debug builds only), warns with the selector text. |
+
+### L2 leftovers
+- **(a) First key after a long idle.** Not reproducible on the current build, so no code change. `TvIdle.onKey` never consumes a key (since L1) and `tvfs.js` only swallows OK with nothing focused, by design. Checked with no wake key: after 9 s and after 45 s idle a first LEFT opens the drawer (handler 5-8 ms) on Cinejoy, Movy, 7Movies and Moonflix, and a first DOWN or RIGHT moves the focus on Cinejoy (`r5-fix-idle-*`). The earlier report probably came from a build before L1's idle change or from the test helper's wake key. If it still happens on the Bravia it needs a trace there (L6).
+- **(b) 13 rows on a 540 dp screen.** Fixed without losing the look: the open list has its own row pitch (`DrawerModel.openCellDp`, 30-40 dp; the strip keeps its own pitch and the pitch tightens during the open animation), and recents are cut back to 2, 1 or 0 when even 30 dp rows would not fit (`recentsThatFit`, computed in `TvDrawerController.buildItems` from the screen height and safe margin). On 540 dp with 3 recents all 13 rows fit and Settings and Account are visible without scrolling (`r5-fix-cinejoy-drawer`, `r5-fix-movy-drawer`, `r5-fix-7movies-drawer`).
+
+### Tests
+`npm test` 111 pass (was 109; one new test each in tvplayerfx and tvgate). Gradle `testTvDebugUnitTest` 255 pass (was 237; new `PaintLedgerTest`, `BufferingSetTest`, `LeavePlayerGateTest`, `DohSlotTest`, two tests in `DrawerModelTest`). `compilePhoneDebugJavaWithJavac` passes.
+
+### Emulator smoke (`screenshots/r5-fix-*`)
+Start screen to Cinejoy (opens at 12-17 s cold), drawer open on all four sources, Cinejoy playback and one BACK to the home, double BACK, switch Cinejoy to Moonflix and back through the drawer (both pages painted, cover lifted), the held-splash scenario for #1. Playback was exercised on Cinejoy only.
+
+### Not met / open
+- #3 is not a hard top-frame guarantee (see above). #9 skipped. (a) not reproduced, so unverified on the Bravia, which is still untested (L6).

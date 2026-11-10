@@ -28,7 +28,6 @@ final class TvDrawerView extends View {
     private static final int LABEL_DP = 250;
     private static final int SOURCE_GAP_DP = 14;
     private static final int SOURCE_R_DP = 22;
-    private static final int SOURCE_BLOCK_DP = 92;
     private static final int GREY = 0xFF9A9CA6;
     private static final int SCRIM = 0xF20F1014;
 
@@ -54,7 +53,8 @@ final class TvDrawerView extends View {
     private int listIdx;
     private int srcIdx;
     private float open;
-    private int cell;
+    private int cell; // row pitch of the open list
+    private int closedCell; // row pitch of the collapsed strip
     private float[] closedY = new float[0];
     private float[] openY = new float[0];
     private float regionTop;
@@ -142,17 +142,18 @@ final class TvDrawerView extends View {
         }
         int closedN = DrawerModel.closedCount(items);
         int usableDp = Math.round((h - 2f * safeV) / d);
-        cell = Math.round(px(DrawerModel.cellDp(usableDp, closedN)));
-        regionTop = safeV + px(SOURCE_BLOCK_DP);
+        closedCell = Math.round(px(DrawerModel.cellDp(usableDp, closedN)));
+        regionTop = safeV + px(DrawerModel.SOURCE_BLOCK_DP);
+        cell = Math.round(px(DrawerModel.openCellDp(Math.round(viewH() / d), items.size())));
         contentH = items.size() * cell;
         text.setTextSize(cell * 0.46f);
-        float closedTop = Math.max(safeV, (h - closedN * cell) / 2f);
+        float closedTop = Math.max(safeV, (h - closedN * closedCell) / 2f);
         float openTop = Math.max(regionTop, (h - contentH) / 2f);
         closedY = new float[items.size()];
         openY = new float[items.size()];
         int k = 0;
         for (int i = 0; i < items.size(); i++) {
-            if (!items.get(i).recent) closedY[i] = closedTop + k++ * cell;
+            if (!items.get(i).recent) closedY[i] = closedTop + k++ * closedCell;
             openY[i] = openTop + i * cell;
         }
         for (int i = 0; i < items.size(); i++) if (items.get(i).recent) closedY[i] = openY[i];
@@ -237,6 +238,7 @@ final class TvDrawerView extends View {
         if (it.recent && f <= 0.02f) return;
         float rowAlpha = it.recent ? f * f : 1f;
         float y = it.recent ? openY[i] - scroll * f : closedY[i] + (openY[i] - scroll - closedY[i]) * f;
+        float cell = closedCell + (this.cell - closedCell) * f; // the pitch tightens as the list opens
         float cy = y + cell / 2f;
         boolean focus = zone == DrawerNav.Zone.LIST && i == listIdx;
         boolean current = it.id.equals(currentId);

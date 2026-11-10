@@ -11,9 +11,9 @@ Paste the prompt in `docs/tv-adapter/RESUME-PROMPT.md` into a new Claude Code se
 ## 2. Current status
 | | |
 |---|---|
-| Current level | **L2 done (merged to master). Now: fix L1 review findings, then L3.** |
-| Next step | Launch a fix agent for `R5-L1-REVIEW.md` (#1 high, #2-#7 medium, cheap lows) plus the L2 leftovers below; then commit and start L3 (search: keyboard proxy, in-page mic, global mic search, continue watching). Gradle needs `JAVA_HOME=C:/Program Files/Java/jdk-17` and `ANDROID_HOME=C:/Users/ak818/AppData/Local/Android/Sdk`. |
-| Last commit | master `1d3f039` (L2) |
+| Current level | **L2 + review fixes done. Now: L3 (search: keyboard proxy, in-page mic, global mic search, continue watching).** |
+| Next step | Launch the L3 agent (brief in `R5-AGENT-BRIEFS.md`, plan §Level 3, §4b L3 findings). Gradle needs `JAVA_HOME=C:/Program Files/Java/jdk-17` and `ANDROID_HOME=C:/Users/ak818/AppData/Local/Android/Sdk`. |
+| Last commit | master (review fixes, after `fbb73d8`) |
 | Uncommitted, on purpose | `config/apps/movy.json` is git-ignored (`recommendedSource` changed to `cinejoy`) |
 
 ## 3. Decisions (user-confirmed) — do not re-ask
@@ -52,6 +52,8 @@ Paste the prompt in `docs/tv-adapter/RESUME-PROMPT.md` into a new Claude Code se
 | 2026-11-10 | Paused | User asked to pause. L2 agent stopped mid-work; its partial JS changes are parked on branch `wip/r5-L2-drawer` (`e65e280`) so master still builds and works at L1. | `e65e280` (branch) |
 
 | 2026-11-10 | L2 done | Native drawer: `TvDrawerView`/`TvDrawerController`/`DrawerModel`/`DrawerNav`, profile key `tvProfiles.<site>.drawer`, Sources row, edge-LEFT open, no double-RIGHT, CH± unmapped (TODO L5), IslandView off TV. Latency: handler 3-15 ms, first frame 19-38 ms (old JS path 270-880 ms). tvnav.js 1657→1086. User bug fixed: Moonflix strip vanished after 5 s idle (strip hid on idle while the inset stayed). Tests: npm 109, Gradle 237. **Open:** Bravia untested (L6); Settings/Account scroll in below the fold with 3 recents; first key after long idle still swallowed; Movy search overlay narrow until L3; Moonflix recents show odd titles; initials not logos; signed-in not tested. | `1d3f039` |
+
+| 2026-11-10 | Review fixes | R5-L1-REVIEW #1-#8, #10-#12 fixed (#3 partly, #9 skipped); L2 leftovers: recents cut back to fit 540 dp (b), first-key-after-idle not reproducible (a). Tests: npm 111, Gradle 255. Details in REPORT.md. | uncommitted |
 
 
 ## 4b. L0 findings that change later levels

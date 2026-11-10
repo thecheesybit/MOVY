@@ -33,7 +33,7 @@
   function fire() {
     if (done) return;
     done = true;
-    try { N.painted(); } catch (e) { /* ignore */ }
+    try { N.painted(root.location.href); } catch (e) { /* ignore */ }
   }
 
   function poll() {

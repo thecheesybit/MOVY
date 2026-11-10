@@ -81,8 +81,18 @@
     var key = read()[p];
     if (key) root.setTimeout(function () { restore(key, TRIES); }, TRY_MS);
   }
-  root.setInterval(onRoute, 500);
+  // SPA route changes: pushState/replaceState do not fire an event of their own, so wrap them (no polling).
+  ['pushState', 'replaceState'].forEach(function (m) {
+    var orig = root.history && root.history[m];
+    if (typeof orig !== 'function') return;
+    root.history[m] = function () {
+      var r = orig.apply(this, arguments);
+      root.setTimeout(onRoute, 0);
+      return r;
+    };
+  });
   root.addEventListener('popstate', onRoute);
+  root.addEventListener('hashchange', onRoute);
   var key0 = read()[page()];
   if (key0) root.addEventListener('load', function () { root.setTimeout(function () { restore(key0, TRIES); }, TRY_MS); });
 })(typeof window !== 'undefined' ? window : {});

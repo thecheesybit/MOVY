@@ -165,10 +165,35 @@ final class DrawerModel {
         return n;
     }
 
+    /** Height of the Sources block above the list, in dp (shared with the view). */
+    static final int SOURCE_BLOCK_DP = 92;
+    static final int MIN_CELL_DP = 30;
+    static final int MAX_CELL_DP = 40;
+
+    /** Height in dp the open list can use: the screen minus the safe margins above and below and the Sources block. */
+    static int listViewportDp(int screenDp, int safeVDp) {
+        return Math.max(0, screenDp - 2 * safeVDp - SOURCE_BLOCK_DP);
+    }
+
+    /**
+     * How many of {@code wanted} recent titles the open list can show without Settings and Account scrolling in: the rows must fit
+     * the viewport at the smallest row height. Between 0 and {@code wanted}.
+     */
+    static int recentsThatFit(int viewportDp, int baseRows, int wanted) {
+        int room = viewportDp / MIN_CELL_DP - baseRows;
+        return Math.max(0, Math.min(wanted, room));
+    }
+
+    /** Row height in dp of the open list: as tall as fits {@code rows} in the viewport, between 30 and 40. */
+    static int openCellDp(int viewportDp, int rows) {
+        if (rows <= 0) return MAX_CELL_DP;
+        return Math.max(MIN_CELL_DP, Math.min(MAX_CELL_DP, viewportDp / rows));
+    }
+
     /** Row height in dp so {@code rows} fit the usable height; between 30 and 40 dp. */
     static int cellDp(int usableHeightDp, int rows) {
         int fit = rows <= 0 ? 40 : usableHeightDp / rows;
-        return Math.max(30, Math.min(40, fit));
+        return Math.max(MIN_CELL_DP, Math.min(MAX_CELL_DP, fit));
     }
 
     /** Scroll offset (px) that keeps the row at {@code rowTop..rowTop+rowH} inside a viewport of {@code viewH}, moving as little as possible. */

@@ -26,7 +26,12 @@
     return true;
   }
 
-  var api = { zoomFor: zoomFor, stable: stable };
+  /** Pure. Only the top document zooms its fullscreen element: a (cross-origin) player frame lays out at the real window size. */
+  function mayZoom(inFrame, z) {
+    return !inFrame && z < 1;
+  }
+
+  var api = { zoomFor: zoomFor, stable: stable, mayZoom: mayZoom };
   if (typeof module === 'object' && module && module.exports) { module.exports = api; return; }
   var TV = root.__movyTv;
   if (!TV) return;
@@ -101,7 +106,7 @@
     }
     if (!el || el === doc.documentElement) { veilOff(); return; }
     var z = zoomFor(normalW, clientW());
-    if (z < 1) {
+    if (mayZoom(inFrame, z)) {
       el.style.setProperty('zoom', String(z), 'important');
       zoomedEl = el;
     }

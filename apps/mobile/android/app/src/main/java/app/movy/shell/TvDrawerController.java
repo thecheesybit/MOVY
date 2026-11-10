@@ -283,12 +283,21 @@ final class TvDrawerController {
         return -1;
     }
 
+    /** The list; recents are cut back (2, 1, 0) when they would push Settings and Account below the fold. */
+    private List<DrawerModel.Item> buildItems(String profile) {
+        android.content.res.Resources res = activity.getResources();
+        int viewportDp = DrawerModel.listViewportDp(res.getConfiguration().screenHeightDp, Math.round(Ui.safeV(activity) / res.getDisplayMetrics().density));
+        int base = DrawerModel.build(profile, null, settingsLabel).size();
+        int keep = DrawerModel.recentsThatFit(viewportDp, base, titles.size());
+        return DrawerModel.build(profile, titles.subList(0, keep), settingsLabel);
+    }
+
     private void rebuild() {
         LiveConfig cfg = repo.config();
         Source a = repo.active();
         sources = cfg.enabledSources();
         String profile = a == null ? "{}" : cfg.tvProfileFor(a.id);
-        items = DrawerModel.build(profile, titles, settingsLabel);
+        items = buildItems(profile);
         nav.setCounts(items.size(), sources.size());
         int cur = DrawerModel.currentIndex(items, pagePath);
         view.setContent(items, sources, currentSource(), DrawerModel.accentOf(profile, a == null ? 0xFFE50914 : a.accent),

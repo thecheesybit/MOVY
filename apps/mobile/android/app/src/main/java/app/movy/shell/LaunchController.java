@@ -34,6 +34,8 @@ final class LaunchController implements SourceRepository.Listener, ChooserView.L
     private StartView startView;
     private String requestedId;
     private boolean tvStart;
+    /** Sources whose page painted since the last real load (a paint can come during the splash, before the start screen exists). */
+    private final PaintLedger ledger = new PaintLedger();
     private final Runnable paintCap = () -> { if (startView != null && requestedId != null) startView.onPagePainted(requestedId); };
     private long splashShownAt;
     private boolean launching;
@@ -125,6 +127,7 @@ final class LaunchController implements SourceRepository.Listener, ChooserView.L
             @Override public void onOpen(Source source) { openFromStart(); }
         });
         content.addView(startView, new FrameLayout.LayoutParams(-1, -1));
+        if (requestedId != null && ledger.hasPainted(requestedId)) startView.onPagePainted(requestedId); // painted during the splash
         if (splash != null) {
             splash.bringToFront();
             dismissSplash();
@@ -133,8 +136,13 @@ final class LaunchController implements SourceRepository.Listener, ChooserView.L
 
     /** Loads a source behind the start screen (once per focus change). */
     private void requestLoad(Source s) {
-        if (s.id.equals(requestedId)) return;
+        if (s.id.equals(requestedId)) { // same source again (focus went away and back): its paint may have come already
+            if (startView != null && ledger.hasPainted(s.id)) startView.onPagePainted(s.id);
+            return;
+        }
         requestedId = s.id;
+        ledger.loadRequested();
+        DohRescue.prewarm(); // idle connections for the page's first burst of calls, while the start screen is up
         main.removeCallbacks(paintCap);
         main.postDelayed(paintCap, PAINT_CAP_MS);
         repo.switchTo(s.id);
@@ -161,7 +169,9 @@ final class LaunchController implements SourceRepository.Listener, ChooserView.L
 
     /** The page painted its first content (tvpaint.js); only the focused start-screen source counts. */
     void onPagePainted(String sourceId) {
-        if (startView != null && sourceId != null) startView.onPagePainted(sourceId);
+        if (sourceId == null) return;
+        ledger.painted(sourceId);
+        if (startView != null) startView.onPagePainted(sourceId);
     }
 
     /** Page progress (UI thread); lets the splash go once the site has started to paint. */

@@ -17,13 +17,28 @@ var __movyGate = (function (root) {
     return i.w >= MIN_W && i.h >= MIN_H;
   }
 
-  function markerSelector() {
+  /** Pure. Splits `list` into the selectors `accepts` takes and the ones it throws on: { ok: [...], bad: [...] }. */
+  function validate(list, accepts) {
+    var ok = [], bad = [];
+    for (var i = 0; i < list.length; i++) {
+      try { accepts(list[i]); ok.push(list[i]); } catch (e) { bad.push(list[i]); }
+    }
+    return { ok: ok, bad: bad };
+  }
+
+  /** The profile's docMarkers that this document accepts, joined; an invalid one is dropped (and named in debug builds). */
+  function markerSelector(d) {
     try {
       var N = root.MovyTvNative;
       if (!N || !N.profile) return '';
       var pf = JSON.parse(N.profile('') || '{}');
       var m = pf.player && pf.player.docMarkers;
-      return m && m.length ? m.join(',') : '';
+      if (!m || !m.length) return '';
+      var v = validate(m, function (s) { d.querySelector(s); });
+      if (v.bad.length && typeof N.debug === 'function' && N.debug()) {
+        try { root.console.warn('[movy] tvgate: invalid player.docMarkers selector(s) skipped: ' + v.bad.join(' | ')); } catch (e) { /* no console */ }
+      }
+      return v.ok.join(',');
     } catch (e) { return ''; }
   }
 
@@ -40,7 +55,7 @@ var __movyGate = (function (root) {
       try {
         video = !!d.querySelector('video');
         if (!video && !top) {
-          if (sel === null) sel = markerSelector();
+          if (sel === null) sel = markerSelector(d);
           marker = !!(sel && d.querySelector(sel));
         }
       } catch (e) { /* selector rejected */ }
@@ -88,7 +103,7 @@ var __movyGate = (function (root) {
     observe();
   }
 
-  return { needs: needs, install: install };
+  return { needs: needs, validate: validate, install: install };
 })(typeof window !== 'undefined' ? window : {});
 if (typeof module === 'object' && module && module.exports) module.exports = __movyGate;
 else __movyGate.install(__movyTvRun);

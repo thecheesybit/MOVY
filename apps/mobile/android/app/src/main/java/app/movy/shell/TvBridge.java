@@ -22,9 +22,10 @@ final class TvBridge {
     private final Runnable showChooser;
     private final Consumer<String> switchSource;
     private volatile Consumer<Boolean> shellBoot;
-    private volatile Runnable painted;
+    private volatile Consumer<String> painted;
     private volatile java.util.function.BiConsumer<String, Boolean> buffering;
     private volatile Drawer drawer;
+    private volatile boolean debug;
 
     /** The native drawer's side of tvdrawer.js; every method posts to the main thread. */
     interface Drawer {
@@ -129,11 +130,15 @@ final class TvBridge {
         if (c != null) c.accept(ok);
     }
 
-    /** tvpaint.js: the page showed its first real content (a poster). */
+    /**
+     * tvpaint.js: the page showed its first real content (a poster). {@code url} is the reporting document's own address; the app
+     * only counts it when that is a source page and the page now showing (a late report of the previous document or of an ad
+     * frame is ignored, see {@link PaintLedger#accept}).
+     */
     @JavascriptInterface
-    public void painted() {
-        Runnable r = painted;
-        if (r != null) r.run();
+    public void painted(String url) {
+        Consumer<String> r = painted;
+        if (r != null && url != null && url.length() < 2048) r.accept(url);
     }
 
     /** loading.js: a player in the frame identified by {@code token} started or stopped buffering. */
@@ -143,7 +148,17 @@ final class TvBridge {
         if (b != null && token != null) b.accept(token, on);
     }
 
-    void setPainted(Runnable r) {
+    /** tvgate.js: debug builds only; lets the page log config mistakes (an invalid selector) instead of skipping them silently. */
+    @JavascriptInterface
+    public boolean debug() {
+        return debug;
+    }
+
+    void setDebug(boolean on) {
+        this.debug = on;
+    }
+
+    void setPainted(Consumer<String> r) {
         this.painted = r;
     }
 

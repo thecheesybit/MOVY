@@ -88,7 +88,8 @@ final class DohProxy {
     /** At most this many connections to one host are open or opening at once: a page fires dozens of calls together, and a
      *  hand-rolled client that opens a TLS connection per call made every one of them wait for seconds (Cinejoy home: 79 calls). */
     static final int MAX_CONNECTIONS = 16;
-    private static final long SLOT_WAIT_MS = 20_000;
+    /** A call waits this long for a connection slot, then gives up with "busy" and the WebView resolves the host itself. */
+    static final long SLOT_WAIT_MS = 6_000;
     private static final String[] DROP_REQUEST = {"host", "accept-encoding", "connection", "content-length",
             "cookie", "transfer-encoding", "upgrade-insecure-requests"};
 
@@ -107,7 +108,11 @@ final class DohProxy {
             if (!s.tryAcquire()) return;
             try {
                 ArrayDeque<Conn> q = idle.get(host);
-                if (q != null && q.size() >= count) return;
+                if (q != null) {
+                    synchronized (q) {
+                        if (q.size() >= count) return;
+                    }
+                }
                 for (InetAddress addr : resolver.resolve(host)) {
                     Socket raw = new Socket();
                     try {
@@ -143,18 +148,26 @@ final class DohProxy {
     }
 
     Reply fetch(String method, String host, String path, Map<String, String> requestHeaders) throws IOException {
-        java.util.concurrent.Semaphore slot = slotsFor(host);
+        acquireSlot(host, SLOT_WAIT_MS);
         try {
-            if (!slot.tryAcquire(SLOT_WAIT_MS, java.util.concurrent.TimeUnit.MILLISECONDS)) throw new IOException("busy");
+            return fetchOnSlot(method, host, path, requestHeaders);
+        } finally {
+            slotsFor(host).release();
+        }
+    }
+
+    /** Takes one connection slot for {@code host}; "busy" when none frees up in {@code waitMs}. */
+    void acquireSlot(String host, long waitMs) throws IOException {
+        try {
+            if (!slotsFor(host).tryAcquire(waitMs, java.util.concurrent.TimeUnit.MILLISECONDS)) throw new IOException("busy");
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new IOException("interrupted");
         }
-        try {
-            return fetchOnSlot(method, host, path, requestHeaders);
-        } finally {
-            slot.release();
-        }
+    }
+
+    void releaseSlot(String host) {
+        slotsFor(host).release();
     }
 
     private Reply fetchOnSlot(String method, String host, String path, Map<String, String> requestHeaders) throws IOException {

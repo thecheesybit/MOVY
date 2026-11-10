@@ -32,7 +32,6 @@ import app.movy.adblock.CosmeticBridge;
 public class MainActivity extends BridgeActivity {
     private static final long EXIT_WINDOW_MS = 2000;
 
-    private static final String DEBUG_TAG = "MovyDebug";
 
     private ShellConfig cfg;
     private NavRules rules;
@@ -48,7 +47,7 @@ public class MainActivity extends BridgeActivity {
     private boolean clearHistoryOnFinish;
     /** A switch cover never stays longer than this without a paint signal. */
     private static final long SCREEN_CAP_MS = 15_000;
-    private static final long LEAVE_PLAYER_DELAY_MS = 250;
+    private final LeavePlayerGate leaveGate = new LeavePlayerGate();
     private final Runnable screenGiveUp = () -> { if (loadingUi != null) loadingUi.hideScreen(); };
     private CookiePersistence cookies;
     private SourceHealth health;
@@ -371,14 +370,15 @@ public class MainActivity extends BridgeActivity {
         if (bridge != null && bridge.getWebView() != null) bridge.getWebView().reload();
     }
 
-    /** tvpaint.js: the page painted its first content. Lifts the switch cover and lets the start screen open. */
-    private void onPagePainted() {
+    /** tvpaint.js: the page at {@code url} painted its first content. Lifts the switch cover and lets the start screen open. */
+    private void onPagePainted(String url) {
         if (bridge == null || bridge.getWebView() == null) return;
+        String id = PaintLedger.accept(repo.config(), url, pageUrl); // not a late report of the previous page, not an ad frame
+        if (id == null) return;
         bridge.getWebView().removeCallbacks(screenGiveUp);
         loadingUi.hideScreen();
         if (drawer != null) drawer.refresh();
-        Source s = repo.config().sourceForUrl(pageUrl);
-        launch.onPagePainted(s == null ? null : s.id);
+        launch.onPagePainted(id);
     }
 
     private void setPageIdle(boolean idle) {
@@ -500,7 +500,7 @@ public class MainActivity extends BridgeActivity {
                 sourceId -> runOnUiThread(() -> repo.openStart(sourceId)));
         setupDrawer(tvBridge);
         tvBridge.setShellBoot(ok -> runOnUiThread(() -> onShellBoot(ok)));
-        tvBridge.setPainted(() -> runOnUiThread(this::onPagePainted));
+        tvBridge.setPainted(url -> runOnUiThread(() -> onPagePainted(url))); tvBridge.setDebug(cfg.debug);
         tvBridge.setBuffering((token, on) -> runOnUiThread(() -> loadingUi.setBuffering(token, on)));
         bridge.getWebView().addJavascriptInterface(tvBridge, TvBridge.NAME);
         registerVolumeUnmute();
@@ -628,6 +628,7 @@ public class MainActivity extends BridgeActivity {
             volumeReceiver = null;
         }
         if (lifecycle != null) lifecycle.onDestroy();
+        if (loadingUi != null) loadingUi.release();
         super.onDestroy();
     }
 
@@ -652,28 +653,13 @@ public class MainActivity extends BridgeActivity {
         cookies.snapshot(urls);
     }
 
-    /** Debug builds only: {@code --es movy_eval "<js>"} runs JS in the page and logs the result (tag MovyDebug); {@code --ez movy_force_chooser true} shows the chooser; {@code --es movy_source <id>} opens that source's start page (ids: 7movies, movy, cinejoy, moonflix). */
     private void handleDebugIntent(Intent intent) {
-        if (!cfg.debug || intent == null || bridge == null) return;
-        if (intent.getBooleanExtra("movy_force_fail", false) && failover != null) {
-            bridge.getWebView().postDelayed(failover::onFailure, 2500);
-        }
-        if (intent.getBooleanExtra("movy_force_chooser", false) && launch != null) {
-            bridge.getWebView().postDelayed(launch::debugShowChooser, 1500);
-        }
-        if (intent.hasExtra("movy_shell_offline")) ShellFetcher.Http.debugOffline = intent.getBooleanExtra("movy_shell_offline", false);
-        String sourceId = intent.getStringExtra("movy_source");
-        if (sourceId != null && repo != null) {
-            bridge.getWebView().postDelayed(() -> { launch.dismissStart(); repo.openStart(sourceId); }, 500);
-        }
-        String js = intent.getStringExtra("movy_eval");
-        if (js == null) return;
-        bridge.getWebView().postDelayed(() -> bridge.getWebView().evaluateJavascript(js,
-                v -> Log.i(DEBUG_TAG, "eval result: " + v)), 800);
+        if (cfg.debug && bridge != null) DebugIntents.handle(intent, bridge.getWebView(), failover, launch, repo);
     }
 
     private void onBack() {
         WebView wv = bridge.getWebView();
+        if (cfg.tv && leaveGate.swallowsBack(SystemClock.elapsedRealtime())) return; // BACK just left fullscreen: the page is still leaving the player
         if (tvKeys != null && tvKeys.cursor().isActive()) {
             tvKeys.cursor().exit();
             return;
@@ -701,7 +687,10 @@ public class MainActivity extends BridgeActivity {
             if (cfg.tv) wv.evaluateJavascript("window.__movyTv&&window.__movyTv.userExitFs&&window.__movyTv.userExitFs()", null);
             chrome.onHideCustomView();
             // One BACK leaves a playing player: after fullscreen is gone the page goes back to where the player was opened from.
-            if (cfg.tv) wv.postDelayed(() -> wv.evaluateJavascript("window.__movyTv&&window.__movyTv.leavePlayer&&window.__movyTv.leavePlayer()", null), LEAVE_PLAYER_DELAY_MS);
+            if (cfg.tv) {
+                leaveGate.arm(pageUrl, SystemClock.elapsedRealtime());
+                wv.postDelayed(() -> { if (leaveGate.mayRun(pageUrl)) wv.evaluateJavascript("window.__movyTv&&window.__movyTv.leavePlayer&&window.__movyTv.leavePlayer()", null); }, LeavePlayerGate.DELAY_MS);
+            }
         } else if (wv.canGoBack()) {
             wv.goBack();
         } else if (cfg.tv) {

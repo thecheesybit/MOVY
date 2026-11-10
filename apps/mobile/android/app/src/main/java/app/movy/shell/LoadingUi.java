@@ -3,6 +3,7 @@ package app.movy.shell;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,8 +11,6 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.function.IntConsumer;
 
 /**
@@ -34,7 +33,7 @@ public final class LoadingUi {
     private TextView caption;
     private boolean screen;
     private boolean navigating;
-    private final Set<String> buffering = new HashSet<>();
+    private final BufferingSet buffering = new BufferingSet();
     private boolean bufferingShown;
     private final Runnable navShow = () -> { navigating = true; refresh(); };
     private final Runnable bufferShow = () -> { bufferingShown = true; refresh(); };
@@ -80,6 +79,13 @@ public final class LoadingUi {
     /** True while a source switch covers the screen ("Opening X…"). */
     boolean isScreenShown() {
         return screen;
+    }
+
+    /** Activity is going away: no delayed show may fire on a dead view. */
+    public void release() {
+        main.removeCallbacks(navShow);
+        main.removeCallbacks(bufferShow);
+        buffering.clear();
     }
 
     /** Fullscreen video: the bar never draws over it; the centred spinner may (buffering only). */
@@ -132,9 +138,9 @@ public final class LoadingUi {
     /** A player (identified by frame token) is buffering; shown 300 ms after the first report, hidden when none buffers. */
     public void setBuffering(String token, boolean on) {
         if (!tv) return;
-        if (on) buffering.add(token); else buffering.remove(token);
+        if (!buffering.set(token, on, SystemClock.elapsedRealtime())) return;
         main.removeCallbacks(bufferShow);
-        if (buffering.isEmpty()) {
+        if (buffering.isEmpty(SystemClock.elapsedRealtime())) {
             bufferingShown = false;
             refresh();
         } else if (!bufferingShown) {
@@ -166,7 +172,7 @@ public final class LoadingUi {
 
     private void refresh() {
         if (centre == null) return;
-        LoadingMode.Mode m = LoadingMode.resolve(screen, navigating, bufferingShown && !buffering.isEmpty(), fullscreen);
+        LoadingMode.Mode m = LoadingMode.resolve(screen, navigating, bufferingShown && !buffering.isEmpty(SystemClock.elapsedRealtime()), fullscreen);
         if (m == LoadingMode.Mode.NONE) {
             if (centre.getVisibility() == View.VISIBLE) {
                 centre.animate().cancel();

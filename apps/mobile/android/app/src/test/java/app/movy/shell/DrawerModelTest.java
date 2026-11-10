@@ -88,4 +88,24 @@ public class DrawerModelTest {
         assertEquals(100, DrawerModel.clampScroll(500, 300, 200));
         assertEquals(0, DrawerModel.clampScroll(50, 100, 200));
     }
+
+    @Test public void recentsAreCutBackWhenSettingsAndAccountWouldScrollIn() {
+        int vp = DrawerModel.listViewportDp(540, 27); // 540 dp screen
+        assertEquals(540 - 54 - DrawerModel.SOURCE_BLOCK_DP, vp);
+        assertEquals(3, DrawerModel.recentsThatFit(vp, 10, 3));
+        assertEquals(2, DrawerModel.recentsThatFit(vp, 11, 3));
+        assertEquals(0, DrawerModel.recentsThatFit(vp, 20, 3));
+        assertEquals(0, DrawerModel.recentsThatFit(0, 10, 3));
+        assertEquals(1, DrawerModel.recentsThatFit(vp, 10, 1));
+    }
+
+    @Test public void theOpenListTightensItsRowsToFit() {
+        int vp = 394;
+        assertEquals(30, DrawerModel.openCellDp(vp, 13));
+        assertEquals(39, DrawerModel.openCellDp(vp, 10));
+        assertEquals(40, DrawerModel.openCellDp(vp, 6));
+        assertEquals(30, DrawerModel.openCellDp(100, 12));
+        assertEquals(40, DrawerModel.openCellDp(vp, 0));
+        assertEquals(DrawerModel.MIN_CELL_DP, 30);
+    }
 }

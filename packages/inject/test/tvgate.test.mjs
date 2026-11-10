@@ -26,3 +26,12 @@ test('a player-sized frame (wrapper of the real player) gets the scripts', () =>
   assert.equal(needs(frame({ w: 640, h: 360 })), true);
   assert.equal(needs(frame({ w: 639, h: 720 })), false);
 });
+
+test('validate keeps the selectors the document accepts and names the ones it rejects', () => {
+  const { validate } = createRequire(import.meta.url)('../tvgate.js');
+  const accepts = (s) => { if (s.includes('[[')) throw new Error('bad'); };
+  const r = validate(['.a', 'div[[x', '#b'], accepts);
+  assert.deepEqual(r.ok, ['.a', '#b']);
+  assert.deepEqual(r.bad, ['div[[x']);
+  assert.deepEqual(validate([], accepts), { ok: [], bad: [] });
+});
