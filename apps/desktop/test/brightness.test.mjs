@@ -41,3 +41,12 @@ test('percent for the HUD', () => {
   assert.equal(b.percent(1), 100);
   assert.equal(b.percent(0.85), 85);
 });
+
+test('the top of the range is 200%', () => {
+  assert.equal(b.MAX, 2);
+  assert.equal(b.normalize(2), 2);
+  assert.equal(b.step(1.95, 1), 2);
+  assert.equal(b.step(2, 1), 2);
+  assert.match(b.css(2), /brightness\(2\)/);
+  assert.equal(b.percent(2), 200);
+});

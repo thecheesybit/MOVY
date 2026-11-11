@@ -3,7 +3,7 @@
 // 1 = the video exactly as the site sends it (no filter at all), below 1 dims, above 1 brightens.
 
 const MIN = 0.4;
-const MAX = 1.5;
+const MAX = 2;
 const STEP = 0.05;
 const DEFAULT = 1;
 
