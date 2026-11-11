@@ -92,6 +92,15 @@ public final class Prefs {
         sp.edit().putBoolean("adblockEnabled", on).apply();
     }
 
+    /** Player brightness chosen by the swipe (0..1), or -1 to follow the system brightness. */
+    public float playerBrightness() {
+        return sp.getFloat("playerBrightness", -1f);
+    }
+
+    public void setPlayerBrightness(float level) {
+        sp.edit().putFloat("playerBrightness", level).apply();
+    }
+
     /** Island vertical position as a 0..1 fraction (W5b). */
     public float islandY() {
         return sp.getFloat(ISLAND_Y, 0.4f);

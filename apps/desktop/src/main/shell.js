@@ -8,6 +8,7 @@ const { createUiBridge } = require('./ui-bridge');
 const { installShortcuts } = require('./shortcuts');
 const { installContextMenu } = require('./context-menu');
 const { installMenu } = require('./menu');
+const { createBrightness } = require('./brightness');
 const { SourceRepository } = require('../core/repository');
 const { IslandVisibility } = require('../core/island-visibility');
 const { createNavigationPolicy } = require('./navigation');
@@ -47,6 +48,7 @@ function createShell({ app: appCfg, defaults, prefs, rules, stats, ses, partitio
   const wc = views.site.webContents;
   const health = new SourceHealth(repo);
   const state = { htmlFullscreen: false };
+  const brightness = createBrightness({ wc, win, prefs });
   const ui = { panel: null, error: null, storageBytes: null, islandShown: false };
   let panelBase = null; // 'error' while the failure panel is what Settings returns to
   let splashAt = 0;
@@ -181,11 +183,13 @@ function createShell({ app: appCfg, defaults, prefs, rules, stats, ses, partitio
     win.setFullScreen(true);
     views.bar.view.setVisible(false);
     visibility.setFullscreen(true);
+    brightness.setFullscreen(true);
   });
   wc.on('leave-html-full-screen', () => {
     state.htmlFullscreen = false;
     win.setFullScreen(false);
     visibility.setFullscreen(false);
+    brightness.setFullscreen(false);
   });
   win.on('leave-full-screen', () => {
     if (state.htmlFullscreen) wc.executeJavaScript('document.fullscreenElement&&document.exitFullscreen()').catch(() => {});
@@ -264,6 +268,9 @@ function createShell({ app: appCfg, defaults, prefs, rules, stats, ses, partitio
     panelHidden: () => {
       if (ui.panel === null) views.hidePanel();
     },
+    /** Alt+Up / Alt+Down / Alt+0 / View menu: brightness of the fullscreen video. */
+    adjustBrightness: (dir) => brightness.adjust(dir),
+    resetBrightness: () => brightness.reset(),
     /** Ctrl+K / menu. */
     toggleIsland: () => {
       if (ui.panel === 'settings' || ui.panel === 'chooser' || ui.panel === 'splash') return;

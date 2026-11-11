@@ -11,6 +11,7 @@ const DEFAULTS = Object.freeze({
   lastSourceId: null,
   adblockEnabled: true,
   islandY: 0.4,
+  videoBrightness: 1,
   instanceId: null,
 });
 

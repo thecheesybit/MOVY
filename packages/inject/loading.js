@@ -167,8 +167,12 @@
   // Fullscreen guard. On Android WebView (some GPUs/drivers) a video that is the only thing on screen gets promoted to a
   // hardware overlay that sits behind the window; with our native fullscreen host it renders black (audio keeps playing)
   // as soon as the player controls auto-hide. A near-invisible layer above the video keeps it composited in the page.
+  // Android only: desktop never draws any layer over the player. The layer is the smallest alpha the compositor keeps
+  // (1/255 black: white 255 -> 254, black stays black), so the picture and its blacks are untouched.
+  var ANDROID = /Android/i.test(navigator.userAgent || '');
   var guard = null;
   function guardHost() {
+    if (!ANDROID) return null;
     var h = document.fullscreenElement || document.webkitFullscreenElement;
     var t = h && h.tagName;
     return h && t !== "VIDEO" && t !== "IFRAME" && t !== "EMBED" && t !== "OBJECT" ? h : null;
@@ -189,7 +193,7 @@
       s.setProperty("bottom", "0");
       s.setProperty("z-index", "2147483647");
       s.setProperty("pointer-events", "none");
-      s.setProperty("background", "rgba(0,0,0,0.012)");
+      s.setProperty("background", "rgba(0,0,0,0.004)");
     }
     if (guard.parentNode !== h) h.appendChild(guard);
   }

@@ -5,7 +5,7 @@ const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 /**
  * Keyboard shortcuts. `app` keys (F11, Ctrl+K island, Ctrl+, settings) work from every view; the browser-like ones
  * (reload, back/forward, zoom) only apply to the site view (`wc` is the site when `isSite`).
- * actions = { toggleIsland(), openSettings() }.
+ * actions = { toggleIsland(), openSettings(), adjustBrightness(dir), resetBrightness() }.
  */
 function installShortcuts(wc, win, state, actions, isSite) {
   const nav = wc.navigationHistory;
@@ -25,6 +25,9 @@ function installShortcuts(wc, win, state, actions, isSite) {
     else if (key === 'Escape' && win.isFullScreen() && !state.htmlFullscreen) win.setFullScreen(false);
     else if (key === 'F5' || (ctrl && !input.shift && lower === 'r')) wc.reload();
     else if ((ctrl && input.shift && lower === 'r') || (ctrl && key === 'F5')) wc.reloadIgnoringCache();
+    else if (input.alt && !ctrl && key === 'ArrowUp') actions.adjustBrightness(1);
+    else if (input.alt && !ctrl && key === 'ArrowDown') actions.adjustBrightness(-1);
+    else if (input.alt && !ctrl && key === '0') actions.resetBrightness();
     else if (input.alt && key === 'ArrowLeft') nav.canGoBack() && nav.goBack();
     else if (input.alt && key === 'ArrowRight') nav.canGoForward() && nav.goForward();
     else if (ctrl && (key === '=' || key === '+')) zoom(0.5);

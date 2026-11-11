@@ -49,6 +49,7 @@ public class ShellWebChromeClient extends BridgeWebChromeClient {
     private View customView;
     private CustomViewCallback customCallback;
     private FrameLayout customContainer;
+    private BrightnessLayout brightness;
     private java.util.function.Consumer<Boolean> fullscreenListener;
 
     public ShellWebChromeClient(Bridge bridge, Activity activity, ShellConfig cfg, NavRules rules,
@@ -98,12 +99,14 @@ public class ShellWebChromeClient extends BridgeWebChromeClient {
         applyOrientation(true);
         if (cfg.debug) for (long d : new long[] {300, 1500, 4000}) main.postDelayed(() -> logState("t+" + d), d);
         Window w = activity.getWindow();
-        customContainer = new FrameLayout(activity);
+        brightness = new BrightnessLayout(activity, w, new Prefs(activity));
+        customContainer = brightness;
         customContainer.setBackgroundColor(0xFF000000);
         customContainer.addView(view, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         ((ViewGroup) w.getDecorView()).addView(customContainer, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        brightness.applySaved();
         loadingUi.setSuppressed(true);
         loadingUi.setFullscreen(true, customContainer);
         w.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -125,6 +128,8 @@ public class ShellWebChromeClient extends BridgeWebChromeClient {
         loadingUi.setFullscreen(false, null);
         ((ViewGroup) w.getDecorView()).removeView(customContainer);
         customContainer.removeAllViews();
+        if (brightness != null) brightness.release();
+        brightness = null;
         customContainer = null;
         customView = null;
         loadingUi.setSuppressed(false);
