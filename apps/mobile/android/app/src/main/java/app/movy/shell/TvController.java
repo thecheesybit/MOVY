@@ -21,6 +21,9 @@ final class TvController {
 
         void media(String action, int seconds);
 
+        /** CH+ / CH- in fullscreen video: dir > 0 brighter, dir < 0 dimmer. False when no video is fullscreen. */
+        boolean adjustBrightness(int dir);
+
         /** Arrow keys while Settings, the chooser or the error panel is open: kept inside the panel. True when consumed. */
         boolean trapKeys(KeyEvent e);
 
@@ -70,6 +73,11 @@ final class TvController {
                 return true;
             case SOURCE:
                 if (down && e.getRepeatCount() == 0) host.pickSlot(r.slot);
+                return true;
+            case BRIGHTER:
+            case DIMMER:
+                if (host.nativeOverlayActive() || !host.isFullscreen()) return false;
+                if (down) host.adjustBrightness(r.action == TvKeys.Action.BRIGHTER ? 1 : -1); // held key repeats
                 return true;
             case PLAY_PAUSE:
             case PLAY:

@@ -485,6 +485,7 @@ public class MainActivity extends BridgeActivity {
             @Override public void media(String action, int seconds) {
                 bridge.getWebView().evaluateJavascript("window.__movyTv&&window.__movyTv.media('" + action + "'," + seconds + ")", null);
             }
+            @Override public boolean adjustBrightness(int dir) { return chrome != null && chrome.adjustBrightness(dir); }
             @Override public boolean trapKeys(KeyEvent ev) {
                 if (settings != null && settings.isOpen()) return settings.handleKey(ev);
                 if (launch.isChooserShowing()) return TvFocusTrap.handle(ev, launch.chooserView());

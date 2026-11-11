@@ -10,7 +10,7 @@ import android.view.KeyEvent;
 final class TvKeys {
     private TvKeys() {}
 
-    enum Action { NONE, TOGGLE_ISLAND, SOURCE, PLAY_PAUSE, PLAY, PAUSE, FORWARD, REWIND }
+    enum Action { NONE, TOGGLE_ISLAND, SOURCE, PLAY_PAUSE, PLAY, PAUSE, FORWARD, REWIND, BRIGHTER, DIMMER }
 
     /** Result of {@link #classify}: an action plus, for SOURCE, the 0-based source slot. */
     static final class Result {
@@ -71,7 +71,9 @@ final class TvKeys {
 
     static Result classify(int code) {
         if (opensIsland(code)) return ISLAND;
-        // TODO(L5): CHANNEL_UP / CHANNEL_DOWN step the app brightness. They no longer switch source (the drawer does that).
+        // CHANNEL_UP / CHANNEL_DOWN step the player brightness (they no longer switch source: the drawer does that).
+        if (code == KeyEvent.KEYCODE_CHANNEL_UP) return new Result(Action.BRIGHTER, -1);
+        if (code == KeyEvent.KEYCODE_CHANNEL_DOWN) return new Result(Action.DIMMER, -1);
         int slot = colourSlot(code);
         if (slot >= 0) return new Result(Action.SOURCE, slot);
         Action t = transportAction(code);

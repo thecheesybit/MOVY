@@ -54,9 +54,9 @@ public class TvKeysTest {
         assertEquals(TvKeys.Action.NONE, TvKeys.classify(29).action);
     }
 
-    @Test public void channelKeysDoNotSwitchSources() {
-        // Round 5: CH+ / CH- no longer step through the sources (L5 will use them for brightness).
-        assertEquals(TvKeys.Action.NONE, TvKeys.classify(166).action);
-        assertEquals(TvKeys.Action.NONE, TvKeys.classify(167).action);
+    @Test public void channelKeysStepBrightnessNotSources() {
+        // Round 5: CH+ / CH- no longer step through the sources; they change the player brightness.
+        assertEquals(TvKeys.Action.BRIGHTER, TvKeys.classify(166).action);
+        assertEquals(TvKeys.Action.DIMMER, TvKeys.classify(167).action);
     }
 }

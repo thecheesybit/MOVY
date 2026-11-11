@@ -7,11 +7,31 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 public class BrightnessMathTest {
-    @Test public void clampKeepsLevelInRange() {
-        assertEquals(BrightnessMath.MIN, BrightnessMath.clamp(-1f), 0f);
-        assertEquals(BrightnessMath.MAX, BrightnessMath.clamp(3f), 0f);
-        assertEquals(0.5f, BrightnessMath.clamp(0.5f), 0f);
-        assertEquals(BrightnessMath.MAX, BrightnessMath.clamp(Float.NaN), 0f);
+    private static final boolean PHONE = false;
+    private static final boolean TV = true;
+
+    @Test public void clampKeepsLevelInEachRange() {
+        assertEquals(BrightnessMath.MIN_PHONE, BrightnessMath.clamp(-1f, PHONE), 0f);
+        assertEquals(BrightnessMath.MIN_TV, BrightnessMath.clamp(0.1f, TV), 0f);
+        assertEquals(2f, BrightnessMath.clamp(9f, PHONE), 0f);
+        assertEquals(2f, BrightnessMath.clamp(9f, TV), 0f);
+        assertEquals(1f, BrightnessMath.clamp(Float.NaN, PHONE), 0f);
+    }
+
+    @Test public void phoneUsesScreenBrightnessUpTo100ThenGain() {
+        assertEquals(0.5f, BrightnessMath.windowLevel(0.5f, PHONE), 0f);
+        assertEquals(1f, BrightnessMath.windowLevel(1.6f, PHONE), 0f);
+        assertEquals(1f, BrightnessMath.gain(0.5f, PHONE), 0f);
+        assertEquals(1f, BrightnessMath.gain(1f, PHONE), 0f);
+        assertEquals(1.6f, BrightnessMath.gain(1.6f, PHONE), 0f);
+        assertEquals(2f, BrightnessMath.gain(2f, PHONE), 0f);
+    }
+
+    @Test public void tvNeverTouchesScreenBrightnessAndGainsAcrossTheRange() {
+        assertEquals(-1f, BrightnessMath.windowLevel(0.7f, TV), 0f);
+        assertEquals(0.7f, BrightnessMath.gain(0.7f, TV), 0f);
+        assertEquals(1.5f, BrightnessMath.gain(1.5f, TV), 0f);
+        assertEquals(BrightnessMath.MIN_TV, BrightnessMath.gain(0.1f, TV), 0f);
     }
 
     @Test public void zoneIsLeftMiddleOnly() {
@@ -30,20 +50,46 @@ public class BrightnessMathTest {
     }
 
     @Test public void draggingUpBrightensAndDownDims() {
-        assertTrue(BrightnessMath.fromDrag(0.5f, -200, 1000) > 0.5f);
-        assertTrue(BrightnessMath.fromDrag(0.5f, 200, 1000) < 0.5f);
-        assertEquals(BrightnessMath.MAX, BrightnessMath.fromDrag(0.9f, -1000, 1000), 0f);
-        assertEquals(BrightnessMath.MIN, BrightnessMath.fromDrag(0.1f, 1000, 1000), 0f);
-        assertEquals(0.6f, BrightnessMath.fromDrag(0.6f, 10, 0), 0f);
+        assertTrue(BrightnessMath.fromDrag(1f, -200, 1000, PHONE) > 1f);
+        assertTrue(BrightnessMath.fromDrag(1f, 200, 1000, PHONE) < 1f);
+        assertEquals(2f, BrightnessMath.fromDrag(1.9f, -1000, 1000, PHONE), 0f);
+        assertEquals(BrightnessMath.MIN_PHONE, BrightnessMath.fromDrag(0.1f, 1000, 1000, PHONE), 0f);
+        assertEquals(0.6f, BrightnessMath.fromDrag(0.6f, 10, 0, PHONE), 0f);
     }
 
-    @Test public void fullSpanDragCoversTheRange() {
-        assertEquals(BrightnessMath.MAX, BrightnessMath.fromDrag(BrightnessMath.MIN, -700, 1000), 0.001f);
+    @Test public void fullSpanDragCoversTheWholeRange() {
+        assertEquals(2f, BrightnessMath.fromDrag(BrightnessMath.MIN_PHONE, -700, 1000, PHONE), 0.001f);
+        assertEquals(BrightnessMath.MIN_PHONE, BrightnessMath.fromDrag(2f, 700, 1000, PHONE), 0.001f);
     }
 
-    @Test public void percentRounds() {
-        assertEquals(50, BrightnessMath.percent(0.5f));
-        assertEquals(100, BrightnessMath.percent(5f));
-        assertEquals(2, BrightnessMath.percent(0f));
+    @Test public void remoteStepsMoveBy10PercentAndStopAtTheEnds() {
+        assertEquals(1.1f, BrightnessMath.step(1f, 1, TV), 0.0001f);
+        assertEquals(0.9f, BrightnessMath.step(1f, -1, TV), 0.0001f);
+        assertEquals(0.9f, BrightnessMath.step(0.93f, -1, TV), 0.0001f); // snaps to the grid line below
+        assertEquals(2f, BrightnessMath.step(2f, 1, TV), 0f);
+        assertEquals(BrightnessMath.MIN_TV, BrightnessMath.step(BrightnessMath.MIN_TV, -1, TV), 0f);
+        float v = 1f;
+        for (int i = 0; i < 40; i++) v = BrightnessMath.step(v, 1, TV);
+        assertEquals(2f, v, 0f);
+        for (int i = 0; i < 40; i++) v = BrightnessMath.step(v, -1, TV);
+        assertEquals(BrightnessMath.MIN_TV, v, 0f);
+    }
+
+    @Test public void fractionAndPercent() {
+        assertEquals(0f, BrightnessMath.fraction(BrightnessMath.MIN_TV, TV), 0f);
+        assertEquals(1f, BrightnessMath.fraction(2f, TV), 0f);
+        assertEquals(50, BrightnessMath.percent(0.5f, PHONE));
+        assertEquals(200, BrightnessMath.percent(5f, PHONE));
+        assertEquals(40, BrightnessMath.percent(0f, TV));
+    }
+
+    @Test public void gainScriptAddsOnlyWhenNotNeutral() {
+        String on = BrightnessMath.gainScript(1.5f);
+        assertTrue(on.contains("brightness(1.50)"));
+        assertTrue(on.contains(":fullscreen"));
+        assertTrue(on.contains(":-webkit-full-screen"));
+        String off = BrightnessMath.gainScript(1f);
+        assertTrue(off.contains("remove()"));
+        assertFalse(off.contains("brightness("));
     }
 }

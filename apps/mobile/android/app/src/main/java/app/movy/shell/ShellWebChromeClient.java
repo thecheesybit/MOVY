@@ -99,7 +99,7 @@ public class ShellWebChromeClient extends BridgeWebChromeClient {
         applyOrientation(true);
         if (cfg.debug) for (long d : new long[] {300, 1500, 4000}) main.postDelayed(() -> logState("t+" + d), d);
         Window w = activity.getWindow();
-        brightness = new BrightnessLayout(activity, w, new Prefs(activity));
+        brightness = new BrightnessLayout(activity, w, new Prefs(activity), cfg.tv, this::applyGain);
         customContainer = brightness;
         customContainer.setBackgroundColor(0xFF000000);
         customContainer.addView(view, new FrameLayout.LayoutParams(
@@ -145,6 +145,19 @@ public class ShellWebChromeClient extends BridgeWebChromeClient {
         customCallback = null;
         if (cb != null) cb.onCustomViewHidden();
         if (fullscreenListener != null) fullscreenListener.accept(false);
+    }
+
+    /** TV remote CH+ / CH-: steps the player brightness. False (not handled) when no video is fullscreen. */
+    public boolean adjustBrightness(int dir) {
+        if (brightness == null) return false;
+        brightness.step(dir);
+        return true;
+    }
+
+    /** Picture gain above 100% (and on TV below it): a filter on the fullscreen element; 1 removes it. */
+    private void applyGain(float gain) {
+        WebView page = bridgeRef.getWebView();
+        if (page != null) page.evaluateJavascript(BrightnessMath.gainScript(gain), null);
     }
 
     /** Phones: landscape while fullscreen, portrait after. Tablets: user setting. TV: manifest orientation. */
