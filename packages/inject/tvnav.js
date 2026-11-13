@@ -65,8 +65,17 @@
       try { all = doc.querySelectorAll(pair.target); } catch (e) { /* ignore */ }
       for (var i = 0; i < all.length; i++) if (renderableNow(all[i])) { t = all[i]; break; }
       if (t) { pressLike(t); return; }
-      if (++tries < 12) { root.setTimeout(tick, 120); return; }
-      if (link && link.isConnected) { try { link.click(); } catch (e) { /* ignore */ } }
+      if (++tries < 25) { root.setTimeout(tick, 120); return; }
+      // The preview never showed a usable target (the site renamed it or is slow): go to the card's own page.
+      if (link && link.isConnected) {
+        var prevHref = root.location.href;
+        try { link.click(); } catch (e) { /* ignore */ }
+        root.setTimeout(function () {
+          if (root.location.href === prevHref && link.href && link.href.indexOf('javascript:') !== 0) {
+            try { root.location.assign(link.href); } catch (e) { /* ignore */ }
+          }
+        }, 400);
+      }
     };
     root.setTimeout(tick, 120);
   }
