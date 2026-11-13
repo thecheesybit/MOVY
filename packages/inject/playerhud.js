@@ -381,20 +381,134 @@
     if (req) { try { var pr2 = req.call(el); if (pr2 && pr2.catch) pr2.catch(function () {}); } catch (e) { /* refused */ } }
   }
 
-  // ---- site mode ----
-  function setHide(on) { doc.documentElement.classList.toggle('movy-hud-on', on); }
+  // ---- hide the site's own controls while ours are up ----
+  // Two HUDs on one picture is the failure this avoids. Profile selectors (opts.hide) cover known bars; everything else is
+  // found generically: any interactive element drawn over the picture (and the wrapper it sits in) and any touch-catching
+  // cover at the picture's centre is marked and hidden. Subtitle displays are spared. A site menu frame above a player
+  // iframe has no <video> of its own, so the video frame asks its ancestors (postMessage) to hide their covers too.
+  var MARK = 'data-movy-hid';
+  var INTERACTIVE = 'button,[role=button],[role=slider],input,select,a[href],[aria-label],[tabindex]';
+  var SUBSEL = '[class*="sub" i],[class*="caption" i],[class*="cue" i],[id*="sub" i],[id*="caption" i]';
+  var hideTarget = null;   // the <video> (video frame) or the player <iframe> (ancestor frame)
+  var relayFrame = null;   // ancestor frame: the iframe that asked
+  var scanTimer = 0;
 
-  function enterSite() {
-    siteMode = true;
-    setVisible(false);
-    ui.layer.classList.add('site');
-    setHide(false);
+  function installHide() {
+    if (hideStyle) return;
+    var rules = ['html.movy-hud-on [' + MARK + ']'];
+    var list = opts.hide || [];
+    for (var i = 0; i < list.length; i++) {
+      try { doc.querySelector(list[i]); rules.push('html.movy-hud-on ' + list[i]); } catch (e) { /* skip */ }
+    }
+    hideStyle = doc.createElement('style');
+    hideStyle.textContent = rules.join(',\n') + '{opacity:0!important;pointer-events:none!important}';
+    (doc.head || doc.documentElement).appendChild(hideStyle);
+  }
+
+  function subtitleEls() {
+    var out = [], all;
+    try { all = doc.querySelectorAll(SUBSEL); } catch (e) { return out; }
+    for (var i = 0; i < all.length; i++) {
+      var e = all[i];
+      // a subtitle display holds text only; a subtitles button or menu is a control
+      if (e.matches(INTERACTIVE) || e.closest('button,[role=button],a') || e.querySelector(INTERACTIVE)) continue;
+      out.push(e);
+    }
+    return out;
+  }
+
+  function scanHide() {
+    var target = hideTarget;
+    if (!target || !target.isConnected) return;
+    var tr = target.getBoundingClientRect();
+    if (!(tr.width > 0 && tr.height > 0)) return;
+    var subs = subtitleEls();
+    var holdsSubs = function (el) { for (var i = 0; i < subs.length; i++) if (el === subs[i] || el.contains(subs[i])) return true; return false; };
+    var spare = function (el) { return el === host || el === target || el.contains(target) || el === doc.body || el === doc.documentElement; };
+    var mark = function (el) {
+      if (spare(el) || el.hasAttribute('data-movy-hud') || el.closest('[' + MARK + ']')) return;
+      var top = el; // the whole bar, not just the button: climb while the wrapper holds neither the picture nor subtitles
+      // (and is not a page-sized wrapper: only things the size of the player are bars)
+      while (top.parentElement && !spare(top.parentElement) && !holdsSubs(top.parentElement)
+          && top.parentElement.getBoundingClientRect().height <= root.innerHeight * 1.5) top = top.parentElement;
+      top.setAttribute(MARK, '1');
+    };
+    var list = doc.querySelectorAll(INTERACTIVE);
+    for (var i = 0; i < list.length; i++) {
+      var r = list[i].getBoundingClientRect();
+      if (r.width > 0 && r.height > 0 && r.right > tr.left && r.left < tr.right && r.bottom > tr.top && r.top < tr.bottom) mark(list[i]);
+    }
+    // covers that would eat the touch before it reaches the picture
+    var stack = doc.elementsFromPoint ? doc.elementsFromPoint(tr.left + tr.width / 2, tr.top + tr.height / 2) : [];
+    for (var j = 0; j < stack.length; j++) {
+      if (stack[j] === target || stack[j].contains(target)) break;
+      if (stack[j] !== host && !holdsSubs(stack[j])) mark(stack[j]);
+    }
+  }
+
+  function unmark() {
+    var m = doc.querySelectorAll('[' + MARK + ']');
+    for (var i = 0; i < m.length; i++) m[i].removeAttribute(MARK);
+  }
+
+  function tellParent(what) {
+    if (root.parent !== root) { try { root.parent.postMessage({ __movyHud: what }, '*'); } catch (e) { /* detached */ } }
+  }
+
+  function hideLocal(on, target) {
+    clearInterval(scanTimer); scanTimer = 0;
+    if (on) {
+      hideTarget = target;
+      installHide();
+      scanHide();
+      scanTimer = setInterval(scanHide, 1000); // frameworks re-render their bars
+    } else {
+      hideTarget = null;
+      unmark();
+    }
+    doc.documentElement.classList.toggle('movy-hud-on', on);
+  }
+
+  function wakeSite() {
     var cx = root.innerWidth / 2, cy = root.innerHeight / 2;
     var t = doc.elementFromPoint(cx, cy);
     if (t) ['pointermove', 'mousemove'].forEach(function (n) {
       var Ctor = n === 'pointermove' && root.PointerEvent ? root.PointerEvent : root.MouseEvent;
       t.dispatchEvent(new Ctor(n, { bubbles: true, cancelable: true, view: root, clientX: cx, clientY: cy }));
     });
+  }
+
+  /** what: 'on' (our controls), 'site' (site menu: show and wake the site's bars), 'off' (no main video). */
+  function setHide(what) {
+    hideLocal(what === 'on', video);
+    tellParent(what);
+  }
+
+  // ancestor frames: a player frame below asks for the same treatment of whatever this document draws over it
+  root.addEventListener('message', function (e) {
+    var what = e.data && e.data.__movyHud;
+    if (!what || !e.source) return;
+    if (what === 'touch') { touchSite(); return; }
+    var frames = doc.querySelectorAll('iframe'), f = null;
+    for (var i = 0; i < frames.length; i++) if (frames[i].contentWindow === e.source) f = frames[i];
+    if (!f || video) return;
+    relayFrame = what === 'off' ? null : f;
+    hideLocal(what === 'on', f);
+    if (what === 'site') wakeSite();
+    tellParent(what);
+  });
+  root.addEventListener('pointerdown', function (e) {
+    if (relayFrame && relayFrame.contentWindow) { try { relayFrame.contentWindow.postMessage({ __movyHud: 'touch' }, '*'); } catch (x) { /* gone */ } }
+    if (siteMode && !(e.composedPath && e.composedPath()[0] === ui.done)) touchSite();
+  }, true);
+
+  // ---- site mode ----
+  function enterSite() {
+    siteMode = true;
+    setVisible(false);
+    ui.layer.classList.add('site');
+    setHide('site');
+    wakeSite();
     touchSite();
   }
   function touchSite() { clearTimeout(siteTimer); if (siteMode) siteTimer = setTimeout(exitSite, 8000); }
@@ -402,22 +516,8 @@
     siteMode = false;
     clearTimeout(siteTimer);
     ui.layer.classList.remove('site');
-    setHide(true);
+    setHide('on');
     setVisible(true);
-  }
-  root.addEventListener('pointerdown', function (e) { if (siteMode && !(e.composedPath && e.composedPath()[0] === ui.done)) touchSite(); }, true);
-
-  // ---- hide the site's own bars while ours is up ----
-  function installHide() {
-    if (hideStyle || !opts.hide || !opts.hide.length) return;
-    var ok = [];
-    for (var i = 0; i < opts.hide.length; i++) {
-      try { doc.querySelector(opts.hide[i]); ok.push('html.movy-hud-on ' + opts.hide[i]); } catch (e) { /* skip */ }
-    }
-    if (!ok.length) return;
-    hideStyle = doc.createElement('style');
-    hideStyle.textContent = ok.join(',\n') + '{opacity:0!important;pointer-events:none!important}';
-    (doc.head || doc.documentElement).appendChild(hideStyle);
   }
 
   // ---- candidate tracking ----
@@ -441,7 +541,7 @@
     setScrub(false);
     clearTimeout(siteTimer); clearTimeout(hideTimer);
     if (host && host.parentNode) host.parentNode.removeChild(host);
-    setHide(false);
+    setHide('off');
     stopPoll();
   }
 
@@ -450,8 +550,7 @@
     video = v;
     fit = 'contain';
     placeHost();
-    installHide();
-    setHide(true);
+    setHide('on');
     ui.layer.classList.remove('site');
     setVisible(false);
   }
