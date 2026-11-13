@@ -123,7 +123,7 @@
     'button.txt{border-radius:8px;padding:6px 10px;font:600 14px/1 system-ui,sans-serif;color:#fff}' +
     '.label{position:absolute;left:50%;top:22%;transform:translateX(-50%);padding:8px 14px;border-radius:8px;background:rgba(0,0,0,.7);font-size:20px;opacity:0;transition:opacity .15s;pointer-events:none}.label.on{opacity:1}' +
     '.unlock{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);background:rgba(0,0,0,.6);border-radius:24px;padding:10px 18px;opacity:0;pointer-events:none;transition:opacity .15s}.unlock.on{opacity:1;pointer-events:auto}' +
-    '.done{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);background:rgba(0,0,0,.7);border-radius:24px;padding:10px 20px;display:none;pointer-events:auto}.layer.site .done{display:block}';
+    '.done{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.7);border-radius:24px;padding:10px 20px;display:none;pointer-events:auto}.layer.site .done{display:block}';
 
   function mk(tag, cls, parent, html) {
     var e = doc.createElement(tag);
@@ -171,7 +171,7 @@
     ui.rate = btn(g1, 'rate', '1x', 'txt');
     ui.fit = btn(g1, 'fit', 'Fit', 'txt');
     btn(g2, 'fs', svg(ICON.fs));
-    btn(g2, 'site', svg(ICON.menu) + '<span style="margin-left:6px">Menu</span>', 'txt');
+    btn(g2, 'site', svg(ICON.menu) + '<span style="margin-left:6px">Subtitles · Quality · Servers</span>', 'txt');
     ui.unlock = mk('div', 'unlock', layer, 'Tap to unlock');
     ui.unlock.setAttribute('data-ctl', 'unlock');
     ui.done = mk('div', 'done', layer, 'Done');
@@ -208,7 +208,10 @@
   function draw() {
     if (!video || !visible) return;
     var d = video.duration, c = video.currentTime;
-    ui.play.innerHTML = svg(video.paused ? ICON.play : ICON.pause);
+    if (ui.play.__paused !== video.paused) { // only on change: replacing the icon under a finger loses the tap
+      ui.play.__paused = video.paused;
+      ui.play.firstChild.firstChild.setAttribute('d', video.paused ? ICON.play : ICON.pause);
+    }
     ui.cur.textContent = fmt(c);
     ui.dur.textContent = d === Infinity ? 'LIVE' : showRemaining && d > 0 ? '-' + fmt(d - c) : fmt(d);
     var f = d > 0 && d !== Infinity ? Math.min(1, c / d) : 0;
@@ -469,18 +472,29 @@
     doc.documentElement.classList.toggle('movy-hud-on', on);
   }
 
+  // Same recipe as the TV adapter: a synthetic mouse move on a neutral spot of the picture (centre, 38% down). Sites hide
+  // their bars (and close their menus) after a second or two without one, so it repeats while the site menu is wanted.
+  var wakeTimer = 0;
   function wakeSite() {
-    var cx = root.innerWidth / 2, cy = root.innerHeight / 2;
-    var t = doc.elementFromPoint(cx, cy);
-    if (t) ['pointermove', 'mousemove'].forEach(function (n) {
+    var t0 = video || relayFrame;
+    var r = t0 && t0.isConnected ? t0.getBoundingClientRect() : { left: 0, top: 0, width: root.innerWidth, height: root.innerHeight };
+    var x = r.left + r.width / 2, y = r.top + r.height * 0.38;
+    var t = doc.elementFromPoint(x, y) || t0;
+    if (!t) return;
+    ['mouseover', 'mousemove', 'pointermove'].forEach(function (n, i) {
       var Ctor = n === 'pointermove' && root.PointerEvent ? root.PointerEvent : root.MouseEvent;
-      t.dispatchEvent(new Ctor(n, { bubbles: true, cancelable: true, view: root, clientX: cx, clientY: cy }));
+      try { t.dispatchEvent(new Ctor(n, { bubbles: true, cancelable: true, view: root, clientX: x + (i % 2), clientY: y })); } catch (e) { /* ignore */ }
     });
+  }
+  function keepAwake(on) {
+    clearInterval(wakeTimer); wakeTimer = 0;
+    if (on) { wakeSite(); wakeTimer = setInterval(wakeSite, 1500); }
   }
 
   /** what: 'on' (our controls), 'site' (site menu: show and wake the site's bars), 'off' (no main video). */
   function setHide(what) {
     hideLocal(what === 'on', video);
+    keepAwake(what === 'site');
     tellParent(what);
   }
 
@@ -494,7 +508,7 @@
     if (!f || video) return;
     relayFrame = what === 'off' ? null : f;
     hideLocal(what === 'on', f);
-    if (what === 'site') wakeSite();
+    keepAwake(what === 'site');
     tellParent(what);
   });
   root.addEventListener('pointerdown', function (e) {
@@ -508,7 +522,6 @@
     setVisible(false);
     ui.layer.classList.add('site');
     setHide('site');
-    wakeSite();
     touchSite();
   }
   function touchSite() { clearTimeout(siteTimer); if (siteMode) siteTimer = setTimeout(exitSite, 8000); }
