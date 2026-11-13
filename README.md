@@ -2,7 +2,8 @@
 
 One JSON config per app produces phone and TV Android apps (and later a desktop app) that load a website
 full-screen with Brave's `adblock-rust` engine blocking ads. See `docs/PLAN.md` for the design and
-`config/README.md` for every config field.
+`config/README.md` for every config field. **Current status and every open bug: `docs/KNOWN-ISSUES.md`**; Android TV
+work log and resume point: `docs/tv-adapter/ROUND5-PROGRESS.md`.
 
 ## Prerequisites (Windows)
 
