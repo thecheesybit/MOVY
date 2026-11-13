@@ -2,7 +2,7 @@ package app.movy.shell;
 
 /**
  * Pure state machine for the TV idle mode: after {@link #IDLE_MS} without a key everything hides; the first key after
- * that wakes the screen AND acts (nothing is swallowed). The one exception, OK with nothing focused in the page, is decided by
+ * that wakes the screen AND acts (nothing is swallowed). What OK does on a faded player (play/pause at once) is decided by
  * the page (tvfs.js): the native side cannot see web focus. Time is passed in so it can be unit tested.
  */
 final class IdleGate {

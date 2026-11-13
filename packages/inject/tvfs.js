@@ -648,10 +648,24 @@
     lastKeyAt = Date.now();
     if (inFrame && lastKeyAt - lastAliveUp > 300) { lastAliveUp = lastKeyAt; up({ __movyTvAlive: 1 }); } // keys inside a player frame restart the page's 5 s fade too
     if (!inFrame && wantFs && !fsElement() && findVideoPlaying()) ensureFs('key');
-    // The first key after idle wakes AND acts; only OK with nothing focused just wakes (it would pause the video blindly).
+    // The first key after idle wakes AND acts.
     var woke = idleOn || Date.now() - wokeAt < 600;
     wokeAt = 0;
-    if (woke && (e.keyCode === 13 || e.keyCode === 23) && (!a || a === doc.body || a.tagName === 'VIDEO' || a === fsElement())) {
+    var isOk = e.keyCode === 13 || e.keyCode === 23;
+    // OK on a player whose controls have faded plays/pauses at once. The faded controls must not take the press: a stale focus
+    // on the Back button used to be pressed here and threw the viewer out of the video.
+    if (isOk && (woke || doc.documentElement.classList.contains('movy-pctl-off')) && (fsElement() || inFrame) && !TV.menuNow()) {
+      var hiddenVideo = findVideo();
+      if (hiddenVideo) {
+        e.preventDefault(); e.stopPropagation();
+        if (idleOn) TV.idle(false);
+        TV.releaseFocus();
+        TV.showControls();
+        if (!e.repeat) togglePlay(hiddenVideo);
+        return true;
+      }
+    }
+    if (woke && isOk && (!a || a === doc.body || a.tagName === 'VIDEO' || a === fsElement())) {
       e.preventDefault(); e.stopPropagation();
       if (idleOn) TV.idle(false);
       return true;
