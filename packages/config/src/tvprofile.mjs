@@ -114,8 +114,32 @@ const drawerSchema = z
   })
   .strict();
 
+const apiField = z.string().regex(/^[A-Za-z0-9_]{1,40}$/);
+const searchApiSchema = z
+  .object({
+    url: z
+      .string()
+      .max(400)
+      .regex(/^(\/|https:\/\/)\S*\{q\}\S*$/)
+      .describe('Request template with {q}: a path on the source origin, or an absolute https URL. Lives only in the git-ignored config.'),
+    items: z.string().regex(/^[A-Za-z0-9_]{1,40}(\.[A-Za-z0-9_]{1,40}){0,3}$/).optional().describe('Dot path to the result list (default "results").'),
+    id: apiField.optional(),
+    title: z.array(apiField).min(1).max(6).optional().describe('Fields tried in order for the title.'),
+    year: z.array(apiField).min(1).max(6).optional().describe('Fields tried in order; the first 4-digit year is used.'),
+    poster: apiField.optional(),
+    posterBase: z.string().regex(/^https:\/\/\S+$/).max(200).optional().describe('Prefix for relative poster paths.'),
+    type: apiField.optional().describe('Field holding the result type; types missing from `open` (people) are dropped.'),
+    open: z
+      .record(z.string().regex(/^[A-Za-z0-9_*-]{1,20}$/), z.string().regex(/^\/\S*$/).max(120))
+      .refine((o) => Object.keys(o).length >= 1 && Object.keys(o).length <= 8, '1 to 8 routes')
+      .describe('Route per type ("*" when there is no type field) with {id}, {slug}, {year}.'),
+    cookies: z.boolean().optional().describe('Send the source cookies (same-origin APIs).'),
+  })
+  .strict();
+
 const searchSchema = z
   .object({
+    api: searchApiSchema.optional().describe('JSON search used by the global search across sources (TV).'),
     input: selector.describe('The site search text box. OK on it opens the TV keyboard (a native proxy mirrors the typing into it); also where the in-page mic types.'),
     open: selector.optional().describe('Button that reveals the search box (a header search button) when it is not on the page yet.'),
     route: z.string().regex(/^\//).max(120).optional().describe('Search page route used when neither the box nor the opener is on the page.'),

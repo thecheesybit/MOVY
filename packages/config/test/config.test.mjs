@@ -238,6 +238,22 @@ test('tvProfiles: strict keys, types and ranges', () => {
   fails({ ...multi, tvProfiles: { a: { header: [''] } } }, /tvProfiles\.a\.header\.0/);
 });
 
+test('tvProfiles: search.api (global search) is validated', () => {
+  const api = { url: '/api/search?q={q}', items: 'data.results', title: ['title', 'name'], year: ['release_date'],
+    poster: 'poster_path', posterBase: 'https://img.example/w342', type: 'media_type', open: { movie: '/movie/{id}', tv: '/tv/{id}' }, cookies: true };
+  const c = parse({ ...multi, tvProfiles: { a: { search: { input: 'i', api } } } });
+  assert.equal(c.tvProfiles.a.search.api.open.tv, '/tv/{id}');
+  const bad = (patch) => fails({ ...multi, tvProfiles: { a: { search: { input: 'i', api: { ...api, ...patch } } } } }, /tvProfiles\.a\.search\.api/);
+  bad({ url: '/s' });
+  bad({ url: 'http://x.example/s?q={q}' });
+  bad({ open: {} });
+  bad({ open: { '*': 'https://x.example/{id}' } });
+  bad({ title: ['a b'] });
+  bad({ posterBase: 'http://i' });
+  bad({ cookies: 'yes' });
+  bad({ bogus: 1 });
+});
+
 test('tvProfiles: search box selectors, route and flags are validated', () => {
   const search = { input: 'input[type=search]', open: 'button[aria-label=Search]', route: '/search', results: 'a[href^="/m/"]', enter: false };
   const c = parse({ ...multi, tvProfiles: { a: { search } } });

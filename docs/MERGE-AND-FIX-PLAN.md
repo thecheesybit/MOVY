@@ -48,6 +48,7 @@ check stays UNVERIFIED on our side and goes into the hand-back list (Stage 10).
 | `0ec13d6` | Phone VLC-style HUD (`packages/inject/playerhud.js`), navguard / scamguard / loading fixes, volume swipe |
 | `ed74dbe` | Hide the site's own controls while our HUD is up; relay to ancestor frames |
 | `4095999` | Play/pause tap fix; site menu kept awake in landscape |
+| later | Stage 6c (global search model, search key) and 7b (warm-up during playback), see section 3 |
 
 Only one real conflict: `BrightnessMath.gainScript`. Resolution keeps both ideas: the owner's tripled
 `:fullscreen:fullscreen:fullscreen` selector (beats sites that cancel filters) **and** our "filter only the
@@ -227,8 +228,8 @@ sub-stages of one session each. Rules that keep Sonnet on track:
    tried; do not widen the change to make it pass.
 6. **Use a second Sonnet session as reviewer** after Stages 5, 6 and 7: a read-only session given only the
    branch diff and ROUND5-REVAMP, told to list bugs, no edits. Fix its findings in a new session.
-7. If the owner has Opus budget, the only sub-stages worth upgrading are 6c (global search model) and 7b
-   (warm-up); everything else stays on Sonnet.
+7. The two sub-stages that needed Opus, 6c (global search model) and 7b (warm-up), were done by Opus on
+   2026-11-13 (see their entries below). Everything left stays on Sonnet.
 
 ### Stage 5 split (player settings)
 - **5a** Re-test the 11-13 engine on Movy, 7Movies, Moonflix; fix profile gaps only (no new JS). Gate: table of what
@@ -245,15 +246,37 @@ sub-stages of one session each. Rules that keep Sonnet on track:
   page recorder (15 s and on pause/exit) and the Moonflix `recentlyWatched` import.
 - **6b** Watch History screen (native tiles from the store) + one drawer item on every source; Watch Next row and
   `movy://open` deep link in `MainActivity`.
-- **6c** Global search, part 1: pure query/result model (per-source `search.api` mapping, merge, ordering, recents)
-  + tests; key handling for 84/231/219/`onSearchRequested()`.
-- **6d** Global search, part 2: the overlay view with the four stages, native fetching, Action stage and BACK
-  returning to the same card. Reuse `ListeningPill` and `SearchVoice`.
+- **6c DONE (Opus, 2026-11-13, unit-tested only, not run on a TV).**
+  - `GlobalSearch.java` + `GlobalSearchTest`: `requestUrl` (profile template with `{q}`, same-origin path or
+    https only), `parse` (result list path, id / title / year / poster / type fields, route per type with `{id}`,
+    `{slug}`, `{year}`; drops people and duplicates), `order` (current source first, then most results, then
+    loading / empty / failed / no API), recent queries (8, newest first, JSON round-trip).
+  - New profile key `tvProfiles.<site>.search.api` validated in `TvProfiles.java` (+ `TvProfilesTest`), the zod
+    schema `packages/config/src/tvprofile.mjs` (+ `config.test.mjs`) and regenerated `config/schema.json`.
+  - Keys 84 / 231 / 219 classify as `TvKeys.Action.SEARCH`; `TvController` ignores them during playback and over
+    native panels; `MainActivity.onSearchRequested()` does the same. **Interim behaviour:** both open the current
+    site's search with the TV keyboard (`TV.siteSearch` in `tvdrawer.js`). 6d replaces `openSiteSearch()` in
+    `MainActivity` with the overlay.
+  - **Owner action:** add `search.api` to each source in the private `config/apps/movy.json`. The field shapes per
+    site are in `R5-INVENTORY.md` §4 (7Movies: same-origin `/api/search?v=5&q={q}`, `cookies: true`, items
+    `results`, type `mediaType`, open `movie` → `/movie/{id}`, `tv` → `/tv/{id}`; the TMDB-style ones need their
+    host and public key, which must stay out of git). Moonflix has no detail route: leave its `api` out until 6d
+    can open its modal.
+- **6d** Global search, part 2: the overlay view with the four stages, native fetching through `GlobalSearch`
+  (6 s timeout per source, cookies only when `api.cookies`), Action stage and BACK returning to the same card.
+  Reuse `ListeningPill` and `SearchVoice`. Store recents with `GlobalSearch.recentsToJson` in `Prefs`.
 
 ### Stage 7 split (system)
 - **7a** Exit dialog + "Clear cache" / "Sign out of all sources" in Settings + the cache lifecycle table in REPORT.
-- **7b** Warm-up during playback (pure gate rule first: played >= 60 s, buffered >= 30 s, no `waiting` in 30 s,
-  cap per session; then the fetcher).
+- **7b DONE (Opus, 2026-11-13, unit-tested only, not run on a TV).**
+  - `WarmupGate.java` + `WarmupGateTest`: opens only while a fullscreen video plays, after 60 s of smooth playback,
+    with at least 30 s buffered ahead, 30 s after the last stall or seek, 60 s between sources, at most 3 per
+    session. Seeks are detected from the play head jumping; gaps in the status stream count nothing.
+  - `PlaybackWarmup.java`: fed by the page's media status (`TvBridge.onMedia`, now with `ahead` = seconds buffered,
+    from `bufferedAhead` in `tvnav-pure.js`) and the buffering spinner; refreshes one other source at a time with
+    the existing native `ShellInterceptor.refreshSource` (shell HTML + hashed JS/CSS into the caches, no WebView).
+  - Known limit: a refresh already in flight is not cancelled by a stall (noted in the code). Gate 5's "no
+    `waiting` in 10 min of playback" must be checked on the emulator and the Bravia.
 
 ## 4. What a model cannot close
 T6 (Bravia QA), T9 real recogniser, T13 signed-in states, the Bravia half of T14, T7 beyond our own ring, desktop

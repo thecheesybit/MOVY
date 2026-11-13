@@ -151,7 +151,65 @@ public final class TvProfiles {
             if (!(s.get("enter") instanceof Boolean)) throw new IllegalArgumentException("search.enter");
             out.put("enter", s.get("enter"));
         }
+        if (s.has("api")) {
+            JSONObject api = s.optJSONObject("api");
+            if (api == null) throw new IllegalArgumentException("search.api");
+            out.put("api", searchApi(api));
+        }
         return out;
+    }
+
+    private static final Pattern FIELD = Pattern.compile("[A-Za-z0-9_]{1,40}");
+    private static final Pattern FIELD_PATH = Pattern.compile("[A-Za-z0-9_]{1,40}(\\.[A-Za-z0-9_]{1,40}){0,3}");
+    private static final Pattern OPEN_KEY = Pattern.compile("[A-Za-z0-9_*-]{1,20}");
+    private static final Pattern NO_SPACE = Pattern.compile("\\S+");
+
+    /**
+     * The site's JSON search for the global search (GlobalSearch): request template with {q}, where the list is, which
+     * fields hold id / title / year / poster / type, and the route per type. Same-origin path or https only.
+     */
+    private static JSONObject searchApi(JSONObject a) throws JSONException {
+        JSONObject out = new JSONObject();
+        Object url = a.opt("url");
+        if (!(url instanceof String) || ((String) url).length() > 400 || !((String) url).contains("{q}")
+                || !NO_SPACE.matcher((String) url).matches()
+                || !(((String) url).startsWith("/") || ((String) url).startsWith("https://"))) throw new IllegalArgumentException("search.api.url");
+        out.put("url", url);
+        if (a.has("items")) out.put("items", field(a.get("items"), FIELD_PATH, "search.api.items"));
+        for (String k : new String[] {"id", "poster", "type"}) if (a.has(k)) out.put(k, field(a.get(k), FIELD, "search.api." + k));
+        for (String k : new String[] {"title", "year"}) {
+            if (!a.has(k)) continue;
+            JSONArray src = a.optJSONArray(k), list = new JSONArray();
+            if (src == null || src.length() == 0 || src.length() > 6) throw new IllegalArgumentException("search.api." + k);
+            for (int i = 0; i < src.length(); i++) list.put(field(src.get(i), FIELD, "search.api." + k));
+            out.put(k, list);
+        }
+        if (a.has("posterBase")) {
+            Object b = a.get("posterBase");
+            if (!(b instanceof String) || !((String) b).startsWith("https://") || ((String) b).length() > 200
+                    || !NO_SPACE.matcher((String) b).matches()) throw new IllegalArgumentException("search.api.posterBase");
+            out.put("posterBase", b);
+        }
+        JSONObject open = a.optJSONObject("open"), o = new JSONObject();
+        if (open == null || open.length() == 0 || open.length() > 8) throw new IllegalArgumentException("search.api.open");
+        for (Iterator<String> it = open.keys(); it.hasNext(); ) {
+            String k = it.next();
+            Object v = open.get(k);
+            if (!OPEN_KEY.matcher(k).matches() || !(v instanceof String) || !((String) v).startsWith("/") || ((String) v).length() > 120
+                    || !NO_SPACE.matcher((String) v).matches()) throw new IllegalArgumentException("search.api.open");
+            o.put(k, v);
+        }
+        out.put("open", o);
+        if (a.has("cookies")) {
+            if (!(a.get("cookies") instanceof Boolean)) throw new IllegalArgumentException("search.api.cookies");
+            out.put("cookies", a.get("cookies"));
+        }
+        return out;
+    }
+
+    private static String field(Object v, Pattern p, String key) {
+        if (!(v instanceof String) || !p.matcher((String) v).matches()) throw new IllegalArgumentException(key);
+        return (String) v;
     }
 
     private static final Pattern CSS_FORBIDDEN = Pattern.compile("[<]|url\\(|@import|expression\\(", Pattern.CASE_INSENSITIVE);

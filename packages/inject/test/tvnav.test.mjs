@@ -355,3 +355,13 @@ test('recent titles: the page being watched is not its own recent; modal titles 
   assert.deepEqual(RECENT.recentShown(list, '/movie/1', 5).map((e) => e.t), ['M', 'B']);
   assert.deepEqual(RECENT.recentShown(list, '/', 2).map((e) => e.t), ['A', 'M']);
 });
+
+test('bufferedAhead: seconds buffered past the play head, 0 when the head is outside every range', () => {
+  const { bufferedAhead } = createRequire(import.meta.url)('../tvnav-pure.js');
+  const R2 = (pairs) => ({ length: pairs.length, start: (i) => pairs[i][0], end: (i) => pairs[i][1] });
+  assert.equal(bufferedAhead(R2([[0, 10], [20, 75.25]]), 30), 45.3);
+  assert.equal(bufferedAhead(R2([[0, 10]]), 15), 0);
+  assert.equal(bufferedAhead(R2([]), 0), 0);
+  assert.equal(bufferedAhead(null, 3), 0);
+  assert.equal(bufferedAhead({ length: 1, start() { throw new Error('detached'); } }, 1), 0);
+});

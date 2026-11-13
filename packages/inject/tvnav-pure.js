@@ -331,6 +331,16 @@
     return null;
   }
 
+  /** Seconds of media buffered ahead of `t` in a TimeRanges-like object (length, start(i), end(i)); 0 when `t` is not buffered. */
+  function bufferedAhead(ranges, t) {
+    try {
+      for (var i = 0; ranges && i < ranges.length; i++) {
+        if (ranges.start(i) <= t + 0.5 && ranges.end(i) >= t) return Math.max(0, Math.round((ranges.end(i) - t) * 10) / 10);
+      }
+    } catch (e) { /* detached media */ }
+    return 0;
+  }
+
   /**
    * The value a range slider takes after one LEFT (sign -1) or RIGHT (+1) press: about 5 % of its span, in whole steps, kept on the
    * step grid and inside [min, max]. Missing or odd attributes fall back to the browser defaults (0..100, step 1).
@@ -448,7 +458,7 @@
     pickVertical: pickVertical, pickHorizontal: pickHorizontal, nextColumn: nextColumn, rowScrollDelta: rowScrollDelta,
     pickEntry: pickEntry, insetContentStart: insetContentStart, insetNeed: insetNeed,
     menuIsDrill: menuIsDrill, menuIsUnusable: menuIsUnusable, menuGroups: menuGroups, menuInitial: menuInitial, menuStep: menuStep,
-    menuCloseOrder: menuCloseOrder, rangeNext: rangeNext,
+    menuCloseOrder: menuCloseOrder, rangeNext: rangeNext, bufferedAhead: bufferedAhead,
     cleanTitle: cleanTitle, isDetailPath: isDetailPath, addRecent: addRecent, recentShown: recentShown
   };
   if (typeof module === 'object' && module && module.exports) module.exports = api;

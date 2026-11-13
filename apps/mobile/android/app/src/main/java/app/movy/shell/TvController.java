@@ -27,6 +27,9 @@ final class TvController {
         /** Arrow keys while Settings, the chooser or the error panel is open: kept inside the panel. True when consumed. */
         boolean trapKeys(KeyEvent e);
 
+        /** The remote's search / mic key, outside playback and native panels. */
+        void search();
+
         /** Sends the event on to the normal dispatch (Activity -> WebView). */
         boolean deliver(KeyEvent e);
     }
@@ -73,6 +76,10 @@ final class TvController {
                 return true;
             case SOURCE:
                 if (down && e.getRepeatCount() == 0) host.pickSlot(r.slot);
+                return true;
+            case SEARCH:
+                if (host.nativeOverlayActive() || host.isFullscreen()) return true; // ignored during playback and over panels
+                if (down && e.getRepeatCount() == 0) host.search();
                 return true;
             case BRIGHTER:
             case DIMMER:

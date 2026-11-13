@@ -229,6 +229,8 @@
   function openSiteSearch() {
     if (TV.searchFromDrawer) TV.searchFromDrawer({ showHeaderOf: showHeaderOf, press: press, go: go });
   }
+  /** The remote's search / mic key (native): the same as the drawer's Search item. */
+  TV.siteSearch = function () { openSiteSearch(); return !!TV.searchFromDrawer; };
 
   /** A button pressed before its page finished hydrating does nothing: press again (a few times) until a dialog is up. */
   function confirmOpened(btn, n) {

@@ -64,6 +64,8 @@ public class MainActivity extends BridgeActivity {
     private TvLifecycle lifecycle;
     private app.movy.shell.AssetCacheInterceptor assetCache;
     private ShellInterceptor shell;
+    /** TV: refreshes the other sources' shells while a video plays smoothly. */
+    private PlaybackWarmup warmup;
     private String shellUpdatePending;
     private final java.util.Set<String> shellRefreshed = new java.util.HashSet<>();
     /** Top-level URL of the page, readable from WebView binder threads (TvBridge). */
@@ -451,6 +453,23 @@ public class MainActivity extends BridgeActivity {
         return super.dispatchKeyEvent(e);
     }
 
+    /** TV: the framework routes the remote's search key here when no view used it. */
+    @Override
+    public boolean onSearchRequested() {
+        if (!cfg.tv) return super.onSearchRequested();
+        if (!nativeOverlayOpen() && (chrome == null || !chrome.isFullscreen())) openSiteSearch();
+        return true;
+    }
+
+    /**
+     * Search key: the current site's search with the TV keyboard (tvdrawer.js). shortcut: one source only; the global
+     * search overlay across all four (plan stage 6d) replaces this call once it exists.
+     */
+    private void openSiteSearch() {
+        if (drawerBlocked() || bridge == null || bridge.getWebView() == null) return;
+        bridge.getWebView().evaluateJavascript("window.__movyTv&&window.__movyTv.siteSearch&&window.__movyTv.siteSearch()", null);
+    }
+
     /** Settings, the chooser, the error panel, the open drawer or the expanded Island is up: native views own BACK. */
     private boolean nativeOverlayOpen() {
         return (settings != null && settings.isOpen()) || launch.isChooserShowing()
@@ -465,6 +484,7 @@ public class MainActivity extends BridgeActivity {
     }
 
     private void setupTv() {
+        if (shell != null) warmup = new PlaybackWarmup(repo, shell::refreshSource, cfg.debug);
         ViewGroup content = findViewById(android.R.id.content);
         TvCursor cursor = new TvCursor(this, content, () -> bridge.getWebView());
         tvHint = new TvHint(this, prefs);
@@ -492,11 +512,15 @@ public class MainActivity extends BridgeActivity {
                 if (launch.errorPanel().isShowing()) return TvFocusTrap.handle(ev, launch.errorPanel());
                 return false;
             }
+            @Override public void search() { openSiteSearch(); }
             @Override public boolean deliver(KeyEvent ev) { return dispatchToPage(ev); }
         }, cursor, cfg.debug);
         TvBridge tvBridge = new TvBridge(repo::config, repo::active, () -> pageUrl,
                 () -> runOnUiThread(this::injectGestureKey),
-                json -> { if (cfg.debug) Log.i("MovyMedia", json); },
+                json -> {
+                    if (cfg.debug) Log.i("MovyMedia", json);
+                    if (warmup != null) runOnUiThread(() -> warmup.onMedia(json));
+                },
                 () -> SystemClock.elapsedRealtime() - lastUserFsExitMs < 3000,
                 () -> runOnUiThread(() -> launch.onAdapterReady()),
                 () -> runOnUiThread(launch::debugShowChooser),
@@ -505,7 +529,10 @@ public class MainActivity extends BridgeActivity {
         search = TvSearchController.install(this, repo, tvBridge, () -> bridge == null ? null : bridge.getWebView(), cfg.debug);
         tvBridge.setShellBoot(ok -> runOnUiThread(() -> onShellBoot(ok)));
         tvBridge.setPainted(url -> runOnUiThread(() -> onPagePainted(url))); tvBridge.setDebug(cfg.debug);
-        tvBridge.setBuffering((token, on) -> runOnUiThread(() -> loadingUi.setBuffering(token, on)));
+        tvBridge.setBuffering((token, on) -> runOnUiThread(() -> {
+            loadingUi.setBuffering(token, on);
+            if (warmup != null) warmup.onBuffering(on);
+        }));
         bridge.getWebView().addJavascriptInterface(tvBridge, TvBridge.NAME);
         registerVolumeUnmute();
         lifecycle = new TvLifecycle(this, () -> bridge == null ? null : bridge.getWebView(), new TvLifecycle.Host() {

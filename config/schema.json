@@ -893,6 +893,84 @@
             "description": "The site search box (native keyboard proxy, in-page mic, drawer Search).",
             "type": "object",
             "properties": {
+              "api": {
+                "description": "JSON search used by the global search across sources (TV).",
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "maxLength": 400,
+                    "pattern": "^(\\/|https:\\/\\/)\\S*\\{q\\}\\S*$",
+                    "description": "Request template with {q}: a path on the source origin, or an absolute https URL. Lives only in the git-ignored config."
+                  },
+                  "items": {
+                    "description": "Dot path to the result list (default \"results\").",
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_]{1,40}(\\.[A-Za-z0-9_]{1,40}){0,3}$"
+                  },
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_]{1,40}$"
+                  },
+                  "title": {
+                    "description": "Fields tried in order for the title.",
+                    "minItems": 1,
+                    "maxItems": 6,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_]{1,40}$"
+                    }
+                  },
+                  "year": {
+                    "description": "Fields tried in order; the first 4-digit year is used.",
+                    "minItems": 1,
+                    "maxItems": 6,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_]{1,40}$"
+                    }
+                  },
+                  "poster": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_]{1,40}$"
+                  },
+                  "posterBase": {
+                    "description": "Prefix for relative poster paths.",
+                    "type": "string",
+                    "maxLength": 200,
+                    "pattern": "^https:\\/\\/\\S+$"
+                  },
+                  "type": {
+                    "description": "Field holding the result type; types missing from `open` (people) are dropped.",
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_]{1,40}$"
+                  },
+                  "open": {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_*-]{1,20}$"
+                    },
+                    "additionalProperties": {
+                      "type": "string",
+                      "maxLength": 120,
+                      "pattern": "^\\/\\S*$"
+                    },
+                    "description": "Route per type (\"*\" when there is no type field) with {id}, {slug}, {year}."
+                  },
+                  "cookies": {
+                    "description": "Send the source cookies (same-origin APIs).",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "url",
+                  "open"
+                ],
+                "additionalProperties": false
+              },
               "input": {
                 "type": "string",
                 "minLength": 1,
@@ -1789,6 +1867,84 @@
                     "description": "The site search box (native keyboard proxy, in-page mic, drawer Search).",
                     "type": "object",
                     "properties": {
+                      "api": {
+                        "description": "JSON search used by the global search across sources (TV).",
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string",
+                            "maxLength": 400,
+                            "pattern": "^(\\/|https:\\/\\/)\\S*\\{q\\}\\S*$",
+                            "description": "Request template with {q}: a path on the source origin, or an absolute https URL. Lives only in the git-ignored config."
+                          },
+                          "items": {
+                            "description": "Dot path to the result list (default \"results\").",
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9_]{1,40}(\\.[A-Za-z0-9_]{1,40}){0,3}$"
+                          },
+                          "id": {
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9_]{1,40}$"
+                          },
+                          "title": {
+                            "description": "Fields tried in order for the title.",
+                            "minItems": 1,
+                            "maxItems": 6,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "pattern": "^[A-Za-z0-9_]{1,40}$"
+                            }
+                          },
+                          "year": {
+                            "description": "Fields tried in order; the first 4-digit year is used.",
+                            "minItems": 1,
+                            "maxItems": 6,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "pattern": "^[A-Za-z0-9_]{1,40}$"
+                            }
+                          },
+                          "poster": {
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9_]{1,40}$"
+                          },
+                          "posterBase": {
+                            "description": "Prefix for relative poster paths.",
+                            "type": "string",
+                            "maxLength": 200,
+                            "pattern": "^https:\\/\\/\\S+$"
+                          },
+                          "type": {
+                            "description": "Field holding the result type; types missing from `open` (people) are dropped.",
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9_]{1,40}$"
+                          },
+                          "open": {
+                            "type": "object",
+                            "propertyNames": {
+                              "type": "string",
+                              "pattern": "^[A-Za-z0-9_*-]{1,20}$"
+                            },
+                            "additionalProperties": {
+                              "type": "string",
+                              "maxLength": 120,
+                              "pattern": "^\\/\\S*$"
+                            },
+                            "description": "Route per type (\"*\" when there is no type field) with {id}, {slug}, {year}."
+                          },
+                          "cookies": {
+                            "description": "Send the source cookies (same-origin APIs).",
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "url",
+                          "open"
+                        ],
+                        "additionalProperties": false
+                      },
                       "input": {
                         "type": "string",
                         "minLength": 1,
@@ -2728,6 +2884,84 @@
                     "description": "The site search box (native keyboard proxy, in-page mic, drawer Search).",
                     "type": "object",
                     "properties": {
+                      "api": {
+                        "description": "JSON search used by the global search across sources (TV).",
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string",
+                            "maxLength": 400,
+                            "pattern": "^(\\/|https:\\/\\/)\\S*\\{q\\}\\S*$",
+                            "description": "Request template with {q}: a path on the source origin, or an absolute https URL. Lives only in the git-ignored config."
+                          },
+                          "items": {
+                            "description": "Dot path to the result list (default \"results\").",
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9_]{1,40}(\\.[A-Za-z0-9_]{1,40}){0,3}$"
+                          },
+                          "id": {
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9_]{1,40}$"
+                          },
+                          "title": {
+                            "description": "Fields tried in order for the title.",
+                            "minItems": 1,
+                            "maxItems": 6,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "pattern": "^[A-Za-z0-9_]{1,40}$"
+                            }
+                          },
+                          "year": {
+                            "description": "Fields tried in order; the first 4-digit year is used.",
+                            "minItems": 1,
+                            "maxItems": 6,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "pattern": "^[A-Za-z0-9_]{1,40}$"
+                            }
+                          },
+                          "poster": {
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9_]{1,40}$"
+                          },
+                          "posterBase": {
+                            "description": "Prefix for relative poster paths.",
+                            "type": "string",
+                            "maxLength": 200,
+                            "pattern": "^https:\\/\\/\\S+$"
+                          },
+                          "type": {
+                            "description": "Field holding the result type; types missing from `open` (people) are dropped.",
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9_]{1,40}$"
+                          },
+                          "open": {
+                            "type": "object",
+                            "propertyNames": {
+                              "type": "string",
+                              "pattern": "^[A-Za-z0-9_*-]{1,20}$"
+                            },
+                            "additionalProperties": {
+                              "type": "string",
+                              "maxLength": 120,
+                              "pattern": "^\\/\\S*$"
+                            },
+                            "description": "Route per type (\"*\" when there is no type field) with {id}, {slug}, {year}."
+                          },
+                          "cookies": {
+                            "description": "Send the source cookies (same-origin APIs).",
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "url",
+                          "open"
+                        ],
+                        "additionalProperties": false
+                      },
                       "input": {
                         "type": "string",
                         "minLength": 1,
@@ -3667,6 +3901,84 @@
                     "description": "The site search box (native keyboard proxy, in-page mic, drawer Search).",
                     "type": "object",
                     "properties": {
+                      "api": {
+                        "description": "JSON search used by the global search across sources (TV).",
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string",
+                            "maxLength": 400,
+                            "pattern": "^(\\/|https:\\/\\/)\\S*\\{q\\}\\S*$",
+                            "description": "Request template with {q}: a path on the source origin, or an absolute https URL. Lives only in the git-ignored config."
+                          },
+                          "items": {
+                            "description": "Dot path to the result list (default \"results\").",
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9_]{1,40}(\\.[A-Za-z0-9_]{1,40}){0,3}$"
+                          },
+                          "id": {
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9_]{1,40}$"
+                          },
+                          "title": {
+                            "description": "Fields tried in order for the title.",
+                            "minItems": 1,
+                            "maxItems": 6,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "pattern": "^[A-Za-z0-9_]{1,40}$"
+                            }
+                          },
+                          "year": {
+                            "description": "Fields tried in order; the first 4-digit year is used.",
+                            "minItems": 1,
+                            "maxItems": 6,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "pattern": "^[A-Za-z0-9_]{1,40}$"
+                            }
+                          },
+                          "poster": {
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9_]{1,40}$"
+                          },
+                          "posterBase": {
+                            "description": "Prefix for relative poster paths.",
+                            "type": "string",
+                            "maxLength": 200,
+                            "pattern": "^https:\\/\\/\\S+$"
+                          },
+                          "type": {
+                            "description": "Field holding the result type; types missing from `open` (people) are dropped.",
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9_]{1,40}$"
+                          },
+                          "open": {
+                            "type": "object",
+                            "propertyNames": {
+                              "type": "string",
+                              "pattern": "^[A-Za-z0-9_*-]{1,20}$"
+                            },
+                            "additionalProperties": {
+                              "type": "string",
+                              "maxLength": 120,
+                              "pattern": "^\\/\\S*$"
+                            },
+                            "description": "Route per type (\"*\" when there is no type field) with {id}, {slug}, {year}."
+                          },
+                          "cookies": {
+                            "description": "Send the source cookies (same-origin APIs).",
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "url",
+                          "open"
+                        ],
+                        "additionalProperties": false
+                      },
                       "input": {
                         "type": "string",
                         "minLength": 1,

@@ -490,7 +490,7 @@
     var v = findVideo();
     if (!v) return null;
     return { paused: v.paused, currentTime: v.currentTime || 0, duration: isFinite(v.duration) ? v.duration : 0, muted: v.muted,
-      ended: v.ended, fullscreen: !!fsElement(), inFrame: inFrame, title: doc.title || '' };
+      ended: v.ended, fullscreen: !!fsElement(), inFrame: inFrame, title: doc.title || '', ahead: P.bufferedAhead(v.buffered, v.currentTime || 0) };
   };
   TV.lastStatus = null;
   TV.mediaStatus = function () { return TV.lastStatus || TV.status(); };

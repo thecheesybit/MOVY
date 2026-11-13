@@ -54,6 +54,12 @@ public class TvKeysTest {
         assertEquals(TvKeys.Action.NONE, TvKeys.classify(29).action);
     }
 
+    @Test public void searchMicAndAssistantKeysOpenSearch() {
+        for (int k : new int[] {84, 231, 219}) assertEquals("key " + k, TvKeys.Action.SEARCH, TvKeys.classify(k).action);
+        assertFalse(TvKeys.isSearch(23));
+        assertFalse(TvKeys.opensIsland(84));
+    }
+
     @Test public void channelKeysStepBrightnessNotSources() {
         // Round 5: CH+ / CH- no longer step through the sources; they change the player brightness.
         assertEquals(TvKeys.Action.BRIGHTER, TvKeys.classify(166).action);

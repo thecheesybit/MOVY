@@ -111,6 +111,28 @@ public class TvProfilesTest {
         rejects("{\"a\":{\"search\":{\"input\":\"i\",\"css\":\"</style><b>\"}}}");
     }
 
+    @Test public void searchApiProfileIsKeptAndValidated() throws Exception {
+        String api = "{\"url\":\"/api/search?q={q}\",\"items\":\"data.results\",\"id\":\"id\",\"title\":[\"title\",\"name\"],"
+                + "\"year\":[\"release_date\"],\"poster\":\"poster\",\"posterBase\":\"https://img.example/w342\",\"type\":\"mediaType\","
+                + "\"open\":{\"movie\":\"/movie/{id}\",\"tv\":\"/tv/{id}\"},\"cookies\":true,\"junk\":1}";
+        String extra = ",\"tvProfiles\":{\"a\":{\"search\":{\"input\":\"i\",\"api\":" + api + "}}}";
+        JSONObject a = new JSONObject(LiveConfig.parseDefaults(defaults(extra), OBF).tvProfileFor("a")).getJSONObject("search").getJSONObject("api");
+        assertEquals("/api/search?q={q}", a.getString("url"));
+        assertEquals("data.results", a.getString("items"));
+        assertEquals("name", a.getJSONArray("title").getString(1));
+        assertEquals("/tv/{id}", a.getJSONObject("open").getString("tv"));
+        assertTrue(a.getBoolean("cookies"));
+        assertFalse(a.has("junk"));
+        String ok = "\"open\":{\"*\":\"/w/{id}\"}";
+        rejects("{\"a\":{\"search\":{\"input\":\"i\",\"api\":{\"url\":\"/s\"," + ok + "}}}}"); // no {q}
+        rejects("{\"a\":{\"search\":{\"input\":\"i\",\"api\":{\"url\":\"http://x/s?q={q}\"," + ok + "}}}}");
+        rejects("{\"a\":{\"search\":{\"input\":\"i\",\"api\":{\"url\":\"/s?q={q}\"}}}}"); // no open
+        rejects("{\"a\":{\"search\":{\"input\":\"i\",\"api\":{\"url\":\"/s?q={q}\",\"open\":{\"*\":\"https://x/{id}\"}}}}}");
+        rejects("{\"a\":{\"search\":{\"input\":\"i\",\"api\":{\"url\":\"/s?q={q}\",\"title\":[\"a b\"]," + ok + "}}}}");
+        rejects("{\"a\":{\"search\":{\"input\":\"i\",\"api\":{\"url\":\"/s?q={q}\",\"posterBase\":\"http://i\"," + ok + "}}}}");
+        rejects("{\"a\":{\"search\":{\"input\":\"i\",\"api\":{\"url\":\"/s?q={q}\",\"cookies\":\"yes\"," + ok + "}}}}");
+    }
+
     @Test public void invalidProfilesAreRejected() {
         rejects("{\"Bad Id\":{}}");
         rejects("{\"a\":{\"rows\":\".r\"}}");

@@ -10,7 +10,12 @@ import android.view.KeyEvent;
 final class TvKeys {
     private TvKeys() {}
 
-    enum Action { NONE, TOGGLE_ISLAND, SOURCE, PLAY_PAUSE, PLAY, PAUSE, FORWARD, REWIND, BRIGHTER, DIMMER }
+    enum Action { NONE, TOGGLE_ISLAND, SOURCE, PLAY_PAUSE, PLAY, PAUSE, FORWARD, REWIND, BRIGHTER, DIMMER, SEARCH }
+
+    /** The remote's search / mic / Assistant keys. Many firmwares give 231 and 219 to the system Assistant; 84 reaches apps. */
+    static boolean isSearch(int code) {
+        return code == KeyEvent.KEYCODE_SEARCH || code == KeyEvent.KEYCODE_VOICE_ASSIST || code == KeyEvent.KEYCODE_ASSIST;
+    }
 
     /** Result of {@link #classify}: an action plus, for SOURCE, the 0-based source slot. */
     static final class Result {
@@ -71,6 +76,7 @@ final class TvKeys {
 
     static Result classify(int code) {
         if (opensIsland(code)) return ISLAND;
+        if (isSearch(code)) return new Result(Action.SEARCH, -1);
         // CHANNEL_UP / CHANNEL_DOWN step the player brightness (they no longer switch source: the drawer does that).
         if (code == KeyEvent.KEYCODE_CHANNEL_UP) return new Result(Action.BRIGHTER, -1);
         if (code == KeyEvent.KEYCODE_CHANNEL_DOWN) return new Result(Action.DIMMER, -1);
