@@ -41,3 +41,8 @@ test('blank src detection', () => {
   assert.equal(isBlankSrc('javascript:void 0'), true);
   assert.equal(isBlankSrc('https://x/y'), false);
 });
+
+test('a site dialog/menu is left alone unless it has captcha text', () => {
+  assert.equal(T({ tag: 'DIV', hasQr: true, hasDialogRole: true }), false);
+  assert.equal(T({ tag: 'DIV', captchaText: true, hasDialogRole: true }), true);
+});

@@ -33,11 +33,19 @@ public final class CosmeticBridge {
     private final NavRules rules;
     private final BlockStats stats;
     private final boolean debug;
+    private final app.movy.shell.Prefs prefs;
 
-    private CosmeticBridge(NavRules rules, BlockStats stats, boolean debug) {
+    private CosmeticBridge(NavRules rules, BlockStats stats, boolean debug, app.movy.shell.Prefs prefs) {
         this.rules = rules;
         this.stats = stats;
         this.debug = debug;
+        this.prefs = prefs;
+    }
+
+    /** playerhud.js asks before each video: the Settings switch for the shell's own player controls. */
+    @JavascriptInterface
+    public boolean hudEnabled() {
+        return prefs == null || prefs.hudEnabled();
     }
 
     /** Hosts navguard.js treats as on-site: {"allow":[...],"auth":[...]}. */
@@ -84,34 +92,46 @@ public final class CosmeticBridge {
         String navguard;
         String tvnav = null;
         String scam;
+        String hud = null;
         try {
             JSONObject opts = new JSONObject().put("cosmetic", cosmetic).put("tv", tv);
             script = "(function(){var MOVY_OPTS=" + opts + ";" + readAsset(ctx, "adblock/cosmetic.js") + "\n})();";
             loading = readAsset(ctx, "shell/loading.js");
             navguard = "(function(){" + readAsset(ctx, "shell/navguard.js") + "\n})();";
             scam = "(function(){" + readAsset(ctx, "shell/scamguard.js") + "\n})();";
+            if (!tv) hud = "(function(){var MOVY_HUD=" + hudOpts(ctx) + ";" + readAsset(ctx, "shell/playerhud.js") + "\n})();";
             // each file is its own IIFE; tvgate.js runs the bundle only in documents that need it (top, players)
             if (tv) tvnav = "(function(){var __movyTvRun=function(){" + readAll(ctx, TV_SCRIPTS) + "\n};" + readAsset(ctx, "shell/tvgate.js") + "\n})();";
         } catch (Exception e) {
             Log.e(TAG, "cannot prepare cosmetic script", e);
             return null;
         }
-        webView.addJavascriptInterface(new CosmeticBridge(rules, stats, debug), NAME);
+        webView.addJavascriptInterface(new CosmeticBridge(rules, stats, debug, tv ? null : new app.movy.shell.Prefs(ctx)), NAME);
         if (WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
             Set<String> all = Collections.singleton("*");
             WebViewCompat.addDocumentStartJavaScript(webView, script, all);
             WebViewCompat.addDocumentStartJavaScript(webView, loading, all);
             WebViewCompat.addDocumentStartJavaScript(webView, navguard, all);
             WebViewCompat.addDocumentStartJavaScript(webView, scam, all);
+            if (hud != null) WebViewCompat.addDocumentStartJavaScript(webView, hud, all);
             if (tvnav != null) WebViewCompat.addDocumentStartJavaScript(webView, tvnav, all);
             return null;
         }
         Log.w(TAG, "DOCUMENT_START_SCRIPT unsupported: falling back to onPageStarted injection");
-        return script + "\n" + loading;
+        return script + "\n" + loading + (hud != null ? "\n" + hud : "");
     }
 
     /** The TV scripts, in load order (each needs window.__movyTv from the ones before it). Keep in step with TV_SCRIPTS in scripts/android/generate.mjs. */
     private static final String[] TV_SCRIPTS = {"tvnav-pure.js", "tvnav.js", "tvdrawer.js", "tvfs.js", "tvinset.js", "tvmenu.js", "tvshell.js", "tvpaint.js", "tvfocusmem.js", "tvplayerfx.js", "tvsearchmic.js"};
+
+    /** {"enabled":true,"hide":[...],"fs":[...]} from the build-time list (selectors of every source's player bars). */
+    private static String hudOpts(Context ctx) throws IOException {
+        try {
+            return new JSONObject(readAsset(ctx, "shell/playerhud-hide.json")).put("enabled", true).toString();
+        } catch (org.json.JSONException e) {
+            return "{\"enabled\":true,\"hide\":[],\"fs\":[]}";
+        }
+    }
 
     private static String readAll(Context ctx, String[] files) throws IOException {
         StringBuilder sb = new StringBuilder();

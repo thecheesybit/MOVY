@@ -8,6 +8,7 @@
   var RED = '#E50914';
   var SIZE = 48;
   var DEBOUNCE_MS = 120;
+  var SEEK_DEBOUNCE_MS = 500; // sites re-seek on subtitle/server changes: a quick seek must not flash the arc
   var FADE_MS = 180;
   var SHOW = { loadstart: 1, waiting: 1, stalled: 1, seeking: 1 };
   var HIDE = { playing: 1, canplay: 1, seeked: 1, pause: 1, error: 1, ended: 1, emptied: 1 };
@@ -99,7 +100,8 @@
     if (!rafId) rafId = requestAnimationFrame(tick);
   }
 
-  function show(v) {
+  function show(v, ms) {
+    if (window.__movyHudScrub) return;
     var st = stateOf(v);
     if (st.shown || st.timer) return;
     st.timer = setTimeout(function () {
@@ -125,7 +127,7 @@
       st.shown = true;
       if (visible.indexOf(st) < 0) visible.push(st);
       schedule();
-    }, DEBOUNCE_MS);
+    }, ms || DEBOUNCE_MS);
   }
 
   function hide(v) {
@@ -156,7 +158,7 @@
     if (!v || v.tagName !== 'VIDEO') return;
     if (SHOW[e.type]) {
       if (e.type === 'loadstart' && v.preload === 'none' && v.paused && !v.autoplay) return;
-      show(v);
+      show(v, e.type === 'seeking' ? SEEK_DEBOUNCE_MS : DEBOUNCE_MS);
     } else if (HIDE[e.type]) {
       hide(v);
     }

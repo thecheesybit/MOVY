@@ -92,6 +92,15 @@ public final class Prefs {
         sp.edit().putBoolean("adblockEnabled", on).apply();
     }
 
+    /** The shell's own VLC-style player controls (phone/tablet only); on by default. */
+    public boolean hudEnabled() {
+        return sp.getBoolean("hudEnabled", true);
+    }
+
+    public void setHudEnabled(boolean on) {
+        sp.edit().putBoolean("hudEnabled", on).apply();
+    }
+
     /** Player brightness chosen by the swipe (0..1), or -1 to follow the system brightness. */
     public float playerBrightness() {
         return sp.getFloat("playerBrightness", -1f);

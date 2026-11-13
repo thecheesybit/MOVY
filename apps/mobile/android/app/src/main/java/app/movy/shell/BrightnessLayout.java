@@ -1,6 +1,7 @@
 package app.movy.shell;
 
 import android.content.Context;
+import android.media.AudioManager;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -41,6 +42,9 @@ final class BrightnessLayout extends FrameLayout {
     private float appliedGain = 1f;
     private boolean eligible;
     private boolean dragging;
+    private boolean volumeMode;
+    private float startVolume;
+    private final AudioManager audio;
     private float downX;
     private float downY;
     private float startLevel;
@@ -52,6 +56,7 @@ final class BrightnessLayout extends FrameLayout {
         this.tv = tv;
         this.gainSink = gainSink;
         this.slop = ViewConfiguration.get(ctx).getScaledTouchSlop();
+        this.audio = (AudioManager) ctx.getSystemService(Context.AUDIO_SERVICE);
         float d = ctx.getResources().getDisplayMetrics().density;
         float scale = tv ? 1.6f : 1f; // legible from the sofa
         hud = new Hud(ctx, d * scale, tv);
@@ -108,6 +113,19 @@ final class BrightnessLayout extends FrameLayout {
         window.setAttributes(lp);
     }
 
+    private float volumeNow() {
+        int max = audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        return max > 0 ? audio.getStreamVolume(AudioManager.STREAM_MUSIC) / (float) max : 0f;
+    }
+
+    private void applyVolume(float frac) {
+        int max = audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        audio.setStreamVolume(AudioManager.STREAM_MUSIC, Math.round(frac * max), 0);
+        hud.setVolume(frac);
+        hud.bringToFront();
+        hud.setVisibility(VISIBLE);
+    }
+
     private float levelNow() {
         if (!Float.isNaN(level)) return level;
         float saved = prefs.playerBrightness();
@@ -128,7 +146,8 @@ final class BrightnessLayout extends FrameLayout {
         switch (ev.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 dragging = false;
-                eligible = BrightnessMath.inZone(ev.getX(), ev.getY(), getWidth(), getHeight());
+                volumeMode = !tv && BrightnessMath.inVolumeZone(ev.getX(), ev.getY(), getWidth(), getHeight());
+                eligible = volumeMode || BrightnessMath.inZone(ev.getX(), ev.getY(), getWidth(), getHeight());
                 downX = ev.getX();
                 downY = ev.getY();
                 break;
@@ -139,7 +158,8 @@ final class BrightnessLayout extends FrameLayout {
                 if (eligible && !dragging
                         && BrightnessMath.isVerticalSwipe(ev.getX() - downX, ev.getY() - downY, slop)) {
                     dragging = true;
-                    startLevel = levelNow();
+                    startLevel = volumeMode ? volumeNow() : levelNow();
+                    hud.setMode(volumeMode);
                     // the page gets ACTION_CANCEL; we own the rest of this gesture
                     return true;
                 }
@@ -155,14 +175,15 @@ final class BrightnessLayout extends FrameLayout {
         if (!dragging) return super.onTouchEvent(ev);
         switch (ev.getActionMasked()) {
             case MotionEvent.ACTION_MOVE:
-                apply(BrightnessMath.fromDrag(startLevel, ev.getY() - downY, getHeight(), tv), true);
+                if (volumeMode) applyVolume(BrightnessMath.volumeFromDrag(startLevel, ev.getY() - downY, getHeight()));
+                else apply(BrightnessMath.fromDrag(startLevel, ev.getY() - downY, getHeight(), tv), true);
                 main.removeCallbacksAndMessages(null); // stays up while the finger is down
                 return true;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 dragging = false;
                 eligible = false;
-                if (!Float.isNaN(level)) prefs.setPlayerBrightness(level);
+                if (!volumeMode && !Float.isNaN(level)) prefs.setPlayerBrightness(level);
                 main.postDelayed(() -> hud.setVisibility(GONE), HUD_HIDE_MS);
                 return true;
             default:
@@ -197,9 +218,29 @@ final class BrightnessLayout extends FrameLayout {
             text.setFakeBoldText(true);
         }
 
+        private boolean volume;
+
         void set(float l) {
+            volume = false;
             level = l;
             invalidate();
+        }
+
+        void setVolume(float f) {
+            volume = true;
+            level = f;
+            invalidate();
+        }
+
+        /** Right-hand pill with a speaker label for volume, left-hand sun for brightness. */
+        void setMode(boolean vol) {
+            volume = vol;
+            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) getLayoutParams();
+            lp.gravity = (vol ? Gravity.END : Gravity.START) | Gravity.CENTER_VERTICAL;
+            int m = lp.leftMargin != 0 ? lp.leftMargin : lp.rightMargin;
+            lp.leftMargin = vol ? 0 : m;
+            lp.rightMargin = vol ? m : 0;
+            setLayoutParams(lp);
         }
 
         @Override
@@ -215,8 +256,12 @@ final class BrightnessLayout extends FrameLayout {
             float cx = w / 2f;
             float cy = 24f * d;
             stroke.setColor(UiTokens.WHITE);
-            c.drawCircle(cx, cy, 5f * d, stroke);
-            for (int i = 0; i < 8; i++) {
+            if (volume) {
+                text.setTextSize(11f * d);
+                c.drawText("VOL", cx, cy + 4f * d, text);
+                text.setTextSize(13f * d);
+            } else c.drawCircle(cx, cy, 5f * d, stroke);
+            for (int i = 0; i < (volume ? 0 : 8); i++) {
                 double a = Math.PI / 4 * i;
                 c.drawLine(cx + (float) Math.cos(a) * 8.5f * d, cy + (float) Math.sin(a) * 8.5f * d,
                         cx + (float) Math.cos(a) * 11f * d, cy + (float) Math.sin(a) * 11f * d, stroke);
@@ -233,19 +278,21 @@ final class BrightnessLayout extends FrameLayout {
             clip.addRoundRect(bar, bw / 2f, bw / 2f, Path.Direction.CW);
             c.save();
             c.clipPath(clip);
-            float filled = bottom - (bottom - top) * BrightnessMath.fraction(level, tv);
+            float filled = bottom - (bottom - top) * (volume ? level : BrightnessMath.fraction(level, tv));
             fill.setColor(UiTokens.WHITE);
             c.drawRect(bar.left, filled, bar.right, bottom, fill);
             c.restore();
 
             // tick at 100%: above it the picture is boosted past the screen's own maximum
-            float tick = bottom - (bottom - top) * BrightnessMath.fraction(1f, tv);
-            stroke.setColor(0xFF8E8E93);
-            stroke.setStrokeWidth(1.5f * d);
-            c.drawLine(cx - bw, tick, cx + bw, tick, stroke);
-            stroke.setStrokeWidth(2f * d);
+            if (!volume) {
+                float tick = bottom - (bottom - top) * BrightnessMath.fraction(1f, tv);
+                stroke.setColor(0xFF8E8E93);
+                stroke.setStrokeWidth(1.5f * d);
+                c.drawLine(cx - bw, tick, cx + bw, tick, stroke);
+                stroke.setStrokeWidth(2f * d);
+            }
 
-            c.drawText(BrightnessMath.percent(level, tv) + "%", cx, h - 12f * d, text);
+            c.drawText((volume ? Math.round(level * 100f) : BrightnessMath.percent(level, tv)) + "%", cx, h - 12f * d, text);
         }
     }
 }

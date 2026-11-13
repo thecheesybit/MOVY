@@ -42,6 +42,8 @@ final class SettingsModel {
         /** Size of the TV asset cache; null when the cache is off (phone). */
         final Long assetCacheBytes;
         final Drawable icon;
+        /** Phone/tablet builds only: show the player-controls switch (set by the sheet). */
+        boolean showHud;
 
         Inputs(SourceRepository repo, Prefs prefs, BlockStats stats, HealthChecker health, boolean adblockConfigured,
                boolean adblockOn, String appName, boolean checking, Long storageBytes, Long assetCacheBytes, Drawable icon) {
@@ -107,6 +109,10 @@ final class SettingsModel {
         List<SettingsRow> rows = new ArrayList<>();
         rows.add(SettingsRow.toggle(ctx.getString(R.string.movy_adblock_toggle), in.adblockOn, UiTokens.BADGE_GREEN,
                 R.drawable.ic_shield, act::setAdblock));
+        if (in.showHud) {
+            rows.add(SettingsRow.toggle(ctx.getString(R.string.movy_hud_toggle), in.prefs.hudEnabled(), UiTokens.BADGE_PURPLE,
+                    R.drawable.ic_play, on -> in.prefs.setHudEnabled(on)));
+        }
         rows.add(SettingsRow.value(ctx.getString(R.string.movy_ads_blocked), String.valueOf(in.stats.adsBlocked()),
                 UiTokens.BADGE_RED, R.drawable.ic_block));
         rows.add(SettingsRow.value(ctx.getString(R.string.movy_redirects_killed), String.valueOf(in.stats.redirectsKilled()),

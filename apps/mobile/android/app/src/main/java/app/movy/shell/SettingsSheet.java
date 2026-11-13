@@ -387,8 +387,10 @@ final class SettingsSheet extends FrameLayout implements SettingsModel.Actions, 
     // ---- model ----
 
     private SettingsModel.Inputs inputs() {
-        return new SettingsModel.Inputs(repo, prefs, stats, health, adblockConfigured, AdblockSwitch.isOn(), appName,
+        SettingsModel.Inputs in = new SettingsModel.Inputs(repo, prefs, stats, health, adblockConfigured, AdblockSwitch.isOn(), appName,
                 checking, storageBytes, assetCacheBytes(), icon);
+        in.showHud = !tv;
+        return in;
     }
 
     private AssetCacheInterceptor assetCache() {

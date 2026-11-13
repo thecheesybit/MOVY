@@ -86,6 +86,18 @@ export function writeFirebaseFiles(cfg, rootDir) {
   fs.copyFileSync(src, dest);
 }
 
+/** Phone/tablet player HUD: the script plus the site bars (from every source's TV profile) it hides or presses. */
+function writeHudAssets(cfg, shell) {
+  fs.copyFileSync(path.join(ROOT, 'packages', 'inject', 'playerhud.js'), path.join(shell, 'playerhud.js'));
+  const hide = new Set();
+  const fs_ = new Set();
+  for (const p of Object.values(cfg.tvProfiles ?? {})) {
+    for (const k of ['hide', 'controls']) for (const s of p.player?.[k] ?? []) hide.add(s);
+    for (const s of p.player?.fullscreenButton ?? []) { hide.add(s); fs_.add(s); }
+  }
+  fs.writeFileSync(path.join(shell, 'playerhud-hide.json'), JSON.stringify({ hide: [...hide], fs: [...fs_] }));
+}
+
 /** Copies engine files + cosmetic.js into assets/adblock; removes stale engine when adblock is off. */
 export function writeAdblockAssets(cfg, engine) {
   const dir = path.join(MAIN, 'assets', 'adblock');
@@ -96,6 +108,7 @@ export function writeAdblockAssets(cfg, engine) {
   fs.rmSync(shell, { recursive: true, force: true });
   fs.mkdirSync(shell, { recursive: true });
   for (const f of ['loading.js', 'navguard.js', 'scamguard.js', ...(cfg.target === 'tv' ? [...TV_SCRIPTS, TV_GATE_SCRIPT] : [])]) fs.copyFileSync(path.join(ROOT, 'packages', 'inject', f), path.join(shell, f));
+  if (cfg.target !== 'tv') writeHudAssets(cfg, shell);
   if (cfg.adblock.enabled && engine) {
     fs.copyFileSync(engine.engineDat, path.join(dir, 'engine.dat'));
     fs.copyFileSync(engine.resourcesJson, path.join(dir, 'resources.json'));

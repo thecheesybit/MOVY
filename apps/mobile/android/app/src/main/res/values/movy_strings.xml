@@ -22,6 +22,7 @@
     <string name="movy_default_source">Default Source</string>
     <string name="movy_ask_every_launch">Ask on Every Launch</string>
     <string name="movy_sec_adblock">Protection</string>
+    <string name="movy_hud_toggle">Player controls</string>
     <string name="movy_adblock_toggle">Block Ads &amp; Trackers</string>
     <string name="movy_ads_blocked">Ads Blocked</string>
     <string name="movy_redirects_killed">Redirects Stopped</string>

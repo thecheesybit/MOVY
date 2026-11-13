@@ -17,6 +17,7 @@
    */
   function isScamOverlay(info) {
     if (!info || !info.fixed || info.hasVideo) return false;
+    if (info.hasDialogRole && !info.captchaText) return false; // the site's own menu/dialog
     if (!(info.vw > 0 && info.vh > 0)) return false;
     if (info.w < info.vw * COVER || info.h < info.vh * COVER) return false;
     var z = info.z || 0;
@@ -39,6 +40,18 @@
 
   var CAPTCHA_RE = /not a robot|verify you are human|scan (this )?(the )?qr/i;
 
+  var DIALOG = '[role=dialog],[role=menu],[role=listbox]';
+
+  // A QR code is a big, roughly square svg; a lone icon is not one.
+  function hasQrSvg(scope) {
+    var list = scope.querySelectorAll('svg[viewBox]');
+    for (var i = 0; i < list.length; i++) {
+      var r = list[i].getBoundingClientRect();
+      if (r.width >= 120 && r.height >= 120 && r.width / r.height > 0.8 && r.width / r.height < 1.25) return true;
+    }
+    return false;
+  }
+
   function describe(el) {
     var cs = root.getComputedStyle(el);
     var r = el.getBoundingClientRect();
@@ -47,7 +60,7 @@
       fixed: cs.position === 'fixed', vw: root.innerWidth, vh: root.innerHeight, w: r.width, h: r.height,
       z: parseInt(cs.zIndex, 10) || 0, tag: tag, src: tag === 'IFRAME' ? (el.getAttribute('src') || '') : '',
       hasSrcdoc: tag === 'IFRAME' && el.hasAttribute('srcdoc'), sandbox: el.getAttribute && el.getAttribute('sandbox') || '',
-      hasVideo: false, hasBlankFrame: false, hasSrcdocSandboxFrame: false, hasQr: false, captchaText: false
+      hasVideo: false, hasBlankFrame: false, hasSrcdocSandboxFrame: false, hasQr: false, captchaText: false, hasDialogRole: false
     };
     var doc = null;
     if (tag === 'IFRAME') { try { doc = el.contentDocument; } catch (e) { doc = null; } }
@@ -62,7 +75,8 @@
           if (f.hasAttribute('srcdoc') && /allow-modals/.test(f.getAttribute('sandbox') || '')) info.hasSrcdocSandboxFrame = true;
         }
       }
-      info.hasQr = !!scope.querySelector('canvas,img[src^="data:image"],svg[viewBox]');
+      info.hasDialogRole = !!(el.matches && el.matches(DIALOG)) || !!scope.querySelector(DIALOG);
+      info.hasQr = !!scope.querySelector('canvas,img[src^="data:image"]') || hasQrSvg(scope);
       info.captchaText = CAPTCHA_RE.test((scope.body || scope).innerText || '');
     } catch (e) { /* cross-origin: leave defaults */ }
     return info;
@@ -74,7 +88,7 @@
   }
 
   function check(el) {
-    if (!el || el.nodeType !== 1 || !el.isConnected) return;
+    if (!el || el.nodeType !== 1 || !el.isConnected || el.hasAttribute('data-movy-hud')) return;
     var t = el.tagName;
     if (t === 'SCRIPT' || t === 'STYLE' || t === 'LINK' || t === 'META') return;
     try { if (isScamOverlay(describe(el))) report(el); } catch (e) { /* ignore */ }

@@ -83,6 +83,15 @@ public class BrightnessMathTest {
         assertEquals(40, BrightnessMath.percent(0f, TV));
     }
 
+    @Test public void volumeZoneAndDrag() {
+        assertTrue(BrightnessMath.inVolumeZone(900, 500, 1000, 1000));
+        assertFalse(BrightnessMath.inVolumeZone(100, 500, 1000, 1000));
+        assertFalse(BrightnessMath.inVolumeZone(900, 20, 1000, 1000));
+        assertEquals(1f, BrightnessMath.volumeFromDrag(0.9f, -1000, 1000), 1e-6);
+        assertEquals(0f, BrightnessMath.volumeFromDrag(0.1f, 1000, 1000), 1e-6);
+        assertEquals(0.5f, BrightnessMath.volumeFromDrag(0.5f, 0, 1000), 1e-6);
+    }
+
     @Test public void gainScriptAddsOnlyWhenNotNeutral() {
         String on = BrightnessMath.gainScript(1.5f);
         assertTrue(on.contains("brightness(1.50)"));
@@ -91,6 +100,7 @@ public class BrightnessMathTest {
         // Sites ship rules like `html[data-x] :not(video) { filter: none !important }`; ours must outrank them.
         assertTrue(on.contains("':fullscreen:fullscreen:fullscreen'"));
         assertTrue(on.contains(":-webkit-full-screen:-webkit-full-screen:-webkit-full-screen'"));
+        assertTrue(on.contains("F+' video'+r")); // same-document video: only the picture is filtered
         String off = BrightnessMath.gainScript(1f);
         assertTrue(off.contains("remove()"));
         assertFalse(off.contains("brightness("));

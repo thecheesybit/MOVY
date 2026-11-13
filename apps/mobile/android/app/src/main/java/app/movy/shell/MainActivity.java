@@ -680,6 +680,12 @@ public class MainActivity extends BridgeActivity {
                     v -> { if (!"true".equals(v)) backFromShell(wv); });
             return;
         }
+        if (!cfg.tv && chrome != null && chrome.isFullscreen()) {
+            // phone: the page's player controls get BACK first (unlock / leave the site menu)
+            wv.evaluateJavascript("(window.__movyHud&&window.__movyHud.back)?window.__movyHud.back():false",
+                    v -> { if (!"true".equals(v)) backFromShell(wv); });
+            return;
+        }
         backFromShell(wv);
     }
 

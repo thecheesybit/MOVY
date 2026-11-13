@@ -4,6 +4,17 @@
 // target=_blank forms. Native code (NavRules) is the authority for real navigations; this layer keeps pages calm.
 // Host lists come from window.MovyAdblock.navConfig() (Android) or window.MOVY_NAV (other shells).
 (function () {
+  /**
+   * Pure. info: { inFullscreen, menuOpen, uiState, mediaStarted, transparent, directBodyChild, covers }.
+   * True when a transparent non-anchor overlay is a click-jack that must be removed. A player's menu backdrop
+   * (fullscreen, dialog/menu open, UI-library state attribute) or anything over a video that already started
+   * playing is the site's own UI and is never removed.
+   */
+  function shouldRemoveOverlay(info) {
+    if (info.inFullscreen || info.menuOpen || info.uiState || info.mediaStarted) return false;
+    return !!(info.transparent && info.directBodyChild && info.covers);
+  }
+  if (typeof module === 'object' && module && module.exports) { module.exports = { shouldRemoveOverlay: shouldRemoveOverlay }; return; }
   if (window.__movyNavGuard) return;
   window.__movyNavGuard = true;
 
@@ -141,6 +152,19 @@
     } catch (e) { return true; }
   }
 
+  var MENU_OPEN = '[role=dialog],[role=menu],[role=listbox],[aria-modal="true"]';
+  function hasUiState(el) {
+    if (el.hasAttribute('aria-hidden')) return true;
+    var at = el.attributes;
+    for (var i = 0; i < at.length; i++) if (/^data-(state|radix|headlessui|melt)/.test(at[i].name)) return true;
+    return false;
+  }
+  function mediaStarted() {
+    var vs = document.querySelectorAll('video');
+    for (var i = 0; i < vs.length; i++) if (vs[i].currentTime > 0 && !vs[i].ended) return true;
+    return false;
+  }
+
   function isInvisibleOverlay(el, isAnchor) {
     if (isPlayerish(el)) return false;
     var cs = getComputedStyle(el);
@@ -154,12 +178,20 @@
       transparent = clear && noMedia && noText;
     }
     if (!transparent) return false;
-    if (!isAnchor) {
-      var p = el.parentElement;
-      if (p !== document.body && p !== document.documentElement) return false; // spare players' own click-catchers
-    }
     var r = el.getBoundingClientRect();
-    return coverage(r) > 0.3 || coversMedia(r);
+    var covers = coverage(r) > 0.3 || coversMedia(r);
+    if (isAnchor) return covers;
+    var p = el.parentElement; // players' own click-catchers are not direct children of body
+    var fs = document.fullscreenElement || document.webkitFullscreenElement;
+    return shouldRemoveOverlay({
+      inFullscreen: !!(fs && fs.contains(el)),
+      menuOpen: !!document.querySelector(MENU_OPEN),
+      uiState: hasUiState(el),
+      mediaStarted: mediaStarted(),
+      transparent: true,
+      directBodyChild: p === document.body || p === document.documentElement,
+      covers: covers
+    });
   }
 
   function resend(ev, el) {

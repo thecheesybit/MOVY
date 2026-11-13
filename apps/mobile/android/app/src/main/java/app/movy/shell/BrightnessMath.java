@@ -54,6 +54,18 @@ final class BrightnessMath {
         return x >= 0 && x < width * ZONE_RIGHT && y >= height * ZONE_TOP && y <= height * ZONE_BOTTOM;
     }
 
+    /** Phones: the right part of the screen swipes the media volume (mirror of the brightness zone). */
+    static boolean inVolumeZone(float x, float y, int width, int height) {
+        if (width <= 0 || height <= 0) return false;
+        return x > width * (1f - ZONE_RIGHT) && x <= width && y >= height * ZONE_TOP && y <= height * ZONE_BOTTOM;
+    }
+
+    /** Volume fraction 0..1 after a drag of {@code dy} pixels (negative = up = louder) from {@code start}. */
+    static float volumeFromDrag(float start, float dy, int height) {
+        if (height <= 0) return Math.max(0f, Math.min(1f, start));
+        return Math.max(0f, Math.min(1f, start - dy / (height * SPAN)));
+    }
+
     /** True when the movement is mostly vertical and long enough to be a swipe rather than a tap or a seek. */
     static boolean isVerticalSwipe(float dx, float dy, float slop) {
         float ay = Math.abs(dy);
@@ -98,7 +110,11 @@ final class BrightnessMath {
                 + "if(!s){s=document.createElement('style');s.id='__movy_bright';(document.head||document.documentElement).appendChild(s);}"
                 + "var r='{filter:brightness(" + v + ")!important}';"
                 // Tripled pseudo-class: outranks a site rule such as `html[data-x] :not(video){filter:none!important}`.
-                + "s.textContent=':fullscreen:fullscreen:fullscreen'+r"
-                + "+'\\n:-webkit-full-screen:-webkit-full-screen:-webkit-full-screen'+r;})()";
+                + "var F=':fullscreen:fullscreen:fullscreen',W=':-webkit-full-screen:-webkit-full-screen:-webkit-full-screen';"
+                // a same-document <video>: filter only it, so menus and subtitles are not re-rasterised every frame
+                + "var f=document.fullscreenElement||document.webkitFullscreenElement;"
+                + "var own=f&&(f.tagName==='VIDEO'||f.querySelector('video'));"
+                + "s.textContent=own?'video'+F+r+'\\n'+F+' video'+r+'\\nvideo'+W+r+'\\n'+W+' video'+r"
+                + ":F+r+'\\n'+W+r;})()";
     }
 }
