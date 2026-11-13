@@ -88,6 +88,9 @@ public class BrightnessMathTest {
         assertTrue(on.contains("brightness(1.50)"));
         assertTrue(on.contains(":fullscreen"));
         assertTrue(on.contains(":-webkit-full-screen"));
+        // Sites ship rules like `html[data-x] :not(video) { filter: none !important }`; ours must outrank them.
+        assertTrue(on.contains("':fullscreen:fullscreen:fullscreen'"));
+        assertTrue(on.contains(":-webkit-full-screen:-webkit-full-screen:-webkit-full-screen'"));
         String off = BrightnessMath.gainScript(1f);
         assertTrue(off.contains("remove()"));
         assertFalse(off.contains("brightness("));

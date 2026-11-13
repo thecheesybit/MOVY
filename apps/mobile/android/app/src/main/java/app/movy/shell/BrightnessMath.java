@@ -97,6 +97,8 @@ final class BrightnessMath {
         return "(function(){var s=document.getElementById('__movy_bright');"
                 + "if(!s){s=document.createElement('style');s.id='__movy_bright';(document.head||document.documentElement).appendChild(s);}"
                 + "var r='{filter:brightness(" + v + ")!important}';"
-                + "s.textContent=':fullscreen'+r+'\\n:-webkit-full-screen'+r;})()";
+                // Tripled pseudo-class: outranks a site rule such as `html[data-x] :not(video){filter:none!important}`.
+                + "s.textContent=':fullscreen:fullscreen:fullscreen'+r"
+                + "+'\\n:-webkit-full-screen:-webkit-full-screen:-webkit-full-screen'+r;})()";
     }
 }
