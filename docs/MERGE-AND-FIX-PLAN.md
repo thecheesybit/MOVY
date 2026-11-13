@@ -206,15 +206,54 @@ Update `docs/KNOWN-ISSUES.md` (new snapshot date, each item FIXED / UNVERIFIED /
 - desktop code signing.
 Then ask the user how to publish: fork + pull request, or collaborator access (a direct push was refused with 403).
 
-## 3. Which model for which stage
+## 3. Model: Sonnet 5.5 for every stage
 
-| Stage | Model | Why |
-|---|---|---|
-| 1 phone check, 2 test bench, 3 small fixes, 4 speed pass, 8 polish, 9 desktop, 10 docs | Sonnet 5.5 | Narrow, well-specified, mostly measuring and small edits. The repo's own rule is Sonnet agents. |
-| 5 player settings, 6 search + continue watching + history, 7 system | Opus 5.5 | New native screens and cross-frame design with many moving parts; a wrong structure here is expensive to undo. |
+All stages are written to be done by Sonnet 5.5. The three big stages (5, 6, 7) are therefore cut into
+sub-stages of one session each. Rules that keep Sonnet on track:
 
-Run one stage per session. Start each session with: "Read `docs/MERGE-AND-FIX-PLAN.md`, do Stage N only, follow
-section 0, stop at the gate and report."
+1. **One sub-stage per session, one commit per item.** Start each session with: "Read `docs/MERGE-AND-FIX-PLAN.md`,
+   do Stage N (sub-stage X) only, follow section 0, stop at the gate and report." Do not let a session continue
+   into the next sub-stage; start a fresh one.
+2. **Pure logic first, wiring second.** In every sub-stage write the pure function and its unit test before any
+   Android or DOM wiring, and run the tests, then wire it. Pure code is where Sonnet is reliable; wiring is where
+   it drifts.
+3. **Read the neighbour before writing.** Before adding a module, read the closest existing one and copy its shape:
+   `tvfocusmem.js` (+ test) for a small JS module, `PaintLedger.java` (+ test) for a pure Java rule,
+   `TvDrawerView.java` for a native TV view, `SearchKeyboard.java` for native-to-page text, `tvsearchmic.js` for a
+   page feature behind a profile key.
+4. **No redesign.** If a sub-stage seems to need a different structure from the one written here, stop and report
+   the conflict instead of choosing; the owner decides.
+5. **Stop on red.** If a gate or any of the four checks fails twice for the same reason, stop and write what was
+   tried; do not widen the change to make it pass.
+6. **Use a second Sonnet session as reviewer** after Stages 5, 6 and 7: a read-only session given only the
+   branch diff and ROUND5-REVAMP, told to list bugs, no edits. Fix its findings in a new session.
+7. If the owner has Opus budget, the only sub-stages worth upgrading are 6c (global search model) and 7b
+   (warm-up); everything else stays on Sonnet.
+
+### Stage 5 split (player settings)
+- **5a** Re-test the 11-13 engine on Movy, 7Movies, Moonflix; fix profile gaps only (no new JS). Gate: table of what
+  works per source.
+- **5b** 7Movies legacy `#settingsPanel`: reach it from the engine, or fall back to speed/fit through the `<video>`
+  element. Pure test for the chosen rule.
+- **5c** Subtitle style module `tvsubstyle.js` (pure CSS builder + test first, then injection + `Prefs`). Gate:
+  size/colour change live on all four sources.
+- **5d** Native right-side settings panel: first the pure model (sections present per site, in the fixed order,
+  with test), then the view, modelled on `TvDrawerView`.
+
+### Stage 6 split (history, continue watching, search)
+- **6a** Watch-record store: pure class (add/update/trim to 20/remove above 95 %, JSON round-trip) + test, then the
+  page recorder (15 s and on pause/exit) and the Moonflix `recentlyWatched` import.
+- **6b** Watch History screen (native tiles from the store) + one drawer item on every source; Watch Next row and
+  `movy://open` deep link in `MainActivity`.
+- **6c** Global search, part 1: pure query/result model (per-source `search.api` mapping, merge, ordering, recents)
+  + tests; key handling for 84/231/219/`onSearchRequested()`.
+- **6d** Global search, part 2: the overlay view with the four stages, native fetching, Action stage and BACK
+  returning to the same card. Reuse `ListeningPill` and `SearchVoice`.
+
+### Stage 7 split (system)
+- **7a** Exit dialog + "Clear cache" / "Sign out of all sources" in Settings + the cache lifecycle table in REPORT.
+- **7b** Warm-up during playback (pure gate rule first: played >= 60 s, buffered >= 30 s, no `waiting` in 30 s,
+  cap per session; then the fetcher).
 
 ## 4. What a model cannot close
 T6 (Bravia QA), T9 real recogniser, T13 signed-in states, the Bravia half of T14, T7 beyond our own ring, desktop
