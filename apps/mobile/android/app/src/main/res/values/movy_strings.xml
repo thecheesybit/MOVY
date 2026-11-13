@@ -18,6 +18,7 @@
     <string name="movy_exit_confirm">Exit</string>
     <string name="movy_history">Watch History</string>
     <string name="movy_history_empty">Nothing watched yet. Titles you play show up here.</string>
+    <string name="movy_sec_subtitles">Subtitles</string>
     <string name="movy_subtitle_size">Subtitle size</string>
     <string name="movy_subtitle_colour">Subtitle colour</string>
     <string name="movy_island_tab">Sources</string>

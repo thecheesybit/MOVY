@@ -77,3 +77,13 @@ test('caretFor: LEFT puts the caret at the start, RIGHT at the end, others leave
   assert.equal(caretFor('up', 5), null);
   assert.equal(caretFor(null, 5), null);
 });
+
+test('typedChar: printable keys from a hardware keyboard, never named keys or shortcuts', () => {
+  const { typedChar } = createRequire(import.meta.url)('../tvsearchmic.js');
+  assert.equal(typedChar('a', false), 'a');
+  assert.equal(typedChar(' ', false), ' ');
+  assert.equal(typedChar('ArrowLeft', false), '');
+  assert.equal(typedChar('Enter', false), '');
+  assert.equal(typedChar('v', true), '');
+  assert.equal(typedChar(undefined, false), '');
+});

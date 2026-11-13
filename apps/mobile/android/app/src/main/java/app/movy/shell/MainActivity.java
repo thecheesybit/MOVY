@@ -561,7 +561,18 @@ public class MainActivity extends BridgeActivity {
         setupDrawer(tvBridge);
         search = TvSearchController.install(this, repo, tvBridge, () -> bridge == null ? null : bridge.getWebView(), cfg.debug);
         tvBridge.setShellBoot(ok -> runOnUiThread(() -> onShellBoot(ok)));
-        tvBridge.setPainted(url -> runOnUiThread(() -> onPagePainted(url))); tvBridge.setDebug(cfg.debug);
+        tvBridge.setDebug(cfg.debug);
+        tvBridge.setSubtitleStyle(() -> prefs.subtitleSize() + "," + prefs.subtitleColour());
+        if (androidx.webkit.WebViewFeature.isFeatureSupported(androidx.webkit.WebViewFeature.WEB_MESSAGE_LISTENER)) {
+            // The paint signal is accepted from the main frame only: a frame cannot spoof it (the JS interface cannot tell frames apart).
+            androidx.webkit.WebViewCompat.addWebMessageListener(bridge.getWebView(), "MovyTvPaint", java.util.Collections.singleton("*"),
+                    (view, message, sourceOrigin, isMainFrame, reply) -> {
+                        String url = message.getData();
+                        if (isMainFrame && url != null && url.length() < 2048) onPagePainted(url);
+                    });
+        } else {
+            tvBridge.setPainted(url -> runOnUiThread(() -> onPagePainted(url)));
+        }
         tvBridge.setBuffering((token, on) -> runOnUiThread(() -> {
             loadingUi.setBuffering(token, on);
             if (warmup != null) warmup.onBuffering(on);

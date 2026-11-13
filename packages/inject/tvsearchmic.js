@@ -83,7 +83,13 @@
     return null;
   }
 
-  var api = { chooseField: chooseField, micBox: micBox, pillRect: pillRect, pillDepth: pillDepth, firstResult: firstResult, isOpenKey: isOpenKey, caretFor: caretFor };
+  /** The character a hardware keyboard key types (e.key), or '' for named keys (ArrowLeft, Enter) and shortcuts. */
+  function typedChar(key, modifier) {
+    return !modifier && typeof key === 'string' && key.length === 1 && key >= ' ' ? key : '';
+  }
+
+  var api = { chooseField: chooseField, micBox: micBox, pillRect: pillRect, pillDepth: pillDepth, firstResult: firstResult, isOpenKey: isOpenKey, caretFor: caretFor,
+    typedChar: typedChar };
   if (typeof module === 'object' && module && module.exports) { module.exports = api; return; }
 
   var TV = root.__movyTv;
@@ -177,7 +183,11 @@
 
   TV.searchSubmit = function () {
     var el = currentBox();
-    if (el) { pressEnter(el); el.dispatchEvent(new root.Event('change', { bubbles: true })); }
+    if (!el) return;
+    pressEnter(el);
+    el.dispatchEvent(new root.Event('change', { bubbles: true }));
+    // Done on the keyboard: the focus lands on the first result once they settle, not on whatever is below the box (Movy's tabs)
+    if (el.value) focusFirstResult(el, Date.now(), null);
   };
 
   /** The keyboard closed (Done, BACK, hidden): the D-pad focus goes back to the box. */
@@ -210,6 +220,15 @@
         e.preventDefault();
         e.stopPropagation();
         if (isOpenKey(e)) openKeyboard(a);
+        return true;
+      }
+      // A USB / Bluetooth keyboard: the box is read-only, so the first letter goes in here and the native proxy takes the rest.
+      var ch = e.type === 'keydown' ? typedChar(e.key, e.ctrlKey || e.altKey || e.metaKey) : '';
+      if (ch) {
+        e.preventDefault();
+        e.stopPropagation();
+        setValue(a, (a.value || '') + ch);
+        openKeyboard(a);
         return true;
       }
       var sel = caretFor(dir, (a.value || '').length);

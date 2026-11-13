@@ -281,3 +281,11 @@ sub-stages of one session each. Rules that keep Sonnet on track:
 ## 4. What a model cannot close
 T6 (Bravia QA), T9 real recogniser, T13 signed-in states, the Bravia half of T14, T7 beyond our own ring, desktop
 code signing, and the logo images for T8. These stay OPEN / UNVERIFIED with the owner.
+
+## 5. Progress (2026-11-13, second pass, pushed to `development`)
+Done in code and unit-tested, not run on a device: 6a (watch records), 6b (Watch History screen, drawer item, Watch Next
+row, `movy://open`), 6c, 7a (exit dialog; Clear Cache / Sign Out already existed), 7b, 5c (subtitle size/colour),
+Stage 3 parts T9a (hardware keyboard), T10 (Done focuses the first result; `Close search` skip is an owner config line),
+T11 (main-frame-only paint signal). The per-item table is in `docs/KNOWN-ISSUES.md` §5.
+Left, each needing a device, the live sites or the owner: Stages 1, 2, 4, 5a, 5b, 5d, 6d, the rest of 3 (T4a/T4b/T14),
+8 (logos, file splits), 9, and the Bravia half of 10.

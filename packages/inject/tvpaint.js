@@ -33,7 +33,10 @@
   function fire() {
     if (done) return;
     done = true;
-    try { N.painted(root.location.href); } catch (e) { /* ignore */ }
+    // MovyTvPaint (a WebView message listener) tells the app which frame is speaking, so an ad frame cannot lift the cover;
+    // MovyTvNative.painted is the fallback on WebViews without it.
+    var M = root.MovyTvPaint;
+    try { if (M && typeof M.postMessage === 'function') M.postMessage(String(root.location.href)); else N.painted(root.location.href); } catch (e) { /* ignore */ }
   }
 
   function poll() {

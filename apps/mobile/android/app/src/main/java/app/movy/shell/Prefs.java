@@ -110,9 +110,9 @@ public final class Prefs {
         sp.edit().putString("watchHistory", json).apply();
     }
 
-    /** Movy-owned subtitle style (SubtitleStyle): size step 0..3 and colour 0 white / 1 yellow. */
+    /** Movy-owned subtitle style (SubtitleStyle): size 0 site default, 1..4 S/M/L/XL; colour 0 site default, 1 white, 2 yellow. */
     public int subtitleSize() {
-        return sp.getInt("subtitleSize", 1);
+        return sp.getInt("subtitleSize", 0);
     }
 
     public void setSubtitleSize(int step) {

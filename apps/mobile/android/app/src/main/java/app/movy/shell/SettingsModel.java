@@ -44,6 +44,8 @@ final class SettingsModel {
         final Drawable icon;
         /** Phone/tablet builds only: show the player-controls switch (set by the sheet). */
         boolean showHud;
+        /** TV builds only: the Movy-owned subtitle size and colour rows (set by the sheet). */
+        boolean showSubtitles;
 
         Inputs(SourceRepository repo, Prefs prefs, BlockStats stats, HealthChecker health, boolean adblockConfigured,
                boolean adblockOn, String appName, boolean checking, Long storageBytes, Long assetCacheBytes, Drawable icon) {
@@ -67,6 +69,7 @@ final class SettingsModel {
         List<SettingsSection> out = new ArrayList<>();
         LiveConfig cfg = in.repo.config();
         out.add(sourceSection(ctx, in, act, cfg));
+        if (in.showSubtitles) out.add(subtitleSection(ctx, in, act));
         if (in.adblockConfigured) out.add(protectionSection(ctx, in, act));
         out.add(sourcesSection(ctx, in, act, cfg));
         out.add(storageSection(ctx, in, act));
@@ -103,6 +106,30 @@ final class SettingsModel {
             }));
         }
         return Collections.singletonList(SettingsSection.of(null, ctx.getString(R.string.movy_default_source_footer), rows));
+    }
+
+    static final String[] SUBTITLE_SIZES = {"Site default", "Small", "Medium", "Large", "Extra large"};
+    static final String[] SUBTITLE_COLOURS = {"Site default", "White", "Yellow"};
+
+    /** Next value of a cycling choice (OK steps through it, wrapping round). */
+    static int next(int current, int count) {
+        return current < 0 || current >= count - 1 ? 0 : current + 1;
+    }
+
+    /** TV: subtitle size and colour applied by tvsubstyle.js on every source, also where the site has no styling. */
+    private static SettingsSection subtitleSection(Context ctx, Inputs in, Actions act) {
+        List<SettingsRow> rows = new ArrayList<>();
+        int size = Math.max(0, Math.min(SUBTITLE_SIZES.length - 1, in.prefs.subtitleSize()));
+        int colour = Math.max(0, Math.min(SUBTITLE_COLOURS.length - 1, in.prefs.subtitleColour()));
+        rows.add(SettingsRow.nav(ctx.getString(R.string.movy_subtitle_size), SUBTITLE_SIZES[size], UiTokens.BADGE_BLUE, R.drawable.ic_play, () -> {
+            in.prefs.setSubtitleSize(next(size, SUBTITLE_SIZES.length));
+            act.rebuild();
+        }));
+        rows.add(SettingsRow.nav(ctx.getString(R.string.movy_subtitle_colour), SUBTITLE_COLOURS[colour], UiTokens.BADGE_ORANGE, R.drawable.ic_play, () -> {
+            in.prefs.setSubtitleColour(next(colour, SUBTITLE_COLOURS.length));
+            act.rebuild();
+        }));
+        return SettingsSection.of(ctx.getString(R.string.movy_sec_subtitles), null, rows);
     }
 
     private static SettingsSection protectionSection(Context ctx, Inputs in, Actions act) {

@@ -183,6 +183,19 @@ final class TvBridge {
         if (b != null && token != null) b.accept(token, on);
     }
 
+    private volatile Supplier<String> subtitleStyle;
+
+    /** tvsubstyle.js: the Movy-owned subtitle style from Settings, "size,colour" (0 = site default). */
+    @JavascriptInterface
+    public String subtitleStyle() {
+        Supplier<String> s = subtitleStyle;
+        return s == null ? "0,0" : s.get();
+    }
+
+    void setSubtitleStyle(Supplier<String> s) {
+        this.subtitleStyle = s;
+    }
+
     /** tvgate.js: debug builds only; lets the page log config mistakes (an invalid selector) instead of skipping them silently. */
     @JavascriptInterface
     public boolean debug() {

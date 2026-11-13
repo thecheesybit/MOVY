@@ -122,7 +122,7 @@ public final class CosmeticBridge {
     }
 
     /** The TV scripts, in load order (each needs window.__movyTv from the ones before it). Keep in step with TV_SCRIPTS in scripts/android/generate.mjs. */
-    private static final String[] TV_SCRIPTS = {"tvnav-pure.js", "tvnav.js", "tvdrawer.js", "tvfs.js", "tvinset.js", "tvmenu.js", "tvshell.js", "tvpaint.js", "tvfocusmem.js", "tvplayerfx.js", "tvsearchmic.js"};
+    private static final String[] TV_SCRIPTS = {"tvnav-pure.js", "tvnav.js", "tvdrawer.js", "tvfs.js", "tvinset.js", "tvmenu.js", "tvshell.js", "tvpaint.js", "tvfocusmem.js", "tvplayerfx.js", "tvsearchmic.js", "tvsubstyle.js"};
 
     /** {"enabled":true,"hide":[...],"fs":[...]} from the build-time list (selectors of every source's player bars). */
     private static String hudOpts(Context ctx) throws IOException {

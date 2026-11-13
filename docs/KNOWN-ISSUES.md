@@ -1,4 +1,4 @@
-# Movy — status and known issues (snapshot 2026-11-13)
+# Movy — status and known issues (snapshot 2026-11-13; see §5 for the merge pass)
 
 Single place to see what works, what is open and where to look. Sources: `tv-adapter/REPORT.md` (per-round results),
 `tv-adapter/ROUND5-PROGRESS.md` (resume log), `tv-adapter/R5-INVENTORY.md` (measurements), `DESKTOP.md`.
@@ -59,3 +59,23 @@ Per `DESKTOP.md`: not code-signed, so SmartScreen shows "unknown publisher". UNV
 
 ## 4. Where things are
 Plan `tv-adapter/ROUND5-REVAMP.md`; resume log `tv-adapter/ROUND5-PROGRESS.md`; per-level results `tv-adapter/REPORT.md`; measurements `tv-adapter/R5-INVENTORY.md`; site notes `site-dossiers/*.md`; emulator harness `scripts/tv-test/`.
+
+## 5. Status after the 2026-11-13 merge pass (branch `development`)
+
+Everything below is unit-tested and builds (phone, TV, Windows); **none of it has been run on a TV or a phone yet**.
+
+| Item | Done in code | Still open |
+|---|---|---|
+| Phone player | VLC-style HUD, subtitle-glitch and tap fixes, no double HUD, volume swipe (merged from the phone branch) | Device check (plan Stage 1) |
+| T2 | Search / mic keys 84, 231, 219 and `onSearchRequested` open the current site's search; `GlobalSearch` model + profile `search.api`. Continue watching: unfinished titles are published to the Android home Watch Next row with a `movy://open?src=&p=` link, handled at launch and while running | The four-stage global search overlay and its native fetching (plan 6d); `search.api` values in the private config; whether Google TV shows third-party Watch Next entries |
+| T3 | `WatchHistory` + `WatchRecorder` record titles played in fullscreen (> 5 min) every 15 s and on pause; native Watch History screen; the drawer adds it on sources whose site has no history page (Moonflix) | Posters on the screen; importing Moonflix's own `recentlyWatched`; Moonflix titles reopen its home page (no detail route) |
+| T4 | Movy-owned subtitle size (S/M/L/XL) and colour (white/yellow) in Settings, applied by `tvsubstyle.js` to `::cue` and the profile's `player.subtitles` in every player frame | Native player panel (5d), 7Movies legacy panel (5b), engine re-test on Movy/7Movies/Moonflix (5a), Movy "Customize appearance" focus leak, Sleep Timer default focus: all need the sites live |
+| T5 | "Exit Movy?" on BACK at the root (focus on Stay, second BACK or Exit leaves); warm-up of the other sources during smooth playback | Cache lifecycle table (measure on a device); Clear Cache and Sign Out already existed in Settings |
+| T9 | A USB/Bluetooth keyboard types into the read-only site search box (first key goes in, the native keyboard proxy takes the rest) | Real speech recogniser on a device |
+| T10 | Done on the keyboard moves the focus to the first result (Movy no longer lands on its tabs). **Owner config:** add `button[aria-label="Close search" i]` to `skip` for `movy` and `moonflix` in `config/apps/movy.json` (added in the local copy only; the file is git-ignored) | Check on the emulator |
+| T11 | The paint signal goes through a WebView message listener and counts only from the main frame; the old JS interface is the fallback on WebViews without it | Buffering signal still comes from any frame (it can only show a spinner, not lift the cover) |
+| T1, T7 | — | Need before/after timings on a device; the half-done `wip/r5-speed-ring` branch is not on GitHub |
+| T6, T13, T14 | — | Real hardware (Bravia) and live site sampling |
+| T8 | — | Needs logo images from the owner |
+| T12 | — | File splits deferred until the device gates are green (pure moves, risky blind) |
+| Desktop | Builds (installer + portable) | Soak, scaling, installer run, code signing |
