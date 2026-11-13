@@ -40,6 +40,14 @@ public class DrawerModelTest {
         assertNull(s.path);
     }
 
+    @Test public void nativeWatchHistoryOnlyWhereTheSiteHasNone() {
+        assertEquals(ids(DrawerModel.build(PROFILE, "Settings")), ids(DrawerModel.build(PROFILE, "Settings", "Watch History")));
+        List<DrawerModel.Item> l = DrawerModel.build("{\"drawer\":{\"items\":[{\"id\":\"home\",\"label\":\"Home\",\"icon\":\"home\",\"path\":\"/\"}]}}",
+                "Settings", "Watch History");
+        assertEquals(Arrays.asList("home", DrawerModel.NATIVE_HISTORY_ID, "settings"), ids(l));
+        assertNull(l.get(1).path);
+    }
+
     @Test public void missingProfileStillHasSettings() {
         assertEquals(Collections.singletonList("settings"), ids(DrawerModel.build("{}", "Settings")));
         assertEquals(Collections.singletonList("settings"), ids(DrawerModel.build(null, "Settings")));

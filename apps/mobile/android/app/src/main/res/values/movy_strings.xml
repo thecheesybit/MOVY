@@ -12,7 +12,14 @@
     <string name="movy_preparing_sources">Preparing your sources…</string>
     <string name="movy_start_title">What are we watching?</string>
     <string name="movy_opening_source">Opening %1$s…</string>
-    <string name="movy_press_back_again">Press back again to exit</string>
+    <string name="movy_exit_title">Exit %1$s?</string>
+    <string name="movy_exit_msg">Press BACK again to exit.</string>
+    <string name="movy_exit_stay">Stay</string>
+    <string name="movy_exit_confirm">Exit</string>
+    <string name="movy_history">Watch History</string>
+    <string name="movy_history_empty">Nothing watched yet. Titles you play show up here.</string>
+    <string name="movy_subtitle_size">Subtitle size</string>
+    <string name="movy_subtitle_colour">Subtitle colour</string>
     <string name="movy_island_tab">Sources</string>
     <string name="movy_settings">Settings</string>
     <string name="movy_close">Close</string>

@@ -30,14 +30,12 @@ import app.movy.adblock.BlockStats;
 import app.movy.adblock.CosmeticBridge;
 
 public class MainActivity extends BridgeActivity {
-    private static final long EXIT_WINDOW_MS = 2000;
-
-
     private ShellConfig cfg;
     private NavRules rules;
     private BlockStats stats;
     private ShellWebChromeClient chrome;
-    private long lastBackMs;
+    /** TV: "Exit Movy?" (BACK at the root); focus starts on Stay, a second BACK or OK on Exit leaves. */
+    private IosAlert exitAlert;
     private volatile long lastUserFsExitMs = -10_000;
     private String fallbackScript;
     private Prefs prefs;
@@ -66,6 +64,9 @@ public class MainActivity extends BridgeActivity {
     private ShellInterceptor shell;
     /** TV: refreshes the other sources' shells while a video plays smoothly. */
     private PlaybackWarmup warmup;
+    /** TV: Movy's own watch records and the open Watch History screen. */
+    private WatchRecorder watch;
+    private WatchHistoryView historyView;
     private String shellUpdatePending;
     private final java.util.Set<String> shellRefreshed = new java.util.HashSet<>();
     /** Top-level URL of the page, readable from WebView binder threads (TvBridge). */
@@ -109,6 +110,8 @@ public class MainActivity extends BridgeActivity {
             repo.seedResume(prefs.tvResumeId(), prefs.tvResumeUrl());
             prefs.clearTvResume();
         }
+        String[] link = WatchRecorder.parseLink(getIntent());
+        if (cfg.tv && link != null && repo.urlFor(link[0], link[1]) != null) repo.seedResume(link[0], repo.urlFor(link[0], link[1]));
         rules = new NavRules(initial.recommended().url, initial.allAllowedHosts(), cfg.authHosts, cfg.externalLinks);
         applyHosts(initial);
         repo.addListener(new SourceRepository.Listener() {
@@ -472,9 +475,32 @@ public class MainActivity extends BridgeActivity {
 
     /** Settings, the chooser, the error panel, the open drawer or the expanded Island is up: native views own BACK. */
     private boolean nativeOverlayOpen() {
-        return (settings != null && settings.isOpen()) || launch.isChooserShowing()
+        return exitShowing() || historyView != null || (settings != null && settings.isOpen()) || launch.isChooserShowing()
                 || launch.errorPanel().isShowing() || (island != null && island.isExpanded())
                 || (drawer != null && drawer.isOpen());
+    }
+
+    /** The native Watch History screen (drawer item on a source whose site has no history page). */
+    private void showHistory() {
+        if (watch == null || historyView != null) return;
+        historyView = WatchHistoryView.show(findViewById(android.R.id.content), new WatchHistoryView(this,
+                getString(R.string.movy_history), getString(R.string.movy_history_empty), watch.entries(),
+                id -> { Source s = repo.config().find(id); return s == null ? null : s.name; },
+                e -> {
+                    hideHistory();
+                    repo.openPath(e.source, e.path);
+                }));
+    }
+
+    private void hideHistory() {
+        if (historyView == null) return;
+        historyView.close();
+        historyView = null;
+        if (bridge != null && bridge.getWebView() != null) bridge.getWebView().requestFocus();
+    }
+
+    private boolean exitShowing() {
+        return exitAlert != null && !exitAlert.isDismissed();
     }
 
     /** Start screen, chooser, error panel, Settings or a source switch cover: the drawer's strip hides and it will not open. */
@@ -485,6 +511,8 @@ public class MainActivity extends BridgeActivity {
 
     private void setupTv() {
         if (shell != null) warmup = new PlaybackWarmup(repo, shell::refreshSource, cfg.debug);
+        watch = new WatchRecorder(this, prefs, repo, () -> pageUrl,
+                () -> bridge == null || bridge.getWebView() == null ? null : bridge.getWebView().getTitle(), cfg.debug);
         ViewGroup content = findViewById(android.R.id.content);
         TvCursor cursor = new TvCursor(this, content, () -> bridge.getWebView());
         tvHint = new TvHint(this, prefs);
@@ -507,6 +535,8 @@ public class MainActivity extends BridgeActivity {
             }
             @Override public boolean adjustBrightness(int dir) { return chrome != null && chrome.adjustBrightness(dir); }
             @Override public boolean trapKeys(KeyEvent ev) {
+                if (exitShowing()) return TvFocusTrap.handle(ev, exitAlert);
+                if (historyView != null) return TvFocusTrap.handle(ev, historyView);
                 if (settings != null && settings.isOpen()) return settings.handleKey(ev);
                 if (launch.isChooserShowing()) return TvFocusTrap.handle(ev, launch.chooserView());
                 if (launch.errorPanel().isShowing()) return TvFocusTrap.handle(ev, launch.errorPanel());
@@ -519,7 +549,10 @@ public class MainActivity extends BridgeActivity {
                 () -> runOnUiThread(this::injectGestureKey),
                 json -> {
                     if (cfg.debug) Log.i("MovyMedia", json);
-                    if (warmup != null) runOnUiThread(() -> warmup.onMedia(json));
+                    runOnUiThread(() -> {
+                        if (warmup != null) warmup.onMedia(json);
+                        if (watch != null) watch.onMedia(json);
+                    });
                 },
                 () -> SystemClock.elapsedRealtime() - lastUserFsExitMs < 3000,
                 () -> runOnUiThread(() -> launch.onAdapterReady()),
@@ -586,6 +619,7 @@ public class MainActivity extends BridgeActivity {
             }
             @Override public void switchSource(String sourceId) { repo.switchTo(sourceId); }
             @Override public void openSettings() { if (settings != null) settings.show(); }
+            @Override public void openHistory() { showHistory(); }
         }, cfg.debug);
         tvBridge.setDrawer(new TvBridge.Drawer() {
             @Override public void edgeLeft() { runOnUiThread(() -> drawer.onEdgeLeft()); }
@@ -674,6 +708,11 @@ public class MainActivity extends BridgeActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         handleDebugIntent(intent);
+        String[] link = WatchRecorder.parseLink(intent);
+        if (cfg.tv && link != null) {
+            hideHistory();
+            repo.openPath(link[0], link[1]); // Android home "Continue watching": the app was already running
+        }
     }
 
     private void snapshotCookies() {
@@ -690,6 +729,14 @@ public class MainActivity extends BridgeActivity {
 
     private void onBack() {
         WebView wv = bridge.getWebView();
+        if (exitShowing()) {
+            leaveApp(); // second BACK on "Exit Movy?"
+            return;
+        }
+        if (historyView != null) {
+            hideHistory();
+            return;
+        }
         if (cfg.tv && leaveGate.swallowsBack(SystemClock.elapsedRealtime())) return; // BACK just left fullscreen: the page is still leaving the player
         if (tvKeys != null && tvKeys.cursor().isActive()) {
             tvKeys.cursor().exit();
@@ -731,13 +778,9 @@ public class MainActivity extends BridgeActivity {
         } else if (wv.canGoBack()) {
             wv.goBack();
         } else if (cfg.tv) {
-            long now = SystemClock.elapsedRealtime();
-            if (now - lastBackMs < EXIT_WINDOW_MS) {
-                leaveApp();
-            } else {
-                lastBackMs = now;
-                Toast.makeText(this, R.string.movy_press_back_again, Toast.LENGTH_SHORT).show();
-            }
+            exitAlert = IosAlert.show(findViewById(android.R.id.content), getString(R.string.movy_exit_title, getString(R.string.app_name)),
+                    getString(R.string.movy_exit_msg), getString(R.string.movy_exit_stay), getString(R.string.movy_exit_confirm), true,
+                    this::leaveApp, true);
         } else {
             finish();
         }

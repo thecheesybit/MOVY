@@ -94,6 +94,7 @@ dependencies {
     implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
     implementation "androidx.webkit:webkit:$androidxWebkitVersion"
     implementation 'androidx.dynamicanimation:dynamicanimation:1.0.0'
+    implementation 'androidx.tvprovider:tvprovider:1.0.0' // TV home "Continue watching" (Watch Next)
     implementation project(':capacitor-android')
     implementation project(':capacitor-cordova-android-plugins')
     testImplementation "junit:junit:$junitVersion"

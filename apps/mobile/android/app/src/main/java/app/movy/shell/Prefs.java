@@ -101,6 +101,32 @@ public final class Prefs {
         sp.edit().putBoolean("hudEnabled", on).apply();
     }
 
+    /** Movy's own watch records (WatchHistory JSON); kept by Clear Cache and Sign Out. */
+    public String watchHistory() {
+        return sp.getString("watchHistory", "[]");
+    }
+
+    public void setWatchHistory(String json) {
+        sp.edit().putString("watchHistory", json).apply();
+    }
+
+    /** Movy-owned subtitle style (SubtitleStyle): size step 0..3 and colour 0 white / 1 yellow. */
+    public int subtitleSize() {
+        return sp.getInt("subtitleSize", 1);
+    }
+
+    public void setSubtitleSize(int step) {
+        sp.edit().putInt("subtitleSize", step).apply();
+    }
+
+    public int subtitleColour() {
+        return sp.getInt("subtitleColour", 0);
+    }
+
+    public void setSubtitleColour(int c) {
+        sp.edit().putInt("subtitleColour", c).apply();
+    }
+
     /** Player brightness chosen by the swipe (0..1), or -1 to follow the system brightness. */
     public float playerBrightness() {
         return sp.getFloat("playerBrightness", -1f);

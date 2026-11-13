@@ -31,6 +31,9 @@ final class TvDrawerController {
         void switchSource(String sourceId);
 
         void openSettings();
+
+        /** Movy's own Watch History screen. */
+        void openHistory();
     }
 
     private static final String TAG = "MovyDrawer";
@@ -45,6 +48,7 @@ final class TvDrawerController {
     private final TvDrawerView view;
     private final DrawerNav nav = new DrawerNav();
     private final String settingsLabel;
+    private final String historyLabel;
     private List<DrawerModel.Item> items = Collections.emptyList();
     private List<Source> sources = Collections.emptyList();
     private String pagePath = "/";
@@ -66,6 +70,7 @@ final class TvDrawerController {
         this.host = host;
         this.debug = debug;
         this.settingsLabel = activity.getString(R.string.movy_settings);
+        this.historyLabel = activity.getString(R.string.movy_history);
         view = new TvDrawerView(activity);
         view.setVisibility(View.GONE);
         int screenW = activity.getResources().getDisplayMetrics().widthPixels;
@@ -211,6 +216,11 @@ final class TvDrawerController {
             host.openSettings();
             return;
         }
+        if (DrawerModel.NATIVE_HISTORY_ID.equals(id)) {
+            close(true);
+            host.openHistory();
+            return;
+        }
         close(false);
         if (SAFE_ID.matcher(id).matches()) host.eval("window.__movyTv&&window.__movyTv.drawerAction&&window.__movyTv.drawerAction('" + id + "')");
     }
@@ -284,7 +294,7 @@ final class TvDrawerController {
         Source a = repo.active();
         sources = cfg.enabledSources();
         String profile = a == null ? "{}" : cfg.tvProfileFor(a.id);
-        items = DrawerModel.build(profile, settingsLabel);
+        items = DrawerModel.build(profile, settingsLabel, historyLabel);
         nav.setCounts(items.size(), sources.size());
         int cur = DrawerModel.currentIndex(items, pagePath);
         view.setContent(items, sources, currentSource(), DrawerModel.accentOf(profile, a == null ? 0xFFE50914 : a.accent),

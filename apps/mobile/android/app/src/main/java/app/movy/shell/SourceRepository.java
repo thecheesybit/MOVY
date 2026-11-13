@@ -126,6 +126,21 @@ public final class SourceRepository {
         if (s != null && s.enabled) activate(s, s.url);
     }
 
+    /** Opens a site path ("/movie/1") of a source: Watch History and the movy://open link. False when refused. */
+    public boolean openPath(String id, String path) {
+        String url = urlFor(id, path);
+        if (url == null) return false;
+        activate(config.find(id), url);
+        return true;
+    }
+
+    /** The source's origin plus a site path, or null for an unknown/disabled source or a path that is not on the site. */
+    public String urlFor(String id, String path) {
+        Source s = config.find(id);
+        String origin = s == null || !s.enabled ? null : WatchHistory.originOf(s.url);
+        return origin == null || !WatchHistory.isSitePath(path) ? null : origin + path;
+    }
+
     private void activate(Source s, String url) {
         activeId = s.id;
         prefs.setLastSourceId(s.id);

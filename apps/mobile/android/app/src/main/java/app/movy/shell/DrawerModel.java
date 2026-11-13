@@ -15,6 +15,8 @@ import java.util.List;
  */
 final class DrawerModel {
     static final String SETTINGS_ID = "settings";
+    /** Movy's own Watch History screen: added for a source whose profile has no "history" item. */
+    static final String NATIVE_HISTORY_ID = "movy-history";
 
     /** One row. */
     static final class Item {
@@ -59,6 +61,11 @@ final class DrawerModel {
      * Items the profile names "settings" are dropped: Settings is always the native sheet.
      */
     static List<Item> build(String profileJson, String settingsLabel) {
+        return build(profileJson, settingsLabel, null);
+    }
+
+    /** As above, plus the native Watch History item (label {@code historyLabel}) when the site's profile lists none. */
+    static List<Item> build(String profileJson, String settingsLabel, String historyLabel) {
         List<Item> out = new ArrayList<>();
         JSONArray items = itemsOf(profileJson);
         for (int i = 0; items != null && i < items.length(); i++) {
@@ -70,6 +77,9 @@ final class DrawerModel {
             String path = o.has("path") ? o.optString("path", null) : null;
             out.add(new Item(id, label, o.optString("icon", "play"), path, rankOf(id)));
         }
+        boolean siteHistory = false;
+        for (Item it : out) siteHistory |= it.rank == RANK_HISTORY;
+        if (historyLabel != null && !siteHistory) out.add(new Item(NATIVE_HISTORY_ID, historyLabel, "history", null, RANK_HISTORY));
         out.add(new Item(SETTINGS_ID, settingsLabel, "settings", null, RANK_SETTINGS));
         Collections.sort(out, new Comparator<Item>() {
             @Override public int compare(Item a, Item b) {
