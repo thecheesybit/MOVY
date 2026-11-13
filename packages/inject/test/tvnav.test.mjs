@@ -237,6 +237,27 @@ test('menuStep: a single list (no columns) is a plain up/down list', () => {
   assert.equal(menuPure.menuStep(g, 'r2', 'right'), null);
 });
 
+test('menuStep: a single list with side-by-side tiles follows the screen layout (2x2 tiles, then full-width rows)', () => {
+  const g = menuPure.menuGroups([
+    I('quality', 0, 50, 480, 900, 120), I('server', 0, 970, 480, 900, 120),
+    I('subs', 0, 50, 620, 900, 120), // the audio tile is disabled, so it is not in the list
+    I('sleep', 0, 50, 780, 1850, 70), I('party', 0, 50, 860, 1850, 70)
+  ]);
+  assert.equal(menuPure.menuStep(g, 'quality', 'right').id, 'server');
+  assert.equal(menuPure.menuStep(g, 'server', 'left').id, 'quality');
+  assert.equal(menuPure.menuStep(g, 'quality', 'left'), null, 'left edge: stay');
+  assert.equal(menuPure.menuStep(g, 'server', 'right'), null, 'right edge: stay');
+  assert.equal(menuPure.menuStep(g, 'quality', 'down').id, 'subs', 'straight down, not the next in DOM order');
+  assert.equal(menuPure.menuStep(g, 'server', 'down').id, 'subs', 'the next row has one tile: take it');
+  assert.equal(menuPure.menuStep(g, 'subs', 'down').id, 'sleep');
+  assert.equal(menuPure.menuStep(g, 'sleep', 'down').id, 'party');
+  assert.equal(menuPure.menuStep(g, 'party', 'down'), null);
+  assert.equal(menuPure.menuStep(g, 'sleep', 'up').id, 'subs');
+  assert.equal(menuPure.menuStep(g, 'subs', 'up').id, 'quality');
+  assert.equal(menuPure.menuStep(g, 'quality', 'up'), null);
+  assert.equal(menuPure.menuStep(g, 'sleep', 'right'), null, 'a full-width row has no neighbour');
+});
+
 test('menuIsDrill / menuIsUnusable: language groups and settings rows open something, uploads are never focused', () => {
   const { menuIsDrill, menuIsUnusable } = menuPure;
   assert.equal(menuIsDrill('English 73', false), true);

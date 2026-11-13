@@ -276,6 +276,30 @@
   }
 
   /**
+   * A menu without columns is one list laid out on screen: rows of one item (a plain list) or of several (a tile grid).
+   * LEFT/RIGHT step along the row, UP/DOWN go to the nearest row and its item closest in x. null = the menu edge.
+   */
+  function gridStep(list, cur, dir) {
+    var ROW = 10, cy = itemCy(cur), cx = itemCx(cur), horizontal = dir === 'left' || dir === 'right';
+    var forward = dir === 'down' || dir === 'right', cands = [], i, it, dy, dx, nearest = Infinity;
+    for (i = 0; i < list.length; i++) {
+      it = list[i];
+      if (it === cur) continue;
+      dy = itemCy(it) - cy; dx = itemCx(it) - cx;
+      if (horizontal) { if (Math.abs(dy) >= ROW || (forward ? dx <= 0 : dx >= 0)) continue; cands.push({ it: it, d: Math.abs(dx) }); continue; }
+      if (forward ? dy <= ROW : dy >= -ROW) continue;
+      nearest = Math.min(nearest, Math.abs(dy));
+      cands.push({ it: it, dy: Math.abs(dy), d: Math.abs(dx) });
+    }
+    var best = null, bd = Infinity;
+    for (i = 0; i < cands.length; i++) {
+      if (!horizontal && cands[i].dy - nearest >= ROW) continue; // not on the nearest row
+      if (cands[i].d < bd) { best = cands[i].it; bd = cands[i].d; }
+    }
+    return best;
+  }
+
+  /**
    * The item to move to from `id`, or null to stay put (the menu edge). UP/DOWN walk a column in DOM order; DOWN past its
    * end enters the footer, UP from the footer returns to the nearest column. LEFT/RIGHT jump to the column on that side at
    * the closest height (inside a footer row they step along the row).
@@ -286,6 +310,7 @@
     var vertical = dir === 'up' || dir === 'down', step = dir === 'down' || dir === 'right' ? 1 : -1, j;
     if (at.kind === 'col') {
       cur = g.columns[at.c][at.i];
+      if (g.columns.length === 1 && !g.footer.length) return gridStep(g.columns[0], cur, dir); // one list: follow the screen layout
       if (vertical) {
         var next = g.columns[at.c][at.i + step];
         if (next) return next;

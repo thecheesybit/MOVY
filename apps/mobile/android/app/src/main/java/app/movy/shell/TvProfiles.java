@@ -22,7 +22,7 @@ public final class TvProfiles {
     private static final String[] EPISODES = {"list", "item", "next"};
     private static final String[] PLAYER_TEXT = {"frame", "video", "root", "fullscreenTarget", "menuConfirm", "closeButton"};
     private static final String[] PLAYER_LISTS = {"fullscreenButton", "controls", "overlayKill", "menu", "hide", "toggles",
-        "menuItems", "menuColumns", "menuSelected", "never", "subtitles", "seekBar", "docMarkers"};
+        "menuItems", "menuColumns", "menuDrill", "menuSelected", "never", "subtitles", "seekBar", "docMarkers"};
     private static final String[] CLOSE_MODES = {"escape", "toggle", "click"};
     private static final String[] INSET_PROPS = {"padding-left", "margin-left", "left"};
     private static final String[] DRAWER_ICONS = {"search", "home", "film", "tv", "sparkles", "bookmark", "settings", "user", "users",

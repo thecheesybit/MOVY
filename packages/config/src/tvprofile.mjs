@@ -71,6 +71,7 @@ const playerSchema = z
     seekBar: selectors.optional().describe('The progress / seek bar: told the pointer left after a wake, so no hover preview stays up.'),
     menuItems: selectors.optional().describe('Selectable rows inside an open menu (default: buttons and role=option items).'),
     menuColumns: selectors.optional().describe('Column containers of a menu: LEFT/RIGHT jump between them.'),
+    menuDrill: selectors.optional().describe('Menu rows that open a sub-page instead of choosing a value: the menu stays open after OK.'),
     menuClose: menuCloseSchema.optional().describe('How an open menu is closed.'),
     menuConfirm: selector.optional().describe('Apply button pressed after an item was chosen (menus that need it).'),
     never: selectors.optional().describe('Never focusable inside the player (text inputs, full-cover buttons, hidden legacy panels).'),

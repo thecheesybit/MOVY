@@ -69,7 +69,7 @@
   function collect(menu) {
     var r = raw();
     var sel = joined(r.menuItems) || DEFAULT_ITEMS;
-    var never = joined(r.never), selSel = joined(r.menuSelected), colSel = joined(r.menuColumns);
+    var never = joined(r.never), selSel = joined(r.menuSelected), colSel = joined(r.menuColumns), drillSel = joined(r.menuDrill);
     var cols = colSel ? menu.querySelectorAll(colSel) : [];
     var nodes = menu.querySelectorAll(sel), els = [], i, j;
     for (i = 0; i < nodes.length; i++) {
@@ -89,7 +89,8 @@
       var col = cols.length ? -1 : 0; // no columns in the profile: the whole menu is one list (so its selected row is found)
       for (j = 0; j < cols.length; j++) if (cols[j].contains(els[i])) { col = j; break; }
       out.push({ id: out.length, el: els[i], rect: toRect(els[i].getBoundingClientRect()), col: col,
-        selected: isSelected(els[i], selSel), drill: P.menuIsDrill(textOf(els[i]), els[i].hasAttribute('aria-expanded') || els[i].hasAttribute('aria-haspopup')) });
+        selected: isSelected(els[i], selSel),
+        drill: (!!drillSel && els[i].matches(drillSel)) || P.menuIsDrill(textOf(els[i]), els[i].hasAttribute('aria-expanded') || els[i].hasAttribute('aria-haspopup')) });
     }
     return out;
   }

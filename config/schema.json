@@ -547,6 +547,16 @@
                   "maxLength": 400
                 }
               },
+              "menuDrill": {
+                "description": "Menu rows that open a sub-page instead of choosing a value: the menu stays open after OK.",
+                "maxItems": 40,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 400
+                }
+              },
               "menuClose": {
                 "description": "How an open menu is closed.",
                 "type": "object",
@@ -1425,6 +1435,16 @@
                       },
                       "menuColumns": {
                         "description": "Column containers of a menu: LEFT/RIGHT jump between them.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "menuDrill": {
+                        "description": "Menu rows that open a sub-page instead of choosing a value: the menu stays open after OK.",
                         "maxItems": 40,
                         "type": "array",
                         "items": {
@@ -2362,6 +2382,16 @@
                           "maxLength": 400
                         }
                       },
+                      "menuDrill": {
+                        "description": "Menu rows that open a sub-page instead of choosing a value: the menu stays open after OK.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
                       "menuClose": {
                         "description": "How an open menu is closed.",
                         "type": "object",
@@ -3283,6 +3313,16 @@
                       },
                       "menuColumns": {
                         "description": "Column containers of a menu: LEFT/RIGHT jump between them.",
+                        "maxItems": 40,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        }
+                      },
+                      "menuDrill": {
+                        "description": "Menu rows that open a sub-page instead of choosing a value: the menu stays open after OK.",
                         "maxItems": 40,
                         "type": "array",
                         "items": {

@@ -127,7 +127,7 @@ public class TvProfilesTest {
 
     @Test public void playerMenuKeysAndRailInsetSurviveSanitising() throws Exception {
         String extra = ",\"tvProfiles\":{\"a\":{\"railInset\":[{\"selector\":\".wrap\",\"prop\":\"padding-left\"}],\"player\":{"
-                + "\"toggles\":[\".t\"],\"menuSelected\":[\".sel\"],\"seekBar\":[\".bar\"],\"menu\":[\".m\"],\"hide\":[\".h\"],\"menuItems\":[\"li\"],\"menuColumns\":[\".col\"],\"never\":[\"input\"],\"subtitles\":[\".cue\"],"
+                + "\"toggles\":[\".t\"],\"menuSelected\":[\".sel\"],\"seekBar\":[\".bar\"],\"menu\":[\".m\"],\"hide\":[\".h\"],\"menuItems\":[\"li\"],\"menuColumns\":[\".col\"],\"menuDrill\":[\".tile\"],\"never\":[\"input\"],\"subtitles\":[\".cue\"],"
                 + "\"menuConfirm\":\"#apply\",\"menuClose\":{\"mode\":\"click\",\"selector\":\"#cancel\"},\"bogus\":[\"x\"]}}}";
         JSONObject a = new JSONObject(LiveConfig.parseDefaults(defaults(extra), OBF).tvProfileFor("a"));
         JSONObject pl = a.getJSONObject("player");
@@ -137,6 +137,7 @@ public class TvProfilesTest {
         assertEquals(".bar", pl.getJSONArray("seekBar").getString(0));
         assertEquals(".m", pl.getJSONArray("menu").getString(0));
         assertEquals(".h", pl.getJSONArray("hide").getString(0));
+        assertEquals(".tile", pl.getJSONArray("menuDrill").getString(0));
         assertEquals("click", pl.getJSONObject("menuClose").getString("mode"));
         assertEquals("#cancel", pl.getJSONObject("menuClose").getString("selector"));
         assertFalse("unknown player keys are dropped", pl.has("bogus"));
