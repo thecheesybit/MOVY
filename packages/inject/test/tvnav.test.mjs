@@ -258,6 +258,19 @@ test('menuStep: a single list with side-by-side tiles follows the screen layout 
   assert.equal(menuPure.menuStep(g, 'sleep', 'right'), null, 'a full-width row has no neighbour');
 });
 
+test('rangeNext: LEFT/RIGHT move a slider about 5 % of its span, on the step grid, inside its bounds', () => {
+  const { rangeNext } = menuPure;
+  assert.equal(rangeNext(100, 0, 200, 1, 1), 110, '200 wide: 10 per press');
+  assert.equal(rangeNext(100, 0, 200, 1, -1), 90);
+  assert.equal(rangeNext(195, 0, 200, 1, 1), 200, 'clamped to max');
+  assert.equal(rangeNext(3, 0, 200, 1, -1), 0, 'clamped to min');
+  assert.equal(rangeNext(0, -10, 10, 0.5, 1), 1, 'a 20 span: one unit, a multiple of the 0.5 step');
+  assert.equal(rangeNext(0.5, 0, 1, 0.1, 1), 0.6, 'never smaller than one step; no float noise');
+  assert.equal(rangeNext(50, NaN, NaN, NaN, 1), 55, 'browser defaults 0..100 step 1');
+  assert.equal(rangeNext(NaN, 0, 100, 1, 1), 5, 'no value: starts from min');
+  assert.equal(rangeNext(7, 0, 100, 10, 1), 20, 'snaps onto the step grid');
+});
+
 test('menuIsDrill / menuIsUnusable: language groups and settings rows open something, uploads are never focused', () => {
   const { menuIsDrill, menuIsUnusable } = menuPure;
   assert.equal(menuIsDrill('English 73', false), true);

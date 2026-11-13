@@ -331,6 +331,21 @@
     return null;
   }
 
+  /**
+   * The value a range slider takes after one LEFT (sign -1) or RIGHT (+1) press: about 5 % of its span, in whole steps, kept on the
+   * step grid and inside [min, max]. Missing or odd attributes fall back to the browser defaults (0..100, step 1).
+   */
+  function rangeNext(value, min, max, step, sign) {
+    var lo = isFinite(min) ? +min : 0, hi = isFinite(max) ? +max : 100, st = isFinite(step) && +step > 0 ? +step : 1;
+    if (hi < lo) hi = lo;
+    var v = isFinite(value) ? +value : lo;
+    var jump = Math.max(st, Math.round((hi - lo) / 20 / st) * st);
+    var next = Math.min(hi, Math.max(lo, v + (sign < 0 ? -jump : jump)));
+    next = lo + Math.round((next - lo) / st) * st;
+    next = Math.min(hi, Math.max(lo, next));
+    return parseFloat(next.toFixed(6));
+  }
+
   /** Order of the ways to close a menu: the profile's own first, then the rest that are possible. */
   function menuCloseOrder(mode, available) {
     var all = ['escape', 'toggle', 'click'], out = [];
@@ -433,7 +448,7 @@
     pickVertical: pickVertical, pickHorizontal: pickHorizontal, nextColumn: nextColumn, rowScrollDelta: rowScrollDelta,
     pickEntry: pickEntry, insetContentStart: insetContentStart, insetNeed: insetNeed,
     menuIsDrill: menuIsDrill, menuIsUnusable: menuIsUnusable, menuGroups: menuGroups, menuInitial: menuInitial, menuStep: menuStep,
-    menuCloseOrder: menuCloseOrder,
+    menuCloseOrder: menuCloseOrder, rangeNext: rangeNext,
     cleanTitle: cleanTitle, isDetailPath: isDetailPath, addRecent: addRecent, recentShown: recentShown
   };
   if (typeof module === 'object' && module && module.exports) module.exports = api;

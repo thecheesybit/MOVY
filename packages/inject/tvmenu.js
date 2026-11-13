@@ -47,13 +47,28 @@
   /** The element can be seen and pressed: rendered, not faded out, not click-through, up to the menu container. */
   function shown(el, menu) {
     var r = el.getBoundingClientRect();
-    if (r.width < 8 || r.height < 8) return false;
+    if (r.width < 8 || (r.height < 8 && !isRange(el))) return false; // a slider's track is only a few px thick
     for (var p = el; p && p !== doc.documentElement; p = p.parentElement) {
       var cs = root.getComputedStyle(p);
       if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity) < 0.1) return false;
       if (p === menu) break;
     }
     return root.getComputedStyle(el).pointerEvents !== 'none';
+  }
+
+  function isRange(el) { return !!el && el.tagName === 'INPUT' && String(el.type).toLowerCase() === 'range'; }
+
+  /** LEFT/RIGHT on a slider: moves its value and tells the site the way a drag would (native setter first, for React-style pages). */
+  function adjustRange(el, sign) {
+    var cur = parseFloat(el.value);
+    var next = P.rangeNext(cur, parseFloat(el.min), parseFloat(el.max), parseFloat(el.step), sign);
+    if (next === cur) return;
+    try {
+      var set = Object.getOwnPropertyDescriptor(root.HTMLInputElement.prototype, 'value').set;
+      set.call(el, String(next));
+    } catch (e) { el.value = String(next); }
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    el.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
   function textOf(el) { return (el.innerText || el.getAttribute('aria-label') || el.value || '').trim(); }
@@ -74,8 +89,9 @@
     var nodes = menu.querySelectorAll(sel), els = [], i, j;
     for (i = 0; i < nodes.length; i++) {
       var el = nodes[i];
-      if (/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)) continue; // a text or file input never takes the remote's focus
+      if (/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) && !isRange(el)) continue; // a text or file input never takes the remote's focus
       if (never && (el.matches(never) || el.closest(never))) continue;
+      if (el.disabled || el.getAttribute('aria-disabled') === 'true') continue; // cannot take focus: would trap the cursor on it
       if (SKIP_LABEL.test(el.getAttribute('aria-label') || '')) continue;
       var text = textOf(el);
       if (P.menuIsUnusable(text) || !shown(el, menu)) continue;
@@ -88,9 +104,10 @@
       if (nested) continue; // an outer wrapper of a real item
       var col = cols.length ? -1 : 0; // no columns in the profile: the whole menu is one list (so its selected row is found)
       for (j = 0; j < cols.length; j++) if (cols[j].contains(els[i])) { col = j; break; }
+      var control = isRange(els[i]) || (!!drillSel && els[i].matches(drillSel)); // opens a page or changes a setting: the menu stays
       out.push({ id: out.length, el: els[i], rect: toRect(els[i].getBoundingClientRect()), col: col,
-        selected: isSelected(els[i], selSel),
-        drill: (!!drillSel && els[i].matches(drillSel)) || P.menuIsDrill(textOf(els[i]), els[i].hasAttribute('aria-expanded') || els[i].hasAttribute('aria-haspopup')) });
+        selected: !control && isSelected(els[i], selSel), // a setting is not a choice: focus starts at the top of a settings page
+        drill: control || P.menuIsDrill(textOf(els[i]), els[i].hasAttribute('aria-expanded') || els[i].hasAttribute('aria-haspopup')) });
     }
     return out;
   }
@@ -161,6 +178,7 @@
 
   function choose(item) {
     var confirmSel = raw().menuConfirm;
+    if (isRange(item.el)) return; // a slider is moved with LEFT/RIGHT; OK does nothing
     press(item.el);
     if (item.drill) return; // an accordion or a settings page: the menu stays, DOWN walks into what opened
     if (confirmSel && TV.okSel(confirmSel)) {
@@ -298,6 +316,7 @@
     if (!dir) return prevKey ? prevKey(e, dir, a) : false;
     stop(e);
     if (!cur) { focusInitial(m); return true; }
+    if ((dir === 'left' || dir === 'right') && isRange(cur.el)) { adjustRange(cur.el, dir === 'right' ? 1 : -1); return true; }
     var next = P.menuStep(P.menuGroups(items), cur.id, dir);
     if (next) TV.setCurrent(next.el, dir); // reveal() scrolls the inner list; the page itself never moves
     return true;
